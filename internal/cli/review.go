@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	"reasonix/internal/agent"
@@ -158,4 +159,17 @@ func buildReviewTask(diff string, extra string) string {
 		b.WriteString("\n```")
 	}
 	return b.String()
+}
+
+func runGit(ctx context.Context, cwd string, args ...string) (string, error) {
+	cmd := exec.CommandContext(ctx, "git", args...)
+	if cwd != "" {
+		cmd.Dir = cwd
+	}
+	cmd.Env = append(os.Environ(), "GIT_OPTIONAL_LOCKS=0")
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }

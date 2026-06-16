@@ -29,12 +29,10 @@ import (
 	"reasonix/internal/event"
 	"reasonix/internal/i18n"
 	"reasonix/internal/notify"
-	"reasonix/internal/provider"
 	"reasonix/internal/provider/openai"
 	"reasonix/internal/serve"
 	"time"
 
-	tea "charm.land/bubbletea/v2"
 	"golang.org/x/term"
 )
 
@@ -72,8 +70,6 @@ func Run(args []string, version string) int {
 	switch cmd {
 	case "run":
 		return runAgent(rest)
-	case "chat", "code": // "code" is the v0.x name for the interactive session
-		return chatREPL(rest)
 	case "serve":
 		return runServe(rest)
 	case "setup":
@@ -374,219 +370,6 @@ func runServe(args []string) int {
 	return 0
 }
 
-// chatREPL is an interactive session: a single persistent agent/session and a
-// prompt loop that keeps conversation context across turns. Exit with
-// 'exit'/'quit' or Ctrl-D.
-func chatREPL(args []string) int {
-	fs := flag.NewFlagSet("chat", flag.ContinueOnError)
-	model := fs.String("model", "", "provider name (default: config default_model)")
-	maxSteps := fs.Int("max-steps", 0, "max tool-call rounds (0 = use config/default)")
-	cont := fs.Bool("continue", false, "resume the most recent saved session")
-	fs.BoolVar(cont, "c", false, "shorthand for --continue")
-	resume := fs.Bool("resume", false, "list saved sessions and pick one to resume")
-	yolo := fs.Bool("dangerously-skip-permissions", false, "YOLO: auto-approve approval-gated tool calls this session; same runtime mode as Ctrl+Y")
-	fs.BoolVar(yolo, "yolo", false, "alias for --dangerously-skip-permissions")
-	dir := fs.String("dir", "", "change to this directory first (project root); config, sandbox and file tools resolve from here")
-	if err := fs.Parse(args); err != nil {
-		return 2
-	}
-	if rc := chdirTo(*dir); rc != 0 {
-		return rc
-	}
-	cfg, err := config.Load()
-	if err == nil {
-		configureCLIThemeWithStyle(cfg.UITheme(), cfg.UIThemeStyle())
-	}
-
-	// Decide whether we're starting fresh or resuming. --resume opens an
-	// interactive picker; --continue / -c jumps straight into the newest.
-	var resumePath string
-	switch {
-	case *resume:
-		path, rc := pickSessionToResume()
-		if rc != 0 {
-			return rc
-		}
-		resumePath = path
-	case *cont:
-		sessions, err := agent.ListSessions(resolveCLISessionDir())
-		if err != nil || len(sessions) == 0 {
-			fmt.Fprintln(os.Stderr, i18n.M.NoSessionToResume)
-			return 1
-		}
-		resumePath = sessions[0].Path
-	}
-
-	ctx := context.Background()
-
-	// Plumb the controller's typed event stream through a channel so each event
-	// can become a tea.Msg inside the TUI's update loop. Buffered generously:
-	// streaming bursts (tool results, long answers) shouldn't backpressure the
-	// agent goroutine.
-	eventCh := make(chan event.Event, 1024)
-
-	var sink event.Sink = &eventSink{ch: eventCh}
-	sink = withNotifications(sink, cfg)
-	ctrl, err := setup(ctx, *model, *maxSteps, false, sink)
-	if err != nil && errors.Is(err, boot.ErrUnknownModel) && isInteractive() && config.SourcePath() == "" {
-		// True first run whose default model can't resolve: guide setup, then retry.
-		// With a config present, fall through to the descriptive error — re-running
-		// the wizard would overwrite the user's config (#2856).
-		fmt.Fprintln(os.Stderr, i18n.M.ReconfigureOnUnknownModel)
-		if rc := interactiveSetup(defaultConfigTarget(), defaultEnvTarget()); rc != 0 {
-			return rc
-		}
-		ctrl, err = setup(ctx, *model, *maxSteps, false, sink)
-	}
-	if err != nil {
-		fmt.Fprintln(os.Stderr, i18n.M.ErrorPrefix, err)
-		return 1
-	}
-
-	// Decide where this conversation's auto-save lands. A resume reuses the
-	// file so closing/reopening keeps appending to the same history; a fresh
-	// session lands in a new file stamped with the model name.
-	if resumePath != "" {
-		if loaded, err := agent.LoadSession(resumePath); err != nil {
-			fmt.Fprintln(os.Stderr, i18n.M.ErrorPrefix, err)
-			return 1
-		} else {
-			ctrl.Resume(loaded, resumePath)
-		}
-	} else if ctrl.SessionDir() != "" {
-		ctrl.SetSessionPath(agent.NewSessionPath(ctrl.SessionDir(), ctrl.Label()))
-	}
-
-	// Surface a missing-key warning inside the TUI banner so the first message
-	// failing is at least pre-announced; the user can still enter chat.
-	missing := ""
-	if cfg, loadErr := config.Load(); loadErr == nil {
-		name := *model
-		if name == "" {
-			name = cfg.DefaultModel
-		}
-		if vErr := cfg.Validate(name); vErr != nil {
-			missing = vErr.Error()
-		}
-	}
-
-	// Initial terminal width — the TUI re-flows on every WindowSizeMsg so
-	// this is just a starting estimate before the first resize event lands.
-	termW := 80
-	if w, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil && w > 0 {
-		termW = w
-	}
-
-	// Route "ask" decisions to the TUI: the controller emits an ApprovalRequest
-	// event and blocks until the user answers via ctrl.Approve. Sub-agents (the
-	// task tool) keep their headless gate from setup — no UI to prompt through.
-	ctrl.EnableInteractiveApproval()
-	// YOLO: skip every tool approval request for the session (deny rules still
-	// apply; ask questions and plan approvals still wait for the user).
-	if *yolo {
-		ctrl.SetAutoApproveTools(true)
-	}
-
-	m := newChatTUI(ctrl, missing, eventCh, termW)
-	if cfg, err := config.Load(); err == nil {
-		m.outputStyle = cfg.Agent.OutputStyle    // shown as the active entry in /output-style
-		m.statuslineCmd = cfg.Statusline.Command // custom status-line command, "" = built-in row
-		m.showReasoning = cfg.UI.ShowReasoning   // /verbose persistence: start with config default
-		m.cfg = cfg
-	}
-
-	// /model support: a pure builder the TUI calls to rebuild on a different
-	// model (carrying the conversation). It must NOT touch the running model —
-	// runModelSubcommand performs the swap on the live copy. The same stable sink
-	// feeds the new controller, so events keep flowing to this TUI.
-	m.buildController = func(ref string, carry []provider.Message, resumePath string) (*control.Controller, error) {
-		c, err := setupQuiet(ctx, ref, *maxSteps, false, sink)
-		if err != nil {
-			return nil, err
-		}
-		// Keep the carried conversation in its existing file so the switch doesn't
-		// orphan a duplicate (#2807).
-		path := agent.ContinueSessionPath(resumePath, c.SessionDir(), c.Label())
-		if len(carry) > 0 {
-			c.Resume(&agent.Session{Messages: carry}, path)
-		} else if path != "" {
-			c.SetSessionPath(path)
-		}
-		c.EnableInteractiveApproval()
-		if *yolo {
-			c.SetAutoApproveTools(true)
-		}
-		return c, nil
-	}
-	if cfg, e := config.Load(); e == nil {
-		name := *model
-		if name == "" {
-			name = cfg.DefaultModel
-		}
-		if entry, ok := cfg.ResolveModel(name); ok {
-			m.modelRef = entry.Name + "/" + entry.Model
-		}
-	}
-	m.refreshEffortStatus()
-
-	if m.nativeScrollback {
-		prepareNativeScrollback(os.Stdout, m.bottomRows())
-	}
-
-	// Non-Termux terminals use an alt-screen transcript viewport. Termux stays
-	// in the normal buffer so native touch scrollback and soft-keyboard focus
-	// keep working; finalized transcript lines are emitted via tea.Println.
-	p := tea.NewProgram(m)
-	// SSH drop (SIGHUP) or service stop (SIGTERM): persist the conversation
-	// before the terminal goes away, then unwind through the normal close path
-	// so resume picks up the interrupted session (#3772).
-	hangup := make(chan os.Signal, 1)
-	signal.Notify(hangup, syscall.SIGHUP, syscall.SIGTERM)
-	go func() {
-		for range hangup {
-			_ = ctrl.Snapshot()
-			p.Quit()
-		}
-	}()
-	final, runErr := p.Run()
-	signal.Stop(hangup)
-	// Close the active controller plus any retired ones from /model switches.
-	// Retired controllers were stashed rather than closed at switch time
-	// because Controller.Close() runs SessionEnd hooks and kills plugin
-	// subprocesses — operations that corrupt bubbletea's terminal raw mode
-	// when executed while the TUI is alive.
-	if fm, ok := final.(chatTUI); ok {
-		for _, oc := range fm.oldControllers {
-			oc.Close()
-		}
-		if fm.ctrl != nil {
-			fm.ctrl.Close()
-		} else {
-			ctrl.Close()
-		}
-	} else {
-		ctrl.Close()
-	}
-	if runErr != nil {
-		fmt.Fprintln(os.Stderr, i18n.M.ErrorPrefix, runErr)
-		return 1
-	}
-	return 0
-}
-
-func prepareNativeScrollback(w io.Writer, rows int) {
-	// Clear the terminal's scrollback history so a reopened chat starts
-	// with a clean slate (Termux stays in the normal buffer, so prior
-	// output would otherwise remain visible above the banner).
-	fmt.Fprint(w, "\x1B[3J\x1B[2J\x1B[H")
-	reserveNativeScrollbackFrame(w, rows)
-}
-
-func reserveNativeScrollbackFrame(w io.Writer, rows int) {
-	for i := 0; i < rows; i++ {
-		fmt.Fprintln(w)
-	}
-}
 
 // setupTargets is where the wizard writes: the TOML config and the secrets file.
 // Keys always go to the reasonix-owned global credentials file so they never land
@@ -1635,15 +1418,15 @@ func welcome(version string) int {
 			return rc
 		}
 		// Config just written; reload so .env (and any pinned language) is
-		// picked up. If the chosen provider's key is ready, drop into chat.
+		// picked up. If the chosen provider's key is ready, show usage hint.
 		if cfg, err := config.Load(); err == nil && cfg.Validate(cfg.DefaultModel) == nil {
 			if cfg.Language != "" {
 				i18n.DetectLanguage(cfg.Language)
 			}
-			fmt.Printf("\n"+i18n.M.StartingChatFmt+"\n\n", bold("reasonix chat"))
-			return chatREPL(nil)
+			fmt.Println("\nSetup complete. Use `reasonix run \"your task\"` to start.")
+		} else {
+			fmt.Println("\n" + i18n.M.SetKeyHint)
 		}
-		fmt.Println("\n" + i18n.M.SetKeyHint)
 		return 0
 	}
 
@@ -1658,7 +1441,8 @@ func welcome(version string) int {
 		if rc := promptMissingKeys(cfg); rc != 0 {
 			return rc
 		}
-		return chatREPL(nil)
+		fmt.Println("\nKeys configured. Use `reasonix run \"your task\"` to start.")
+		return 0
 	}
 
 	var b strings.Builder
@@ -1702,7 +1486,6 @@ func welcome(version string) int {
 	if ready == 0 {
 		step(i18n.M.StepSetKey, i18n.M.StepSetKeyHint)
 	}
-	step("reasonix chat", i18n.M.StepChatDesc)
 	step(`reasonix run "task"`, i18n.M.StepRunDesc)
 
 	fmt.Fprintf(&b, "\n  %s\n", dim(i18n.M.HelpFooter))
@@ -1753,7 +1536,12 @@ func configAutoPlanCommand(args []string) int {
 			return 1
 		}
 		mode := cfg.Agent.AutoPlan
-		mode = cliAutoPlanMode(mode)
+		switch strings.ToLower(strings.TrimSpace(mode)) {
+		case "on", "ask":
+			mode = "on"
+		default:
+			mode = "off"
+		}
 		fmt.Printf("auto_plan = %q\n", mode)
 		return 0
 	}
@@ -1874,4 +1662,28 @@ func configReasoningLanguageUsage() {
 	fmt.Print(`Usage:
   reasonix config reasoning-language [--local] [auto|zh|en]
 `)
+}
+
+func parseCLIReasoningLanguage(mode string) (string, error) {
+	switch strings.ToLower(strings.TrimSpace(mode)) {
+	case "auto":
+		return "auto", nil
+	case "zh":
+		return "zh", nil
+	case "en":
+		return "en", nil
+	default:
+		return "", fmt.Errorf("reasoning_language %q: must be auto|zh|en", mode)
+	}
+}
+
+func cliReasoningLanguageMode(mode string) string {
+	switch strings.ToLower(strings.TrimSpace(mode)) {
+	case "zh":
+		return "zh"
+	case "en":
+		return "en"
+	default:
+		return "auto"
+	}
 }

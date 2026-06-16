@@ -3,16 +3,11 @@ package cli
 import (
 	"fmt"
 	"image/color"
-	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 
-	"charm.land/bubbles/v2/textarea"
 	"charm.land/lipgloss/v2"
-
-	"reasonix/internal/config"
-	"reasonix/internal/i18n"
 )
 
 type cliColor struct {
@@ -114,7 +109,7 @@ func configureCLIThemeWithStyle(mode, style string) {
 		style = env
 	}
 	activeCLITheme = resolveCLIThemeWithStyle(mode, style)
-	refreshCLIStyles()
+
 }
 
 func resolveCLITheme(mode string) cliPalette {
@@ -213,7 +208,7 @@ func setCLIThemeMode(mode string) cliPalette {
 	withoutTerminalProbe(func() {
 		activeCLITheme = resolveCLIThemeWithStyle(mode, activeCLITheme.style)
 	})
-	refreshCLIStyles()
+
 	return activeCLITheme
 }
 
@@ -223,7 +218,7 @@ func setCLIThemeStyle(name string) (cliPalette, bool) {
 		return cliPalette{}, false
 	}
 	activeCLITheme = resolveCLIThemeWithStyle(st.mode, st.name)
-	refreshCLIStyles()
+
 	return activeCLITheme, true
 }
 
@@ -374,166 +369,3 @@ func withThemeBorderFG(st lipgloss.Style, c cliColor) lipgloss.Style {
 	return st.BorderForeground(themeLipColor(c))
 }
 
-func init() {
-	refreshCLIStyles()
-}
-
-func refreshCLIStyles() {
-	inputBoxStyle = withThemeBorderFG(lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), true, false, true, false), activeCLITheme.accent).
-		PaddingLeft(1)
-	approvalBannerStyle = withThemeFG(withThemeBorderFG(lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), true, false, true, false), activeCLITheme.warn), activeCLITheme.warn).
-		Bold(true).
-		PaddingLeft(1)
-	todoPanelStyle = withThemeBorderFG(lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), true, false, false, false), activeCLITheme.border).
-		PaddingLeft(1)
-	statusBlockStyle = themeStyle(activeCLITheme.faint)
-	workingStyle = themeStyle(activeCLITheme.faint)
-	compSelStyle = themeStyle(activeCLITheme.accent).Bold(true)
-	choicePanelStyle = withThemeBorderFG(lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), true, false, true, false), activeCLITheme.accent).
-		PaddingLeft(1)
-	scrollThumbStyle = themeStyle(activeCLITheme.accent)
-	scrollTrackStyle = themeStyle(activeCLITheme.faint)
-}
-
-func applyTextareaTheme(ti *textarea.Model) {
-	plain := lipgloss.NewStyle()
-	weak := themeStyle(activeCLITheme.faint)
-	if !colorEnabled {
-		weak = plain
-	}
-
-	styles := ti.Styles()
-	styles.Focused = textarea.StyleState{
-		Base:             plain,
-		Text:             plain,
-		CursorLine:       plain,
-		CursorLineNumber: weak,
-		EndOfBuffer:      weak,
-		LineNumber:       weak,
-		Placeholder:      weak,
-		Prompt:           weak,
-	}
-	styles.Blurred = textarea.StyleState{
-		Base:             plain,
-		Text:             plain,
-		CursorLine:       plain,
-		CursorLineNumber: weak,
-		EndOfBuffer:      weak,
-		LineNumber:       weak,
-		Placeholder:      weak,
-		Prompt:           weak,
-	}
-	if colorEnabled {
-		styles.Cursor.Color = themeLipColor(activeCLITheme.accent)
-	} else {
-		styles.Cursor.Color = nil
-	}
-	ti.SetStyles(styles)
-}
-
-func (m *chatTUI) runThemeSubcommand(input string) {
-	args := tokenizeArgs(input)
-	if len(args) < 2 {
-		m.notice(i18n.M.ThemeHeader + "\n" + describeCLIThemes() + "\n" + i18n.M.ThemeHint)
-		return
-	}
-	name := strings.ToLower(args[1])
-	var theme cliPalette
-	switch name {
-	case "auto", "light", "dark":
-		theme = setCLIThemeMode(name)
-	default:
-		next, ok := setCLIThemeStyle(name)
-		if !ok {
-			m.notice(fmt.Sprintf(i18n.M.ThemeUnknownFmt, name) + "\n" + describeCLIThemes())
-			return
-		}
-		theme = next
-	}
-	m.refreshRuntimeTheme()
-	m.notice(fmt.Sprintf(i18n.M.ThemeChangedFmt, theme.name, theme.style))
-
-	// Persist to user config so the choice survives restart.
-	m.persistTheme(name)
-}
-
-func (m *chatTUI) persistTheme(inputName string) {
-	path := config.UserConfigPath()
-	if path == "" {
-		return
-	}
-	edit := config.LoadForEdit(path)
-	switch inputName {
-	case "auto", "light", "dark":
-		edit.UI.Theme = inputName
-		edit.UI.ThemeStyle = activeCLITheme.style
-	default:
-		edit.UI.Theme = activeCLITheme.name
-		edit.UI.ThemeStyle = inputName
-	}
-	if err := edit.SaveTo(path); err != nil {
-		slog.Warn("theme: failed to persist", "path", path, "err", err)
-	}
-}
-
-func (m *chatTUI) refreshRuntimeTheme() {
-	m.spinner.Style = themeStyle(activeCLITheme.accent)
-	applyTextareaTheme(&m.input)
-}
-
-func describeCLIThemes() string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "%s  auto · light · dark\n", dim("modes:"))
-	for _, st := range cliThemeStyles {
-		marker := "  "
-		if st.name == activeCLITheme.style {
-			marker = accent("› ")
-		}
-		fmt.Fprintf(&b, "%s%-10s %s  %s\n", marker, st.name, dim(st.mode), dim(st.description))
-	}
-	return strings.TrimRight(b.String(), "\n")
-}
-
-func (m *chatTUI) themeArgItems(val string) ([]compItem, int, bool) {
-	cmdEnd := strings.IndexAny(val, " \t")
-	if cmdEnd < 0 || val[:cmdEnd] != "/theme" {
-		return nil, 0, false
-	}
-	from := strings.LastIndexAny(val, " \t") + 1
-	prior := strings.Fields(val[:from])
-	if len(prior) != 1 {
-		return nil, from, true
-	}
-	cur := strings.ToLower(val[from:])
-	items := []struct {
-		label string
-		mode  string
-		desc  string
-	}{
-		{label: "auto", mode: "mode", desc: "detect terminal background"},
-		{label: "light", mode: "mode", desc: "force light shell"},
-		{label: "dark", mode: "mode", desc: "force dark shell"},
-	}
-	var out []compItem
-	for _, it := range items {
-		if cur != "" && !strings.HasPrefix(it.label, cur) {
-			continue
-		}
-		out = append(out, compItem{label: it.label, insert: it.label, hint: it.mode + " · " + it.desc})
-	}
-	for _, st := range cliThemeStyles {
-		if cur != "" && !strings.HasPrefix(st.name, cur) {
-			continue
-		}
-		hint := st.mode + " · " + st.description
-		if st.name == activeCLITheme.style {
-			hint = i18n.M.ArgThemeCurrent
-		}
-		out = append(out, compItem{label: st.name, insert: st.name, hint: hint})
-	}
-	return out, from, true
-}
