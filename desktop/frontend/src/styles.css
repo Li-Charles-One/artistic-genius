@@ -54,7 +54,6 @@
   --font-control: var(--text-md);
   --font-control-small: var(--text-sm);
   --font-status: var(--font-control-small);
-  --statusbar-dock-height: max(30px, calc(28px * var(--font-scale)));
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei",
     "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
@@ -1817,7 +1816,6 @@ a[href] {
   --workspace-resizer-width: 8px;
   --app-chrome-height: 0px;
   --topicbar-height: 56px;
-  --statusbar-height: 0px;
   --chrome-toggle-size: 42px;
   --chrome-left-safe-offset: 0px;
   --chrome-left-toggle-offset: max(var(--sidebar-width), var(--chrome-left-safe-offset));
@@ -1897,7 +1895,7 @@ a[href] {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 16px 12px calc(12px + var(--statusbar-height));
+  padding: 16px 12px 12px;
   background: var(--sidebar-bg);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -2301,7 +2299,7 @@ a[href] {
   --wails-draggable: no-drag;
   position: absolute;
   top: 0;
-  bottom: var(--statusbar-height);
+  bottom: 0;
   left: 0;
   width: 8px;
   padding: 0;
@@ -2373,7 +2371,7 @@ a[href] {
   z-index: var(--z-layout-resizer-active);
   width: auto;
   min-width: var(--workspace-resizer-width);
-  height: calc(100% - var(--statusbar-height));
+  height: 100%;
   padding: 0;
   border: 0;
   background: transparent;
@@ -5875,248 +5873,10 @@ a[href] {
   background: #fff;
 }
 
-.statusbar {
-  max-width: var(--maxw);
-  margin: 7px auto 0;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  font-family: var(--font-ui);
-  font-size: var(--font-status);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.35;
-  color: var(--fg-faint);
-  /* One line, always: without this a narrow window squeezes the flex items and
-     CJK text breaks one character per line. The metric chips keep their width
-     (flex-shrink: 0) and only the model label ellipsizes to absorb the squeeze. */
-  white-space: nowrap;
-  overflow: hidden;
-}
-.statusbar > * {
-  flex-shrink: 0;
-}
-.statusbar__group {
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
-  min-width: 0;
-  flex-shrink: 0;
-}
-.statusbar__group + .statusbar__group {
-  margin-left: 18px;
-  padding-left: 18px;
-  border-left: 1px solid color-mix(in srgb, var(--fg-faint) 18%, transparent);
-}
-.statusbar__group > * + * {
-  display: inline-flex;
-  align-items: center;
-}
-.statusbar__group > * + *::before {
-  content: "|";
-  margin: 0 9px;
-  color: color-mix(in srgb, var(--fg-faint) 50%, transparent);
-  font-family: var(--font-mono);
-  font-weight: 400;
-}
-.statusbar__group .tooltip-trigger {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-.statusbar__item,
-.statusbar__item .tooltip-trigger {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-.statusbar .modelsw {
-  flex-shrink: 1;
-  min-width: 0;
-}
-/* design-spec stat: a "label + bold value" pair separated by the bar's gap. */
-.stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-.stat b {
-  color: var(--fg-dim);
-  font-weight: 600;
-}
-.stat__label {
-  color: var(--fg-faint);
-}
-.stat__label--text {
-  flex: 0 0 auto;
-  font-weight: 500;
-}
-.stat__label--icon {
-  display: inline-flex;
-  width: 13px;
-  height: 13px;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 13px;
-}
-.stat__label--icon svg {
-  display: block;
-  stroke-width: 2.15;
-}
-.statusbar .stat b.stat__value--empty {
-  color: var(--fg-faint);
-  font-weight: 500;
-}
-.statusbar__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--ok);
-  flex-shrink: 0;
-}
-.statusbar__dot--busy {
-  background: var(--accent);
-  animation: pulse 1.2s ease-in-out infinite;
-}
 @keyframes pulse {
   50% {
     opacity: 0.35;
   }
-}
-.stat--model {
-  flex: 0 1 132px;
-  max-width: 132px;
-  min-width: 0;
-}
-.statusbar__model {
-  display: block;
-  color: var(--fg-dim);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-  font-family: var(--font-ui);
-}
-.statusbar__tooltip-stack {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: left;
-}
-.statusbar__workspace,
-.statusbar__branch {
-  max-width: 170px;
-}
-.statusbar__workspace b,
-.statusbar__branch b {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-.statusbar__workspace b {
-  color: var(--fg-dim);
-}
-.statusbar__branch b {
-  color: var(--accent-strong);
-}
-.statusbar__cache b {
-  color: var(--accent-strong);
-}
-.statusbar .statusbar__cache b.stat__value--empty {
-  color: var(--fg-faint);
-}
-.statusbar .statusbar__rate-value--good {
-  color: var(--ok);
-  font-weight: 700;
-}
-.statusbar .statusbar__rate-value--notice {
-  color: var(--warn);
-  font-weight: 700;
-}
-.statusbar .statusbar__rate-value--critical {
-  color: var(--danger);
-  font-weight: 700;
-}
-.statusbar__cost b,
-.statusbar__balance b {
-  color: var(--ok);
-}
-.statusbar__compact b.statusbar__compact-value--warn {
-  color: var(--warn);
-}
-.statusbar__compact b.statusbar__compact-value--critical {
-  color: var(--danger);
-}
-.statusbar__cost {
-  justify-content: flex-start;
-}
-.stat--jobs,
-.statusbar__jobswrap {
-  flex: 0 0 auto;
-  justify-content: center;
-}
-.statusbar__balance {
-  justify-content: flex-start;
-}
-.statusbar__jobswrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-.statusbar__jobs {
-  --wails-draggable: no-drag;
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  color: var(--fg-dim);
-}
-.statusbar__jobs:hover {
-  color: var(--fg);
-}
-/* Jobs popover: reuses .modelsw__menu's elevated box; only the rows differ. */
-.jobsmenu {
-  min-width: 220px;
-}
-.jobsmenu__head {
-  padding: 2px 9px 6px;
-  font-size: var(--text-xs);
-  color: var(--fg-faint);
-}
-.jobsmenu__item {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 4px 9px;
-  font-size: var(--font-control-small);
-}
-.jobsmenu__id {
-  color: var(--accent);
-  flex-shrink: 0;
-}
-.jobsmenu__label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--fg-dim);
-}
-.jobsmenu__status {
-  color: var(--fg-faint);
-  flex-shrink: 0;
-}
-.statusbar__plan {
-  color: var(--accent);
-  letter-spacing: 0.6px;
-}
-.statusbar__yolo {
-  color: var(--mode-yolo-fg);
-  letter-spacing: 0.6px;
 }
 /* model switcher (bottom-of-window popover) */
 .modelsw {
@@ -6156,9 +5916,6 @@ a[href] {
 }
 .modelsw__trigger:hover {
   color: var(--fg);
-}
-.statusbar .modelsw__trigger {
-  font-size: inherit;
 }
 .modelsw__menu {
   position: absolute;
@@ -6289,7 +6046,7 @@ a[href] {
   color: var(--accent);
 }
 
-/* effort switcher: same status-bar affordance as the model switcher */
+/* effort switcher: same compact affordance as the model switcher */
 .effortsw__trigger {
   --wails-draggable: no-drag;
   width: 100%;
@@ -11007,237 +10764,6 @@ a[href] {
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent);
-}
-
-.status-bar-items-editor {
-  display: grid;
-  gap: 8px;
-  width: 100%;
-  max-width: 520px;
-  margin-left: auto;
-}
-
-.status-bar-items-editor__summary {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  min-height: 32px;
-}
-
-.status-bar-items-editor__summary-text {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--fg-dim);
-  font-size: var(--font-control-small);
-  font-weight: 600;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.status-bar-items-editor__toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--bg-elev);
-  color: var(--fg-dim);
-}
-
-.status-bar-items-editor__toggle:hover:not(:disabled),
-.status-bar-items-editor__toggle:focus-visible:not(:disabled) {
-  outline: none;
-  border-color: color-mix(in srgb, var(--fg-faint) 34%, var(--border));
-  background: var(--bg-elev-2);
-  color: var(--fg);
-}
-
-.status-bar-items-editor__list {
-  display: grid;
-  gap: 6px;
-}
-
-.status-bar-item-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  padding: 5px 6px 5px 9px;
-  border: 1px solid var(--border-soft);
-  border-radius: 8px;
-  background: var(--bg-elev);
-  transition: background var(--dur-fast), border-color var(--dur-fast), box-shadow var(--dur-fast), opacity var(--dur-fast), transform var(--dur-fast);
-}
-
-.status-bar-item-row--hidden {
-  color: var(--fg-faint);
-  background: color-mix(in srgb, var(--bg-elev) 70%, transparent);
-}
-
-.status-bar-item-row--dragging {
-  opacity: 0.56;
-  transform: scale(0.992);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
-}
-
-.status-bar-item-row--drag-over {
-  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
-  background: color-mix(in srgb, var(--accent) 8%, var(--bg-elev));
-}
-
-.status-bar-item-row--drop-before::before,
-.status-bar-item-row--drop-after::after {
-  content: "";
-  position: absolute;
-  left: 28px;
-  right: 14px;
-  z-index: var(--z-local-raised);
-  height: 2px;
-  border-radius: 999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent), 0 3px 8px color-mix(in srgb, var(--accent) 24%, transparent);
-  pointer-events: none;
-}
-
-.status-bar-item-row--drop-before::before {
-  top: -5px;
-}
-
-.status-bar-item-row--drop-after::after {
-  bottom: -5px;
-}
-
-.status-bar-item-row__drag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 24px;
-  flex: 0 0 22px;
-  padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--fg-faint);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-
-.status-bar-item-row__drag:hover,
-.status-bar-item-row__drag:focus-visible {
-  outline: none;
-  background: var(--bg-elev-2);
-  color: var(--fg-dim);
-}
-
-.status-bar-item-row__drag:active {
-  cursor: grabbing;
-}
-
-.status-bar-item-row__drag:disabled {
-  cursor: not-allowed;
-  opacity: 0.42;
-}
-
-.status-bar-item-row > .tooltip-trigger {
-  display: inline-flex;
-  align-items: center;
-}
-
-.status-bar-item-row__toggle {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-width: 0;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.status-bar-item-row__toggle input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.status-bar-item-row__check {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: var(--bg);
-  color: var(--accent);
-}
-
-.status-bar-item-row__toggle:has(input:focus-visible) .status-bar-item-row__check {
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-.status-bar-item-row__toggle:has(input:disabled) {
-  cursor: not-allowed;
-}
-
-.status-bar-item-row__label {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--fg);
-  font-size: var(--font-control-small);
-  font-weight: 600;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.status-bar-item-row--hidden .status-bar-item-row__label {
-  color: var(--fg-faint);
-  font-weight: 550;
-}
-
-.status-bar-item-row__actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.status-bar-item-row__order {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 24px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--fg-dim);
-}
-
-.status-bar-item-row__order:hover:not(:disabled),
-.status-bar-item-row__order:focus-visible:not(:disabled) {
-  outline: none;
-  border-color: var(--border);
-  background: var(--bg-elev-2);
-  color: var(--fg);
-}
-
-.status-bar-item-row__order:disabled {
-  color: color-mix(in srgb, var(--fg-faint) 62%, transparent);
-  cursor: not-allowed;
 }
 
 .step-limit-control {
@@ -17912,7 +17438,6 @@ a[href] {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding-bottom: var(--statusbar-height);
   background: var(--workspace-files-bg);
   border-left: 0;
   overflow: hidden;
@@ -18651,7 +18176,6 @@ a[href] {
 .layout {
   --chat-min-width: 700px;
   --topicbar-height: 58px;
-  --statusbar-height: var(--statusbar-dock-height);
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--bg) 94%, var(--accent) 6%), var(--bg) 360px);
 }
@@ -18755,7 +18279,7 @@ a[href] {
 }
 
 .sidebar {
-  padding: 12px 10px calc(12px + var(--statusbar-height));
+  padding: 12px 10px 12px;
   background: var(--sidebar-bg);
   border-right-color: var(--border-soft);
 }
@@ -19099,21 +18623,6 @@ a[href] {
 .meta-chip,
 .composer-meta .modelsw__trigger {
   border-radius: 7px;
-}
-
-.statusbar {
-  max-width: var(--maxw);
-  margin-top: 6px;
-  gap: 10px;
-}
-
-.statusbar__dot {
-  background: var(--accent-3, var(--ok));
-}
-
-.statusbar__balance,
-.statusbar__cost {
-  color: var(--ok);
 }
 
 .workbench-dock {
@@ -19725,7 +19234,7 @@ a[href] {
 }
 
 :root[data-theme-style] .sidebar {
-  padding: 14px 12px calc(8px + var(--statusbar-height));
+  padding: 14px 12px 8px;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border-soft);
 }
@@ -19734,40 +19243,7 @@ a[href] {
   padding-bottom: 0;
 }
 
-@media (max-width: 1120px) {
-  .statusbar__workspace,
-  .statusbar__branch {
-    max-width: 120px;
-  }
-}
-
-@media (max-width: 940px) {
-  .statusbar__workspace,
-  .statusbar__branch {
-    max-width: 96px;
-  }
-}
-
 @media (max-width: 820px) {
-  .statusbar__group--account,
-  .statusbar__item[data-statusbar-item="cache_avg"],
-  .statusbar__item[data-statusbar-item="compact"],
-  .statusbar__item[data-statusbar-item="turn_cost"],
-  .statusbar__item[data-statusbar-item="cost"],
-  .statusbar__item[data-statusbar-item="balance"] {
-    display: none;
-  }
-
-  .statusbar__workspace,
-  .statusbar__branch {
-    max-width: none;
-  }
-
-  .statusbar__workspace b,
-  .statusbar__branch b {
-    display: none;
-  }
-
   :root[data-theme-style] .sidebar {
     position: absolute;
     top: 0;
@@ -19790,48 +19266,6 @@ a[href] {
     opacity: 0;
     pointer-events: none;
     transform: none;
-  }
-}
-
-@media (max-width: 520px) {
-  .statusbar__item[data-statusbar-item="workspace"],
-  .statusbar__item[data-statusbar-item="git_branch"] {
-    display: none;
-  }
-}
-
-@media (max-width: 1180px) {
-  .statusbar__group {
-    gap: 10px;
-  }
-
-  .statusbar__group + .statusbar__group {
-    margin-left: 14px;
-    padding-left: 14px;
-  }
-}
-
-@media (max-width: 1040px) {
-  .statusbar__item[data-statusbar-item="cache_avg"] {
-    display: none;
-  }
-}
-
-@media (max-width: 940px) {
-  .statusbar__item[data-statusbar-item="compact"] {
-    display: none;
-  }
-}
-
-@media (max-width: 760px) {
-  .statusbar__group--context,
-  .statusbar__group--jobs,
-  .statusbar__item[data-statusbar-item="session_tokens"],
-  .statusbar__item[data-statusbar-item="turn_tokens"],
-  .statusbar__item[data-statusbar-item="session_turns"],
-  .statusbar__item[data-statusbar-item="context"],
-  .statusbar__jobswrap {
-    display: none;
   }
 }
 
@@ -20837,85 +20271,6 @@ a[href] {
   }
 }
 
-:root[data-theme-style] .statusbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: var(--z-dock);
-  max-width: none;
-  width: auto;
-  height: var(--statusbar-dock-height);
-  min-height: var(--statusbar-dock-height);
-  margin: 0;
-  padding: 0 16px;
-  gap: 0;
-  border-top: 1px solid var(--border);
-  background: var(--panel);
-  box-sizing: border-box;
-  color: var(--fg-faint);
-  font-size: var(--font-status);
-  justify-content: flex-start;
-  transition: transform 0.25s ease;
-}
-
-:root[data-theme-style] .statusbar__group + .statusbar__group {
-  margin-left: 12px;
-  padding-left: 12px;
-}
-
-:root[data-theme-style] .statusbar__group > * + *::before {
-  margin: 0 8px;
-}
-
-:root[data-theme-style] .statusbar .stat--model {
-  flex-basis: auto;
-  max-width: min(150px, 22vw);
-}
-
-:root[data-theme-style] .statusbar .stat {
-  gap: 5px;
-}
-
-:root[data-theme-style] .statusbar__dot {
-  background: var(--ok);
-}
-
-:root[data-theme-style] .statusbar__dot--busy {
-  background: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-soft);
-}
-
-:root[data-theme-style] .statusbar__cache b,
-:root[data-theme-style] .statusbar__plan {
-  color: var(--accent);
-}
-
-:root[data-theme-style] .statusbar__cost b,
-:root[data-theme-style] .statusbar__balance b {
-  color: var(--ok);
-}
-
-:root[data-theme-style] .statusbar .stat b.stat__value--empty {
-  color: var(--fg-faint);
-}
-
-:root[data-theme-style] .statusbar__compact b.statusbar__compact-value--warn {
-  color: var(--warn);
-}
-
-:root[data-theme-style] .statusbar__compact b.statusbar__compact-value--critical {
-  color: var(--danger);
-}
-
-/* Status bar visibility toggle — slide-down transition */
-.layout--status-bar-hidden {
-  --statusbar-height: 0px !important;
-}
-.layout--status-bar-hidden .statusbar {
-  transform: translateY(100%);
-}
-
 :root[data-theme-style] .management-modal-backdrop,
 :root[data-theme-style] .settings-modal-backdrop {
   background: rgba(20, 22, 28, 0.26);
@@ -21871,12 +21226,12 @@ a[href] {
   --sidebar-workbench-fill-strong: color-mix(in srgb, var(--bg-elev) 88%, var(--sidebar-bg));
   --sidebar-workbench-active: color-mix(in srgb, var(--accent) 12%, var(--bg-elev));
   --sidebar-workbench-active-border: color-mix(in srgb, var(--accent) 28%, transparent);
-  padding: 16px 16px calc(10px + var(--statusbar-height));
+  padding: 16px 16px 10px;
 }
 
 .app--darwin .sidebar--workbench,
 .sidebar--workbench {
-  padding: 14px 12px calc(10px + var(--statusbar-height));
+  padding: 14px 12px 10px;
 }
 
 .sidebar--workbench .sidebar__head {

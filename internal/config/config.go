@@ -91,8 +91,6 @@ type DesktopConfig struct {
 	ThemeStyle     string   `toml:"theme_style"`      // graphite|aurora|slate|carbon|nocturne|amber and legacy aliases
 	CloseBehavior  string   `toml:"close_behavior"`   // quit|background; desktop window close behavior
 	DisplayMode    string   `toml:"display_mode"`     // standard|compact (legacy "minimal" maps to compact); transcript display mode
-	StatusBarStyle string   `toml:"status_bar_style"` // icon|text; desktop status bar metric labels
-	StatusBarItems []string `toml:"status_bar_items"` // ordered visible desktop status bar items
 	CheckUpdates   *bool    `toml:"check_updates"`    // startup update checks; nil keeps the default disabled
 	Telemetry      *bool    `toml:"telemetry"`        // anonymous launch ping (install id + version + OS); nil keeps the default enabled
 	Metrics        *bool    `toml:"metrics"`          // opt-in aggregate agent metrics (anonymous signal/bucket counts; no content); nil = disabled
@@ -236,77 +234,6 @@ func (c *Config) DesktopDisplayMode() string {
 	default:
 		return "standard"
 	}
-}
-
-// DesktopStatusBarStyle normalizes the desktop status bar metric label style.
-// Default is "text"; explicit "icon" preserves the user's compact choice.
-func (c *Config) DesktopStatusBarStyle() string {
-	switch strings.ToLower(strings.TrimSpace(c.Desktop.StatusBarStyle)) {
-	case "icon":
-		return "icon"
-	case "text":
-		return "text"
-	default:
-		return "text"
-	}
-}
-
-var defaultDesktopStatusBarItems = []string{
-	"model",
-	"cache",
-	"cache_avg",
-	"session_tokens",
-	"turn_tokens",
-	"turn_cost",
-	"session_turns",
-	"context",
-	"compact",
-	"cost",
-	"balance",
-}
-
-var knownDesktopStatusBarItems = map[string]bool{
-	"model":          true,
-	"cache":          true,
-	"cache_avg":      true,
-	"session_tokens": true,
-	"turn_tokens":    true,
-	"turn_cost":      true,
-	"session_turns":  true,
-	"context":        true,
-	"compact":        true,
-	"cost":           true,
-	"balance":        true,
-}
-
-// DefaultDesktopStatusBarItems returns the default ordered visible desktop
-// status bar items.
-func DefaultDesktopStatusBarItems() []string {
-	return append([]string(nil), defaultDesktopStatusBarItems...)
-}
-
-// DesktopStatusBarItems normalizes the ordered visible desktop status bar items.
-// An unset or empty list uses the default full set; explicit non-empty lists
-// preserve user order and omit hidden items.
-func (c *Config) DesktopStatusBarItems() []string {
-	return normalizeDesktopStatusBarItems(c.Desktop.StatusBarItems)
-}
-
-func normalizeDesktopStatusBarItems(items []string) []string {
-	out := make([]string, 0, len(items))
-	seen := map[string]bool{}
-	for _, raw := range items {
-		id := strings.TrimSpace(raw)
-		if !knownDesktopStatusBarItems[id] || seen[id] {
-			continue
-		}
-		out = append(out, id)
-		seen[id] = true
-	}
-	if len(out) == 0 {
-		return DefaultDesktopStatusBarItems()
-	}
-	return out
 }
 
 // DesktopCheckUpdates reports whether the desktop should check for updates on

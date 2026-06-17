@@ -38,7 +38,6 @@ import { ApprovalModal } from "./components/ApprovalModal";
 import { AskCard } from "./components/AskCard";
 import { UndoRewindBanner } from "./components/UndoRewindBanner";
 import { ClearContextCard } from "./components/ClearContextCard";
-import { StatusBar } from "./components/StatusBar";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { CommandPalette, type PaletteItem } from "./components/CommandPalette";
 import { SettingsPanel, type SettingsInitialFocus } from "./components/SettingsPanel";
@@ -88,8 +87,6 @@ import {
 } from "./lib/toolApprovalMode";
 import { loadLayoutSize, saveLayoutSize } from "./lib/layoutPreferences";
 import { hydrateDisplayMode } from "./lib/displayMode";
-import { getStatusBarVisible, onStatusBarVisibleChange } from "./lib/statusBarVisible";
-import { DEFAULT_STATUS_BAR_ITEMS, normalizeStatusBarItems, type StatusBarItemId } from "./lib/statusBarItems";
 import { blobToBase64, renderSessionImageBlob, renderSessionPdfBlob } from "./lib/sessionExport";
 import { sessionActivityTime } from "./lib/session";
 import {
@@ -930,9 +927,6 @@ export default function App() {
   const [composerInsertRequest, setComposerInsertRequest] = useState<ComposerInsertRequest | null>(null);
   const [transientOverlayDismissSignal, setTransientOverlayDismissSignal] = useState(0);
   const [desktopPlatform, setDesktopPlatform] = useState<DesktopPlatform>(detectBrowserPlatform);
-  const [statusBarStyle, setStatusBarStyle] = useState<"icon" | "text">("text");
-  const [statusBarItems, setStatusBarItems] = useState<StatusBarItemId[]>(() => [...DEFAULT_STATUS_BAR_ITEMS]);
-  const [statusBarVisible, setStatusBarVisible] = useState(() => getStatusBarVisible());
   const [renamingTopicId, setRenamingTopicId] = useState<string | null>(null);
   const [topicTitleDraft, setTopicTitleDraft] = useState("");
   const [topicExportOpen, setTopicExportOpen] = useState(false);
@@ -1046,15 +1040,13 @@ export default function App() {
   }, []);
 
   const applyDesktopPreferences = useCallback(
-    (settings: Pick<SettingsView, "desktopTheme" | "desktopThemeStyle" | "desktopLayoutStyle" | "desktopLanguage" | "checkUpdates" | "statusBarStyle" | "statusBarItems">) => {
+    (settings: Pick<SettingsView, "desktopTheme" | "desktopThemeStyle" | "desktopLayoutStyle" | "desktopLanguage" | "checkUpdates">) => {
       const nextTheme = normalizeThemePreference(settings.desktopTheme);
       const nextStyle = normalizeThemeStyleForTheme(settings.desktopThemeStyle, nextTheme);
       applyTheme(nextTheme, nextStyle, { persist: false });
       setDesktopLayoutStyle(normalizeDesktopLayoutStyle(settings.desktopLayoutStyle));
       setLocalePref(normalizeLangPref(settings.desktopLanguage));
       setStartupUpdateChecksEnabled(settings.checkUpdates !== false);
-      setStatusBarStyle(settings.statusBarStyle === "text" ? "text" : "icon");
-      setStatusBarItems(normalizeStatusBarItems(settings.statusBarItems));
     },
     [setLocalePref],
   );
@@ -1087,8 +1079,6 @@ export default function App() {
       cancelled = true;
     };
   }, [applyDesktopPreferences, t]);
-
-  useEffect(() => onStatusBarVisibleChange(setStatusBarVisible), []);
 
   useEffect(() => {
     if (sidebarImConnections.length === 0) {
@@ -2297,7 +2287,6 @@ export default function App() {
           workspacePanelGridOpen ? "layout--workspace-open" : "",
           workspacePanelOpen && workspacePanelMaximized ? "layout--workspace-maximized" : "",
           workspacePanelResizing ? "layout--resizing layout--workspace-resizing" : "",
-          !statusBarVisible ? "layout--status-bar-hidden" : "",
         ]
           .filter(Boolean)
           .join(" ")}
@@ -2752,27 +2741,6 @@ export default function App() {
               turnTokens={state.turnTokens}
               retry={state.retry}
               transientDismissSignal={transientOverlayDismissSignal}
-            />
-            <StatusBar
-              context={state.context}
-              usage={state.usage}
-              balance={state.balance}
-              jobs={state.jobs}
-              running={state.running}
-              collaborationMode={collaborationMode}
-              toolApprovalMode={toolApprovalMode}
-              sessionTurns={sessionTurns}
-              sessionTokens={state.sessionTokens}
-              turnTokens={state.turnTotalTokens}
-              turnCost={state.turnCost}
-              cost={state.sessionCost}
-              currency={state.sessionCurrency}
-              modelLabel={state.meta?.label}
-              labelStyle={statusBarStyle}
-              items={statusBarItems}
-              workspacePath={state.meta?.workspacePath || state.meta?.workspaceRoot || state.meta?.cwd}
-              workspaceName={state.meta?.workspaceName}
-              gitBranch={state.meta?.gitBranch}
             />
           </footer>
           )}

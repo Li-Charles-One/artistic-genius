@@ -80,14 +80,6 @@ eq(
 );
 eq(finalDeclaration(":root", "--sans"), "var(--font-ui)", "legacy sans alias stays synced with UI font");
 eq(finalDeclaration(':root[data-text-size="xxlarge"]', "--font-scale"), "1.32", "xxlarge has a real scale bump");
-ok(
-  (finalDeclaration(":root", "--statusbar-dock-height") ?? "").includes("var(--font-scale)"),
-  "status bar dock height scales with interface text size",
-);
-ok(
-  hasDeclaration(".layout", "--statusbar-height", "var(--statusbar-dock-height)"),
-  "layout reserves scaled status bar height",
-);
 eq(
   finalDeclaration(".app", "height"),
   "var(--app-viewport-height, 100%)",
@@ -103,21 +95,6 @@ ok(
   finalDeclaration(".transcript--empty > *", "margin-block") === undefined,
   "empty-state generic children do not receive auto margins",
 );
-eq(
-  finalDeclaration(":root[data-theme-style] .statusbar", "height"),
-  "var(--statusbar-dock-height)",
-  "fixed status bar height follows the scaled dock token",
-);
-eq(
-  finalDeclaration(":root[data-theme-style] .statusbar", "min-height"),
-  "var(--statusbar-dock-height)",
-  "status bar min-height follows the scaled dock token",
-);
-
-eq(finalDeclaration(".statusbar", "white-space"), "nowrap", "status bar keeps metrics on one row");
-eq(finalDeclaration(".statusbar", "overflow"), "hidden", "status bar clips instead of overflowing");
-clipsSingleLine(".statusbar__model");
-
 for (const selector of [
   ".sidebar-im__summary-label",
   ".sidebar-im__summary-status",

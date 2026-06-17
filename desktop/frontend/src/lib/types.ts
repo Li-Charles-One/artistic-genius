@@ -893,8 +893,6 @@ export interface SettingsView {
   desktopThemeStyle: string;
   closeBehavior: string; // "background" | "quit"
   displayMode: string;   // "standard" | "compact"
-  statusBarStyle: string; // "icon" | "text"
-  statusBarItems: string[]; // ordered visible status bar item ids
   checkUpdates: boolean; // check for new versions on startup
   telemetry: boolean; // anonymous launch ping (install id + version + OS)
   metrics: boolean; // opt-in aggregate agent metrics (anonymous signal/bucket counts)

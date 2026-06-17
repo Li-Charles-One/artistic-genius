@@ -9,7 +9,6 @@ import type * as GeneratedApp from "../../wailsjs/go/main/App";
 
 import { addBreadcrumb } from "./breadcrumbs";
 import { t } from "./i18n";
-import { DEFAULT_STATUS_BAR_ITEMS, normalizeStatusBarItems } from "./statusBarItems";
 import { modeWithAutoApproveTools, modeWithPlan, normalizeCollaborationMode, normalizeMode, normalizeTokenMode, normalizeToolApprovalMode } from "./types";
 
 import type {
@@ -252,8 +251,6 @@ export interface AppBindings {
   TestBotConnection(id: string, target?: string): Promise<BotConnectionDiagnostic>;
   SetCloseBehavior(mode: string): Promise<void>;
   SetDisplayMode(mode: string): Promise<void>;
-  SetStatusBarStyle(style: string): Promise<void>;
-  SetStatusBarItems(items: string[]): Promise<void>;
   SetDesktopLanguage(lang: string): Promise<void>;
   SetDesktopAppearance(theme: string, style: string): Promise<void>;
   SetDesktopLayoutStyle(style: string): Promise<void>;
@@ -436,7 +433,7 @@ function bridgeBreadcrumb(method: string): string {
     return `turn ${method}`;
   if (/^(SetModel|SetEffort|SetTokenMode|SetDefaultModel|SetPlannerModel|SetSubagentModel|SetSubagentEffort)/.test(method))
     return `model ${method}`;
-  if (/^(SetDesktop|SetCloseBehavior|SetDisplayMode|SetStatusBar|SetExpandThinking|SetAutoPlan|SetReasoningLanguage)/.test(method))
+    if (/^(SetDesktop|SetCloseBehavior|SetDisplayMode|SetExpandThinking|SetAutoPlan|SetReasoningLanguage)/.test(method))
     return `settings ${method}`;
   if (/^(SaveProvider|AddOfficialProviderAccess|RemoveProviderAccess|DeleteProvider|SetProviderKey|ClearProviderKey|FetchProviderModels|ConnectKey)/.test(method))
     return `provider ${method}`;
@@ -885,8 +882,6 @@ function makeMockApp(): AppBindings {
     desktopThemeStyle: "graphite",
     closeBehavior: "background",
     displayMode: "compact",
-    statusBarStyle: "text",
-    statusBarItems: [...DEFAULT_STATUS_BAR_ITEMS],
     checkUpdates: true,
     telemetry: true,
     metrics: false,
@@ -2540,12 +2535,6 @@ function makeMockApp(): AppBindings {
         },
         async SetDisplayMode(mode: string) {
           settings.displayMode = mode;
-        },
-        async SetStatusBarStyle(style: string) {
-          settings.statusBarStyle = style === "text" ? "text" : "icon";
-        },
-        async SetStatusBarItems(items: string[]) {
-          settings.statusBarItems = normalizeStatusBarItems(items);
         },
         async SetDesktopLanguage(lang: string) {
           settings.desktopLanguage = lang === "en" || lang === "zh" ? lang : "";
