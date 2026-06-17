@@ -55,7 +55,7 @@ export const zh: Record<DictKey, string> = {
   "sidebar.expand": "展开导航",
   "sidebar.expandBlocked": "关闭工作区面板后可展开导航",
   "sidebar.resize": "调整导航栏宽度",
-  "sidebar.im": "机器人",
+  "sidebar.im": "消息通道",
   "sidebar.imAdd": "添加 Bot",
   "sidebar.imEmpty": "连接 QQ / 飞书 / Lark / 微信",
   "sidebar.imOnlineCount": "{n} 个在线",

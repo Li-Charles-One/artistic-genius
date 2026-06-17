@@ -1019,7 +1019,7 @@ export const zhTW: Record<DictKey, string> = {
   "tabBar.commandSearch": "搜尋 · 命令 · 開啟檔案",
   "tabBar.commandSearchCompact": "搜尋",
   "sidebar.memorySkills": "記憶與技能",
-  "sidebar.im": "機器人",
+  "sidebar.im": "訊息通道",
   "sidebar.imAdd": "新增 Bot",
   "sidebar.imEmpty": "連線 QQ / 飛書 / Lark / 微信",
   "sidebar.imOnlineCount": "{n} 個線上",

@@ -54,7 +54,7 @@ export const en = {
   "sidebar.expand": "Expand navigation",
   "sidebar.expandBlocked": "Close the workspace panel before expanding navigation",
   "sidebar.resize": "Resize navigation",
-  "sidebar.im": "Bots",
+  "sidebar.im": "Channels",
   "sidebar.imAdd": "Add bot",
   "sidebar.imEmpty": "Connect QQ / Feishu / Lark / WeChat",
   "sidebar.imOnlineCount": "{n} online",

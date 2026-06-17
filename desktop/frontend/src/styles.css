@@ -4225,6 +4225,14 @@ a[href] {
   gap: 6px;
   margin-top: 10px;
   min-height: 28px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.msg--assistant:hover .turn-actions,
+.turn-actions:hover,
+.turn-actions:focus-within {
+  opacity: 1;
 }
 .turn-actions__group {
   position: relative;
@@ -16439,14 +16447,14 @@ a[href] {
   gap: 0;
   min-height: 28px;
   padding: 0 11px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-elev);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--fg-dim);
   font: inherit;
   font-size: 12.5px;
   line-height: 1;
-  transition: color 0.12s, border-color 0.12s, background 0.12s;
+  transition: color 0.12s;
 }
 
 .topicbar__action-btn--label {
@@ -16463,8 +16471,7 @@ a[href] {
 .topicbar__action-btn:focus-visible:not(:disabled),
 .topicbar__export--open .topicbar__action-btn {
   color: var(--fg);
-  border-color: var(--fg-faint);
-  background: var(--bg-elev-2);
+  background: transparent;
 }
 
 .topicbar__action-btn:disabled {
@@ -16539,7 +16546,7 @@ a[href] {
   height: 30px;
   padding: 0 8px;
   border: none;
-  border-radius: 7px;
+  border-radius: 0;
   background: transparent;
   color: var(--fg-faint);
   font: inherit;
@@ -16554,7 +16561,7 @@ a[href] {
 .topicbar__action-btn:focus-visible:not(:disabled),
 .topicbar__export--open .topicbar__action-btn {
   color: var(--fg);
-  background: var(--button-bg);
+  background: transparent;
   outline: none;
 }
 
@@ -17282,6 +17289,18 @@ a[href] {
   padding-right: 8px;
 }
 
+/* Chevron rotates 90° on expand; positioned absolutely within folder row. */
+.project-tree__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.project-tree__chevron--open {
+  transform: rotate(90deg);
+}
+
 .project-tree__folder-main {
   flex: 1 1 auto;
   min-width: 0;
@@ -17297,6 +17316,17 @@ a[href] {
   padding-right: 0;
   text-align: left;
   font-weight: 560;
+}
+
+.project-tree__folder-main .project-tree__chevron {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.project-tree__folder-main .project-tree__chevron--open {
+  transform: translateY(-50%) rotate(90deg);
 }
 
 .project-tree__folder--global,
@@ -17624,18 +17654,6 @@ a[href] {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-}
-
-/* Chevron rotates 90° on expand; single icon keeps the rotation smooth. */
-.project-tree__chevron {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.project-tree__chevron--open {
-  transform: rotate(90deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -18873,9 +18891,9 @@ a[href] {
   min-height: 28px;
   gap: 0;
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--bg-elev);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--fg-dim);
 }
 
@@ -20026,14 +20044,12 @@ a[href] {
 :root[data-theme-style] .topicbar__action-btn--utility {
   opacity: 1;
   transform: none;
-  border-color: var(--border);
-  background: var(--bg-elev);
-  box-shadow: var(--app-graphite-shadow);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
   transition:
     opacity var(--dur-fast) var(--ease-out),
-    color var(--dur-fast),
-    border-color var(--dur-fast),
-    background var(--dur-fast);
+    color var(--dur-fast);
 }
 
 :root[data-theme-style] .topicbar:hover .topicbar__action-btn--utility,

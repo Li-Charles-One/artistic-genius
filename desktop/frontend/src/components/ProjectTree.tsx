@@ -1383,6 +1383,9 @@ export function ProjectTree({
             }}
             aria-expanded={hasChildren ? isExpanded : undefined}
           >
+            <Folder size={12} />
+            <span className="project-tree__folder-color" aria-hidden="true" />
+            <span className="project-tree__folder-label">{projectLabel}</span>
             {hasChildren ? (
               <span className={`project-tree__chevron${isExpanded ? " project-tree__chevron--open" : ""}`}>
                 <ChevronRight size={12} />
@@ -1390,9 +1393,6 @@ export function ProjectTree({
             ) : (
               <span style={{ width: 12 }} />
             )}
-            <Folder size={12} />
-            <span className="project-tree__folder-color" aria-hidden="true" />
-            <span className="project-tree__folder-label">{projectLabel}</span>
           </button>
           {compactTopics && (
             <Tooltip label={t("projectTree.projectActions")} className="project-tree__folder-action-slot">
