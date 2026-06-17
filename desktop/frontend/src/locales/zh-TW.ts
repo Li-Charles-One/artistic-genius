@@ -249,7 +249,7 @@ export const zhTW: Record<DictKey, string> = {
   "welcome.ex3Desc": "定位核心檔案並解釋控制流。",
 
   // 輸入框
-  "composer.placeholder": "給 Reasonix 發訊息…  ( / 命令 · @ 檔案 )",
+  "composer.placeholder": "有什麼想問 Genius…  ( / 輸入命令 · @ 檔案 · ! 終端 )",
   "composer.planMode": "計畫模式",
   "composer.planModeOn": "計畫模式已開",
   "composer.planHint": "shift+tab",
@@ -1577,6 +1577,7 @@ export const zhTW: Record<DictKey, string> = {
   "context.healthManyFilesShort": "檔案較多",
   "context.healthLowCacheShort": "命中偏低",
   "context.sessionTokens": "會話 tokens",
+  "context.cacheAverage": "快取平均命中",
   "context.costBreakdown": "費用來源",
   "context.sourceExecutor": "主模型",
   "context.sourcePlanner": "規劃器",

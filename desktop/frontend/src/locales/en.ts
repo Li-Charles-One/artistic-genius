@@ -337,7 +337,7 @@ export const en = {
   "welcome.ex4Desc": "Diagnose, patch, and verify.",
 
   // composer
-  "composer.placeholder": "Message Reasonix…  ( / commands · @ files · ! shell )",
+  "composer.placeholder": "Ask Genius anything…  ( / commands · @ files · ! shell )",
   "composer.normalMode": "chat mode",
   "composer.normalModeDesc": "Answer or work directly.",
   "composer.planMode": "plan mode",
@@ -1517,6 +1517,7 @@ export const en = {
   "context.other": "Other",
   "context.total": "Total",
   "context.cacheHit": "Cache hit",
+  "context.cacheAverage": "Average cache hit",
   "context.sessionTokens": "Session tokens",
   "context.sessionCost": "Session cost",
   "context.costBreakdown": "Cost breakdown",

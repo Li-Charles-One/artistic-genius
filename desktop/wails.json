@@ -10,10 +10,10 @@
     "name": "esengine"
   },
   "info": {
-    "companyName": "Reasonix",
-    "productName": "Reasonix",
+    "companyName": "Artistic Genius",
+    "productName": "Artistic Genius",
     "productVersion": "0.0.0",
-    "copyright": "Copyright © 2026 Reasonix Contributors",
-    "comments": "Reasonix desktop — a Wails shell around the Go kernel."
+    "copyright": "Copyright © 2026 Artistic Genius Contributors",
+    "comments": "Artistic Genius desktop — a Wails shell around the Go kernel."
   }
 }

@@ -3,9 +3,9 @@ import logoSymbol from "../assets/logo-symbol.svg";
 import { useT } from "../lib/i18n";
 
 const SPLASH_FLAG = "reasonix.splash.shown";
-const MIN_VISIBLE_MS = 1400;
+const MIN_VISIBLE_MS = 2200;
 const FADE_OUT_MS = 420;
-const MAX_HOLD_MS = 6000;
+const MAX_HOLD_MS = 8000;
 
 export function shouldShowStartupSplash(): boolean {
   try {
@@ -71,7 +71,7 @@ export function StartupSplash({ hold, onDone }: { hold: boolean; onDone: () => v
         <div className="startup-splash__mark" aria-hidden="true">
           <img src={logoSymbol} alt="" draggable={false} />
         </div>
-        <div className="startup-splash__name">Reasonix</div>
+        <div className="startup-splash__name">Artistic Genius</div>
         <div className="startup-splash__sub">{t("app.splashSubtitle")}</div>
         <div className="startup-splash__dots" aria-hidden="true">
           <span />

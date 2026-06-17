@@ -2271,17 +2271,6 @@ export default function App() {
   const workspacePanelResizeMinWidth = workspacePanelAriaMinWidth(workspacePanelMinWidth, workspacePanelRenderWidth);
   const workspacePanelMaxWidth = rightDockDetailActive ? RIGHT_DOCK_MAX_WIDTH : RIGHT_DOCK_TREE_MAX_WIDTH;
   const topicbarTitle = sidebarImDetailConnection ? t("botDetail.title", { name: sidebarImDetailConnection.title }) : topicDisplayTitle(activeTab);
-  const topicbarWorkspaceLabel = sidebarImDetailConnection ? t("botDetail.subtitle") : activeTab ? tabWorkspaceTitle(activeTab) : "";
-  const topicbarWorkspacePath = activeTab?.scope === "project" ? activeTab.workspaceRoot || state.meta?.cwd : "";
-  const topicbarImSource = activeTab?.scope === "global" && activeTab.topicId ? imTopicSources[activeTab.topicId] : undefined;
-  const topicbarImSourceLabel = sidebarImDetailConnection
-    ? sidebarImDetailConnection.platformLabel
-    : topicbarImSource ? t("msg.fromIm", { source: topicbarImSource.label }) : "";
-  const topicbarImSourcePlatform = sidebarImDetailConnection?.platform ?? topicbarImSource?.platform;
-  const topicbarSubtitleVisible = Boolean(topicbarWorkspaceLabel || topicbarImSourceLabel);
-  const topicbarSubtitleTitle = sidebarImDetailConnection
-    ? [topicbarWorkspaceLabel, topicbarImSourceLabel, sidebarImScopeLabel(sidebarImDetailConnection, t)].filter(Boolean).join(" · ")
-    : [topicbarWorkspacePath || topicbarWorkspaceLabel, topicbarImSourceLabel].filter(Boolean).join(" · ");
   const topicTitleEditWidth = `${Math.min(Math.max(Array.from(topicTitleDraft || topicbarTitle).length + 4, 8), 36)}ch`;
   const sidebarImConnectedCount = sidebarImConnections.filter((connection) => connection.status === "connected").length;
   const sidebarImHasConnections = sidebarImConnections.length > 0;
@@ -2324,7 +2313,7 @@ export default function App() {
             <span className="sidebar__brand-mark" aria-hidden="true">
               <img src={logoSymbol} alt="" className="sidebar__brand-logo" draggable={false} />
             </span>
-            <span className="sidebar__brand-name">Reasonix</span>
+            <span className="sidebar__brand-name">Artistic Genius</span>
             <button
               className="sidebar__brand-search"
               type="button"
@@ -2548,16 +2537,6 @@ export default function App() {
                   </button>
                 )}
               </div>
-              {topicbarSubtitleVisible && (
-                <div className="topicbar__subtitle" title={topicbarSubtitleTitle}>
-                  {topicbarWorkspaceLabel && <span>{topicbarWorkspaceLabel}</span>}
-                  {topicbarImSourcePlatform && (
-                    <span className={`topicbar__source-chip topicbar__source-chip--${topicbarImSourcePlatform}`}>
-                      {topicbarImSourceLabel}
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
             <div className="topicbar__spacer" />
             <div className="topicbar__actions">
@@ -2871,7 +2850,10 @@ export default function App() {
                   tabId={activeTabId}
                   context={state.context}
                   usage={state.usage}
-                  sessionTokens={state.sessionTokens}
+                  balance={state.balance}
+                  sessionTurns={sessionTurns}
+                  turnTokens={state.turnTotalTokens}
+                  turnCost={state.turnCost}
                   sessionCost={state.sessionCost}
                   sessionCurrency={state.sessionCurrency}
                   sessionGen={state.sessionGen}

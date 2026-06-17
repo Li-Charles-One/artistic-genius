@@ -1,21 +1,48 @@
 // ContextPanel shows the active tab's context gauge, token usage, read files,
 // and workspace changes. All visible text is routed through the i18n dictionary.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { app } from "../lib/bridge";
 import { useI18n, type Translator } from "../lib/i18n";
 import { formatMoney, formatMoneyLocalized } from "../lib/money";
-import type { ContextInfo, ContextPanelInfo, UsageSourceStats, WireUsage } from "../lib/types";
+import type { BalanceInfo, ContextInfo, ContextPanelInfo, WireUsage } from "../lib/types";
 
 interface ContextPanelProps {
   tabId?: string;
   context?: ContextInfo;
   usage?: WireUsage;
-  sessionTokens?: number;
+  balance?: BalanceInfo;
+  sessionTurns?: number;
+  turnTokens?: number;
+  turnCost?: number;
   sessionCost?: number;
   sessionCurrency?: string;
   sessionGen?: number;
   refreshKey?: number;
+}
+
+type UsageSegment = { color: "prompt" | "completion" | "reasoning" | "other"; pct: number };
+
+interface ContextUsageCardProps {
+  averageCache: string;
+  breakdown: ContextBreakdown;
+  compactPct: string;
+  sessionCost: string;
+  sessionTurns: string;
+  t: Translator;
+  usagePct: number;
+  usageSegments: UsageSegment[];
+  usedTokens: number;
+  windowTokens: number;
+}
+
+interface OverviewMetricCardProps {
+  label: string;
+  value: string;
+  meta?: string;
+  tone?: "accent" | "good" | "notice" | "warn";
+  wide?: boolean;
+  children?: ReactNode;
 }
 
 function fmtTokens(n: number): string {
@@ -23,7 +50,34 @@ function fmtTokens(n: number): string {
   return String(n);
 }
 
+function fmtCount(n?: number): string {
+  return typeof n === "number" && n > 0 ? n.toLocaleString() : "-";
+}
 
+function fmtPercent(value?: number): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${Math.round(value)}%` : "-";
+}
+
+function fmtRate(hit: number, denom: number): string {
+  if (denom <= 0) return "-";
+  return `${((hit / denom) * 100).toFixed(2)}%`;
+}
+
+function currentCacheRate(usage?: WireUsage): string {
+  if (!usage) return "-";
+  const denom = usage.cacheHitTokens + usage.cacheMissTokens || usage.promptTokens;
+  return fmtRate(usage.cacheHitTokens, denom);
+}
+
+function averageCacheRate(usage?: WireUsage): string {
+  if (!usage) return "-";
+  return fmtRate(usage.sessionCacheHitTokens, usage.sessionCacheHitTokens + usage.sessionCacheMissTokens);
+}
+
+function fmtTurns(turns: number | undefined, t: Translator): string {
+  if (typeof turns !== "number" || turns < 0) return "-";
+  return t(turns === 1 ? "history.turnOne" : "history.turnOther", { n: turns });
+}
 
 function fmtDuration(ms: number, t: Translator): string {
   if (ms <= 0) return "-";
@@ -127,55 +181,7 @@ export function contextBreakdown(
 
 
 
-const SOURCE_ORDER = ["executor", "planner", "subagent", "compaction", "classifier", "title"];
-
-function sourceLabel(source: string, t: Translator): string {
-  switch (source) {
-    case "executor": return t("context.sourceExecutor");
-    case "planner": return t("context.sourcePlanner");
-    case "subagent": return t("context.sourceSubagent");
-    case "compaction": return t("context.sourceCompaction");
-    case "classifier": return t("context.sourceClassifier");
-    case "title": return t("context.sourceTitle");
-    default: return source;
-  }
-}
-
-function sourceCost(stats: UsageSourceStats): number {
-  return stats.sessionCost && stats.sessionCost > 0 ? stats.sessionCost : stats.sessionCostUsd ?? 0;
-}
-
-function sourceRows(info: ContextPanelInfo | null, sessionCurrency?: string): Array<{ source: string; label: string; cost: number; currency?: string; requests: number }> {
-  const entries = Object.entries(info?.sources ?? {});
-  if (entries.length === 0) return [];
-  return entries
-    .filter(([, stats]) => (stats.requestCount ?? 0) > 0 || sourceCost(stats) > 0)
-    .sort(([a], [b]) => {
-      const ia = SOURCE_ORDER.indexOf(a);
-      const ib = SOURCE_ORDER.indexOf(b);
-      if (ia >= 0 || ib >= 0) return (ia >= 0 ? ia : SOURCE_ORDER.length) - (ib >= 0 ? ib : SOURCE_ORDER.length);
-      return a.localeCompare(b);
-    })
-    .map(([source, stats]) => ({
-      source,
-      label: source,
-      cost: sourceCost(stats),
-      currency: stats.sessionCurrency || sessionCurrency || info?.sessionCurrency,
-      requests: stats.requestCount ?? 0,
-    }));
-}
-
-export function ContextPanel({
-  tabId,
-  context,
-  usage,
-  sessionTokens,
-  sessionCost,
-  sessionCurrency,
-  sessionGen,
-  refreshKey,
-}: ContextPanelProps) {
-  const { locale, t } = useI18n();
+function useContextPanelInfo(tabId: string | undefined, sessionGen: number | undefined, refreshKey: number | undefined): ContextPanelInfo | null {
   const [info, setInfo] = useState<ContextPanelInfo | null>(null);
   const refreshSeq = useRef(0);
 
@@ -205,6 +211,25 @@ export function ContextPanel({
     void refresh();
   }, [refresh, refreshKey]);
 
+  return info;
+}
+
+export function ContextPanel({
+  tabId,
+  context,
+  usage,
+  balance,
+  sessionTurns,
+  turnTokens,
+  turnCost,
+  sessionCost,
+  sessionCurrency,
+  sessionGen,
+  refreshKey,
+}: ContextPanelProps) {
+  const { locale, t } = useI18n();
+  const info = useContextPanelInfo(tabId, sessionGen, refreshKey);
+
   const hasPanelUsage = Boolean(
     (info?.requestCount ?? 0) > 0 ||
     (info?.promptTokens ?? 0) > 0 ||
@@ -218,101 +243,45 @@ export function ContextPanel({
   const windowTokens = context?.window && context.window > 0 ? context.window : info?.windowTokens ?? 0;
   const promptTokens = hasPanelUsage ? info?.promptTokens ?? 0 : usage?.promptTokens ?? 0;
   const completionTokens = hasPanelUsage ? info?.completionTokens ?? 0 : usage?.completionTokens ?? 0;
-  const totalTokens = info?.totalTokens && info.totalTokens > 0
-    ? info.totalTokens
-    : sessionTokens && sessionTokens > 0
-      ? sessionTokens
-      : usage?.totalTokens && usage.totalTokens > 0
-        ? usage.totalTokens
-        : promptTokens + completionTokens;
   const reasoningTokens = hasPanelUsage ? info?.reasoningTokens ?? 0 : usage?.reasoningTokens ?? 0;
-  const cacheHitTokens = hasPanelUsage ? info?.cacheHitTokens ?? 0 : usage?.cacheHitTokens ?? 0;
-  const cacheMissTokens = hasPanelUsage ? info?.cacheMissTokens ?? 0 : usage?.cacheMissTokens ?? 0;
   const cost = contextCostDisplay({ info, sessionCost, sessionCurrency, usage });
-  const costSources = sourceRows(info, sessionCurrency);
-  const showCostSources = costSources.some((row) => row.source !== "executor") || costSources.length > 1;
 
   const usagePct = windowTokens > 0 ? Math.min(100, Math.round((usedTokens / windowTokens) * 100)) : 0;
-  const cachePctDisplay = formatCacheHitRate(cacheHitTokens, cacheMissTokens);
+  const currentCachePctDisplay = currentCacheRate(usage);
+  const averageCachePctDisplay = averageCacheRate(usage);
   const breakdown = contextBreakdown(usedTokens, windowTokens, promptTokens, completionTokens, reasoningTokens);
-  const usageSegments = [
-    { color: "prompt", pct: breakdown.promptPct },
-    { color: "completion", pct: Math.max(0, breakdown.completionPct - breakdown.promptPct) },
-    { color: "reasoning", pct: Math.max(0, breakdown.reasoningPct - breakdown.completionPct) },
-    { color: "other", pct: Math.max(0, breakdown.otherPct - breakdown.reasoningPct) },
+  const usageSegments: UsageSegment[] = [
+    { color: "prompt" as const, pct: breakdown.promptPct },
+    { color: "completion" as const, pct: Math.max(0, breakdown.completionPct - breakdown.promptPct) },
+    { color: "reasoning" as const, pct: Math.max(0, breakdown.reasoningPct - breakdown.completionPct) },
+    { color: "other" as const, pct: Math.max(0, breakdown.otherPct - breakdown.reasoningPct) },
   ].filter((segment) => segment.pct > 0);
   const elapsed = info?.elapsedMs && info.elapsedMs > 0 ? info.elapsedMs : 0;
   const requestCount = info?.requestCount && info.requestCount > 0 ? info.requestCount : 0;
-
-
+  const compactPctDisplay = fmtPercent(context?.compactRatio ? context.compactRatio * 100 : undefined);
+  const balanceDisplay = balance?.available && balance.display ? balance.display : "-";
   return (
     <div className="context-panel">
       <div className="context-panel__body">
-        <section className="context-panel__overview">
-          <section className="context-panel__usage">
-            <SectionHeading title={t("context.windowTitle")} meta={t("context.windowSubtitle")} />
-            <div className="context-panel__usage-visual">
-              <div className="context-panel__usage-summary">
-                <strong>{fmtTokens(usedTokens)}</strong>
-                <span>/ {fmtTokens(windowTokens)} tokens</span>
-                <em>{usagePct}%</em>
-              </div>
-              <div
-                className="context-panel__usage-bar"
-                role="meter"
-                aria-label={t("context.windowTitle")}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={usagePct}
-              >
-                {usageSegments.map((segment) => (
-                  <span
-                    aria-hidden="true"
-                    className={`context-panel__usage-segment context-panel__usage-segment--${segment.color}`}
-                    key={segment.color}
-                    style={{ width: `${segment.pct}%` }}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="context-panel__breakdown">
-              <TokenLegend label={t("context.prompt")} value={breakdown.promptTokens} color="prompt" />
-              <TokenLegend label={t("context.completion")} value={breakdown.completionTokens} color="completion" />
-              <TokenLegend label={t("context.reasoning")} value={breakdown.reasoningTokens} color="reasoning" />
-              <TokenLegend label={t("context.other")} value={breakdown.otherTokens} color="other" />
-              <div className="context-panel__total">
-                <span>{t("context.total")}</span>
-                <strong>{usedTokens.toLocaleString()} / {windowTokens.toLocaleString()}</strong>
-              </div>
-            </div>
-          </section>
-          <section className="context-panel__section">
-            <SectionHeading title={t("context.runtimeMetrics")} />
-            <div className="context-panel__stats">
-              <MetricCard label={t("context.time")} value={fmtDuration(elapsed, t)} />
-              <MetricCard label={t("context.requests")} value={requestCount > 0 ? String(requestCount) : "-"} />
-              <MetricCard label={t("context.sessionTokens")} value={totalTokens > 0 ? totalTokens.toLocaleString() : "-"} wide />
-            </div>
-          </section>
-          <section className="context-panel__section">
-            <SectionHeading title={t("context.costMetrics")} />
-            <div className="context-panel__stats">
-              <MetricCard label={t("context.cacheHit")} value={cachePctDisplay} tone="accent" />
-              <MetricCard label={t("context.sessionCost")} value={formatMoney(cost.amount, cost.currency, "dash")} />
-            </div>
-            {showCostSources && (
-              <div className="context-panel__source-list" aria-label={t("context.costBreakdown")}>
-                {costSources.map((row) => (
-                  <div className="context-panel__source-row" key={row.source}>
-                    <span>{sourceLabel(row.label, t)}</span>
-                    <strong>{formatMoneyLocalized(row.cost, row.currency, { locale, empty: "dash" })}</strong>
-                    <em>{t("context.sourceRequests", { count: row.requests })}</em>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
+        <section className="context-panel__overview" aria-label={t("context.windowTitle")}>
+          <ContextUsageCard
+            averageCache={averageCachePctDisplay}
+            breakdown={breakdown}
+            compactPct={compactPctDisplay}
+            sessionCost={formatMoney(cost.amount, cost.currency, "dash")}
+            sessionTurns={fmtTurns(sessionTurns, t)}
+            t={t}
+            usagePct={usagePct}
+            usageSegments={usageSegments}
+            usedTokens={usedTokens}
+            windowTokens={windowTokens}
+          />
+          <OverviewMetricCard label={t("context.time")} value={fmtDuration(elapsed, t)} />
+          <OverviewMetricCard label={t("context.requests")} value={requestCount > 0 ? String(requestCount) : "-"} />
+          <OverviewMetricCard label={t("status.cacheLabel")} value={currentCachePctDisplay} tone="accent" />
+          <OverviewMetricCard label={t("status.turnTokensLabel")} value={fmtCount(turnTokens)} />
+          <OverviewMetricCard label={t("status.turnCostLabel")} value={formatMoneyLocalized(turnCost, sessionCurrency, { locale })} />
+          <OverviewMetricCard label={t("status.balanceLabel")} value={balanceDisplay} tone="good" />
         </section>
       </div>
 
@@ -320,16 +289,69 @@ export function ContextPanel({
   );
 }
 
-function SectionHeading({ title, meta }: { title: string; meta?: string }) {
+function ContextUsageCard({
+  averageCache,
+  breakdown,
+  compactPct,
+  sessionCost,
+  sessionTurns,
+  t,
+  usagePct,
+  usageSegments,
+  usedTokens,
+  windowTokens,
+}: ContextUsageCardProps) {
   return (
-    <header className="context-panel__section-head">
-      <h3>{title}</h3>
-      {meta && <span>{meta}</span>}
-    </header>
+    <OverviewMetricCard label={t("context.windowTitle")} value={`${fmtTokens(usedTokens)} / ${fmtTokens(windowTokens)}`} meta={`${usagePct}%`} wide>
+      <div className="context-panel__inline-grid">
+        <div className="context-panel__inline-row">
+          <span>{t("status.compactLabel")}</span>
+          <strong>{compactPct}</strong>
+        </div>
+        <div className="context-panel__inline-row">
+          <span>{t("context.cacheAverage")}</span>
+          <strong>{averageCache}</strong>
+        </div>
+        <div className="context-panel__inline-row">
+          <span>{t("context.sessionCost")}</span>
+          <strong>{sessionCost}</strong>
+        </div>
+        <div className="context-panel__inline-row">
+          <span>{t("status.sessionTurnsLabel")}</span>
+          <strong>{sessionTurns}</strong>
+        </div>
+      </div>
+      <div className="context-panel__detail-title">{t("context.windowSubtitle")}</div>
+      <div
+        className="context-panel__usage-bar"
+        role="meter"
+        aria-label={t("context.windowTitle")}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={usagePct}
+      >
+        {usageSegments.map((segment) => (
+          <span
+            aria-hidden="true"
+            className={`context-panel__usage-segment context-panel__usage-segment--${segment.color}`}
+            key={segment.color}
+            style={{ width: `${segment.pct}%` }}
+          />
+        ))}
+      </div>
+      <div className="context-panel__breakdown">
+        <TokenLegend label={t("context.prompt")} value={breakdown.promptTokens} color="prompt" />
+        <TokenLegend label={t("context.completion")} value={breakdown.completionTokens} color="completion" />
+        <TokenLegend label={t("context.reasoning")} value={breakdown.reasoningTokens} color="reasoning" />
+        <TokenLegend label={t("context.other")} value={breakdown.otherTokens} color="other" />
+        <div className="context-panel__total">
+          <span>{t("context.total")}</span>
+          <strong>{usedTokens.toLocaleString()} / {windowTokens.toLocaleString()}</strong>
+        </div>
+      </div>
+    </OverviewMetricCard>
   );
 }
-
-
 
 function TokenLegend({ label, value, color }: { label: string; value: number; color: string }) {
   return (
@@ -341,13 +363,15 @@ function TokenLegend({ label, value, color }: { label: string; value: number; co
   );
 }
 
-function MetricCard({ label, value, tone, wide }: { label: string; value: string; tone?: "accent" | "good" | "notice" | "warn"; wide?: boolean }) {
+function OverviewMetricCard({ label, value, meta, tone, wide, children }: OverviewMetricCardProps) {
   const toneClass = tone ? ` context-panel__metric--${tone}` : "";
   const wideClass = wide ? " context-panel__metric--wide" : "";
   return (
     <div className={`context-panel__metric${toneClass}${wideClass}`}>
       <span>{label}</span>
       <strong>{value}</strong>
+      {meta && <em>{meta}</em>}
+      {children}
     </div>
   );
 }

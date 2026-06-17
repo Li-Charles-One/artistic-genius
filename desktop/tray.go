@@ -28,8 +28,8 @@ func (a *App) startTray() {
 
 	t.end = startDesktopTray(func() {
 		systray.SetIcon(trayIconBytes)
-		systray.SetTitle("Reasonix")
-		systray.SetTooltip("Reasonix")
+		systray.SetTitle("Artistic Genius")
+		systray.SetTooltip("Artistic Genius")
 		// Run off the systray Win32 message loop: SetOnTapped fires inside wndProc,
 		// so a blocking showFromTray (a wedged webview after sleep freezes
 		// runtime.WindowShow) would stall the whole tray's message pump (#3834). The

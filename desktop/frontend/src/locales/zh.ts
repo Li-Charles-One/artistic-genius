@@ -338,7 +338,7 @@ export const zh: Record<DictKey, string> = {
   "welcome.ex4Desc": "定位问题并验证补丁。",
 
   // 输入框
-  "composer.placeholder": "给 Reasonix 发消息…  ( / 命令 · @ 文件 · ! 终端 )",
+  "composer.placeholder": "有什么想问 Genius…  ( / 输入命令 · @ 文件 · ! 终端 )",
   "composer.normalMode": "对话模式",
   "composer.normalModeDesc": "直接对话或执行任务。",
   "composer.planMode": "计划模式",
@@ -1519,6 +1519,7 @@ export const zh: Record<DictKey, string> = {
   "context.other": "其他",
   "context.total": "总计",
   "context.cacheHit": "缓存命中",
+  "context.cacheAverage": "缓存平均命中",
   "context.sessionTokens": "会话 tokens",
   "context.sessionCost": "会话费用",
   "context.costBreakdown": "费用来源",
