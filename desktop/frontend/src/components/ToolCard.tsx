@@ -5,7 +5,7 @@ import { DiffView } from "./DiffView";
 import { useT } from "../lib/i18n";
 import { diffsFor, languageForToolArgs, subjectOf, summarize } from "../lib/tools";
 import { useShellExpand } from "../lib/shellExpand";
-import { useGSAPCollapse } from "../lib/useGSAPCollapse";
+import { useCollapseAnimation } from "../lib/useCollapseAnimation";
 import type { Item } from "../lib/useController";
 import { isReadOnlyTool } from "../lib/useController";
 import { ReadOnlyBatch } from "./ReadOnlyBatch";
@@ -164,7 +164,7 @@ export const ToolCard = memo(function ToolCard({ item, subcalls, tabId }: { item
 
   // GSAP-driven collapse/expand for tool body
   const toolBodyRef = useRef<HTMLDivElement>(null);
-  useGSAPCollapse(toolBodyRef, open);
+  useCollapseAnimation(toolBodyRef, open);
 
   return (
     <div className={`tool${quiet ? " tool--quiet" : ""}${isSubagent ? " tool--subagent" : ""}${open && hasBody ? " tool--open" : ""}`} data-entrance={item.id}>

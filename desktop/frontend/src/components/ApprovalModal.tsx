@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
 import { useT } from "../lib/i18n";
 import type { WireApproval } from "../lib/types";
 import { PromptAction, PromptDetailToggle, PromptShelf } from "./PromptShelf";
 import { playAttentionChime } from "../lib/sound";
-import { DUR_FAST } from "../lib/gsapAnimations";
+import { DUR_FAST, EASE_IN, prefersReducedMotion } from "../lib/animations";
 
 export function ApprovalModal({
   approval,
@@ -25,8 +24,7 @@ export function ApprovalModal({
   const shelfRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   // When consecutive approvals arrive, animate the old card out before
-  // the new one slides in.  GSAP fromTo on the shelf wrapper avoids the
-  // jarring pop when the API cycles through 4+ pending approvals.
+  // the new one slides in so rapid approval cycles do not visibly pop.
   const closingRef = useRef(false);
   const isPlanApproval = approval.tool === "exit_plan_mode";
   const subject = approval.subject.trim();
@@ -37,14 +35,19 @@ export function ApprovalModal({
     if (closingRef.current) return;
     closingRef.current = true;
     const el = shelfRef.current;
-    if (el) {
-      gsap.to(el, {
-        opacity: 0,
-        y: 8,
-        duration: DUR_FAST,
-        ease: "power2.in",
-        onComplete: fn,
-      });
+    if (el && !prefersReducedMotion()) {
+      let done = false;
+      const complete = () => {
+        if (done) return;
+        done = true;
+        fn();
+      };
+      const animation = el.animate(
+        [{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(8px)" }],
+        { duration: DUR_FAST, easing: EASE_IN },
+      );
+      animation.onfinish = complete;
+      animation.oncancel = complete;
     } else {
       fn();
     }

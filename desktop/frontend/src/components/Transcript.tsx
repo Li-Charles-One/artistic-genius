@@ -10,7 +10,7 @@ import { Welcome } from "./Welcome";
 import { ReadOnlyBatch } from "./ReadOnlyBatch";
 import { getDisplayMode, onDisplayModeChange, type DisplayMode } from "../lib/displayMode";
 import { isReadOnlyTool } from "../lib/useController";
-import { useGSAPCollapse } from "../lib/useGSAPCollapse";
+import { useCollapseAnimation } from "../lib/useCollapseAnimation";
 import { useEntranceAnimation } from "../lib/useEntranceAnimation";
 import { useScrollManager } from "../lib/useScrollManager";
 import { buildTurnGroups, compactQuestionText, questionAnchorId, scrollVersion, warmUserPreview, type QuestionAnchor, type TurnGroup } from "../lib/transcriptGrouping";
@@ -809,7 +809,7 @@ function WarmTurnCard({
   const t = useT();
   const contentRef = useRef<HTMLDivElement>(null);
   const prevHeightRef = useRef(0);
-  useGSAPCollapse(contentRef, expanded, { prevHeight: prevHeightRef.current });
+  useCollapseAnimation(contentRef, expanded, { prevHeight: prevHeightRef.current });
   // Always render both children so the container's scrollHeight reflects
   // the correct content at all times.  The inactive one is display:none.
   return (
@@ -861,7 +861,7 @@ function TurnCollapse({ items, durationMs, mode, subcalls, tabId }: TurnCollapse
   const t = useT();
   const [open, setOpen] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
-  useGSAPCollapse(bodyRef, open);
+  useCollapseAnimation(bodyRef, open);
 
   // Keep only items the body will actually render — an expandable fold over
   // nothing is worse than no fold.

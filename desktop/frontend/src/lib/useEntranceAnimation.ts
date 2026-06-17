@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { DUR_SLOW, EASE_OUT, prefersReducedMotion } from "./gsapAnimations";
+import { DUR_SLOW, EASE_OUT, prefersReducedMotion } from "./animations";
 
 // Animates each data-entrance element in once. First mount (and every
 // resetKey change) pre-seeds the seen set so restored history never animates;
@@ -13,6 +12,7 @@ export function useEntranceAnimation<T extends HTMLElement>(
   const ref = useRef<T | null>(null);
   const seen = useRef(new Set<string>());
   const timerRef = useRef<number | null>(null);
+  const animationsRef = useRef<Animation[]>([]);
   const firstRun = useRef(true);
   const prevResetKey = useRef(resetKey);
 
@@ -52,9 +52,15 @@ export function useEntranceAnimation<T extends HTMLElement>(
 
     if (entries.length === 0) return;
 
+    animationsRef.current.forEach((animation) => animation.cancel());
+    animationsRef.current = [];
+
     const reduced = prefersReducedMotion();
     if (reduced) {
-      gsap.set(entries, { opacity: 1, clearProps: "transform" });
+      entries.forEach((el) => {
+        el.style.opacity = "1";
+        el.style.transform = "";
+      });
       return;
     }
 
@@ -62,22 +68,24 @@ export function useEntranceAnimation<T extends HTMLElement>(
     if (timerRef.current !== null) clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null;
-      gsap.fromTo(
-        entries,
-        { opacity: 0, y: 12 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: DUR_SLOW,
-          ease: EASE_OUT,
-          stagger: itemsStagger(entries.length),
-          clearProps: "transform",
-        },
-      );
+      const stagger = itemsStagger(entries.length);
+      animationsRef.current = entries.map((el, index) => {
+        const animation = el.animate(
+          [{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "translateY(0)" }],
+          { duration: DUR_SLOW, easing: EASE_OUT, delay: stagger * index, fill: "backwards" },
+        );
+        animation.onfinish = () => {
+          el.style.opacity = "";
+          el.style.transform = "";
+        };
+        return animation;
+      });
     }, 16);
 
     return () => {
       if (timerRef.current !== null) clearTimeout(timerRef.current);
+      animationsRef.current.forEach((animation) => animation.cancel());
+      animationsRef.current = [];
     };
     // Only re-scan when deps change — NOT on every render.
   }, [deps]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -87,6 +95,6 @@ export function useEntranceAnimation<T extends HTMLElement>(
 
 function itemsStagger(count: number): number {
   if (count <= 1) return 0;
-  if (count <= 3) return 0.06;
-  return 0.04;
+  if (count <= 3) return 60;
+  return 40;
 }

@@ -1528,7 +1528,10 @@
 }
 
 :root[data-theme="dark"][data-theme-style="graphite"] { --user-bubble-accent: #ff6a3d; }
-:root[data-theme="dark"][data-theme-style="aurora"] { --user-bubble-accent: #8b7cff; }
+:root[data-theme="dark"][data-theme-style="aurora"] {
+  --user-bubble-accent: #8b7cff;
+  --workspace-selection-fg: var(--accent);
+}
 :root[data-theme="dark"][data-theme-style="slate"] { --user-bubble-accent: #2f7dd3; }
 :root[data-theme="dark"][data-theme-style="carbon"] { --user-bubble-accent: #2dd4bf; }
 :root[data-theme="dark"][data-theme-style="nocturne"] { --user-bubble-accent: #818cf8; }
@@ -1593,7 +1596,10 @@
   }
 
   :root[data-theme-style="graphite"]:not([data-theme]) { --user-bubble-accent: #ff6a3d; }
-  :root[data-theme-style="aurora"]:not([data-theme]) { --user-bubble-accent: #8b7cff; }
+  :root[data-theme-style="aurora"]:not([data-theme]) {
+    --user-bubble-accent: #8b7cff;
+    --workspace-selection-fg: var(--accent);
+  }
   :root[data-theme-style="slate"]:not([data-theme]) { --user-bubble-accent: #2f7dd3; }
   :root[data-theme-style="carbon"]:not([data-theme]) { --user-bubble-accent: #2dd4bf; }
   :root[data-theme-style="nocturne"]:not([data-theme]) { --user-bubble-accent: #818cf8; }

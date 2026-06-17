@@ -5,7 +5,7 @@ import { CopyButton } from "./CopyButton";
 import { parseAttachmentRefsForDisplay, sortDisplayAttachments } from "../lib/attachmentDisplay";
 import { app } from "../lib/bridge";
 import { useT } from "../lib/i18n";
-import { useGSAPCollapse } from "../lib/useGSAPCollapse";
+import { useCollapseAnimation } from "../lib/useCollapseAnimation";
 import { displayReasoningText } from "../lib/reasoningDisplay";
 import type { Item, MessageActionScope } from "../lib/useController";
 import type { CheckpointMeta } from "../lib/types";
@@ -393,7 +393,7 @@ export const AssistantMessage = memo(function AssistantMessage({
   const userOverridden = useRef(false);
   const prevStreamingRef = useRef(item.streaming);
   const prevReasoningCompleteRef = useRef(item.reasoningComplete ?? false);
-  useGSAPCollapse(reasoningBodyRef, reasoningOpen);
+  useCollapseAnimation(reasoningBodyRef, reasoningOpen);
 
   // Follow the current display mode while streaming unless the user manually
   // toggled this message; auto-close at stream end for untouched messages.

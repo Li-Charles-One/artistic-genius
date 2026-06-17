@@ -1,28 +1,25 @@
 import { useCallback, useEffect, useRef } from "react";
-import gsap from "gsap";
-import { DUR_FAST, EASE_OUT, prefersReducedMotion } from "./gsapAnimations";
+import { prefersReducedMotion } from "./animations";
 
 /**
- * useScrollManager — GSAP-driven auto-scroll for the transcript container.
+ * useScrollManager — auto-scroll for the transcript container.
  *
  * - Auto-pins to the bottom when content is near the edge.
  * - Smooth scroll for jump-to-question navigation.
- * - Uses gsap.scrollTo for layout-safe scrolling (avoids layout thrashing).
- * - Batches ResizeObserver callbacks into a single GSAP tween.
+ * - Batches ResizeObserver callbacks into a single animation frame.
  */
 export function useScrollManager() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const stick = useRef(true);
-  const gsapCtx = useRef<gsap.Context | null>(null);
+  const scrollAnimationRef = useRef<number | null>(null);
   const prevQuestionsLen = useRef(0);
   const resizeFrame = useRef<number | null>(null);
   const lastClientHeight = useRef<number | null>(null);
   const lastFooterHeight = useRef<number | null>(null);
 
-  // Kill any lingering tweens on unmount.
   useEffect(() => {
     return () => {
-      gsapCtx.current?.revert();
+      if (scrollAnimationRef.current !== null) cancelAnimationFrame(scrollAnimationRef.current);
       if (resizeFrame.current !== null) cancelAnimationFrame(resizeFrame.current);
     };
   }, []);
@@ -46,12 +43,7 @@ export function useScrollManager() {
     const rect = element.getBoundingClientRect();
     const containerRect = el.getBoundingClientRect();
     const top = el.scrollTop + rect.top - containerRect.top - offset;
-    const reduced = prefersReducedMotion();
-    gsap.to(el, {
-      scrollTo: { y: Math.max(0, top) },
-      duration: reduced ? 0.001 : DUR_FAST * 2,
-      ease: EASE_OUT,
-    });
+    el.scrollTo({ top: Math.max(0, top), behavior: prefersReducedMotion() ? "auto" : "smooth" });
   }, []);
 
   /** Force-scroll to the bottom — used when a new question is sent. */
@@ -69,13 +61,7 @@ export function useScrollManager() {
     resizeFrame.current = requestAnimationFrame(() => {
       resizeFrame.current = null;
       if (!stick.current) return;
-      const reduced = prefersReducedMotion();
-      gsap.to(el, {
-        scrollTo: { y: "max" },
-        duration: reduced ? 0.001 : DUR_FAST,
-        ease: "none",
-        overwrite: "auto",
-      });
+      el.scrollTop = el.scrollHeight;
     });
   }, []);
 
