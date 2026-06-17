@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 import { CopyButton } from "./CopyButton";
 import { DiffView } from "./DiffView";
 import { useT } from "../lib/i18n";
-import { diffsFor, languageForToolArgs, subjectOf, summarize, summarizeFileDiff } from "../lib/tools";
+import { diffsFor, languageForToolArgs, subjectOf, summarize } from "../lib/tools";
 import { useShellExpand } from "../lib/shellExpand";
 import { useGSAPCollapse } from "../lib/useGSAPCollapse";
 import type { Item } from "../lib/useController";
@@ -155,7 +155,12 @@ export const ToolCard = memo(function ToolCard({ item, subcalls, tabId }: { item
     item.readOnly && !hasNested && item.status !== "error" && item.status !== "stopped";
 
   const duration = item.status === "running" ? "" : formatToolDuration(item.durationMs);
-  const summary = item.status === "running" ? "" : item.summary || summarizeFileDiff(item.fileDiff) || (archivedWithoutFullData ? "" : summarize(item.name, effectiveArgs, effectiveOutput, item.error));
+  const fileDiffAdded = item.fileDiff?.added ?? 0;
+  const fileDiffRemoved = item.fileDiff?.removed ?? 0;
+  const hasFileDiff = fileDiffAdded > 0 || fileDiffRemoved > 0;
+  // For write_file/edit_file/multi_edit, skip summary when we have file diff stats
+  const isFileWriter = item.name === "write_file" || item.name === "edit_file" || item.name === "multi_edit";
+  const summary = item.status === "running" ? "" : (archivedWithoutFullData ? "" : (isFileWriter && hasFileDiff ? "" : summarize(item.name, effectiveArgs, effectiveOutput, item.error)));
 
   // GSAP-driven collapse/expand for tool body
   const toolBodyRef = useRef<HTMLDivElement>(null);
@@ -171,11 +176,17 @@ export const ToolCard = memo(function ToolCard({ item, subcalls, tabId }: { item
         aria-expanded={hasBody ? open : undefined}
       >
         <span className="tool__label-group">
-          {hasNested && <span className="tool__nested-count">⊞{nested.length}</span>}
+          {hasNested && <span className="tool__nested-count">{nested.length}</span>}
           <span className="tool__name">{toolDisplayName}</span>
           {headerSubject && <span className="tool__subject">{headerSubject}</span>}
         </span>
         {profileText && <span className="tool__profile">{profileText}</span>}
+        {hasFileDiff && (
+          <span className="tool__diffstats">
+            {fileDiffAdded > 0 && <span className="tool__diffstats--add">+{fileDiffAdded}</span>}
+            {fileDiffRemoved > 0 && <span className="tool__diffstats--del">-{fileDiffRemoved}</span>}
+          </span>
+        )}
         {summary && <span className="tool__summary">{summary}</span>}
         {duration && <span className="tool__duration">{duration}</span>}
         {hasBody && (

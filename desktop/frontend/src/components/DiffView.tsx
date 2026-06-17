@@ -6,6 +6,9 @@ export interface DiffProps {
   diff?: string;
   language?: string;
   maxHeight?: number;
+  filename?: string;
+  added?: number;
+  removed?: number;
 }
 
 // ── EDITOR SEAM (diff) ───────────────────────────────────────────────────────

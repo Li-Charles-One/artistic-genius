@@ -12,10 +12,21 @@ function lineNo(n?: number): string {
   return typeof n === "number" ? String(n) : "";
 }
 
-export default function HljsDiff({ original = "", modified = "", diff = "", language, maxHeight }: DiffProps) {
+export default function HljsDiff({ original = "", modified = "", diff = "", language, maxHeight, filename, added, removed }: DiffProps) {
   const rows = diff ? diffRowsFromUnifiedDiff(diff) : diffLines(original, modified);
+  const additions = added ?? rows.filter((r) => r.type === "add").length;
+  const deletions = removed ?? rows.filter((r) => r.type === "del").length;
   return (
     <div className="diff hljs" style={maxHeight ? { maxHeight } : undefined}>
+      {filename && (
+        <div className="diff__header">
+          <span className="diff__filename">{filename}</span>
+          <span className="diff__stats">
+            {additions > 0 && <span className="diff__add">+{additions}</span>}
+            {deletions > 0 && <span className="diff__del">-{deletions}</span>}
+          </span>
+        </div>
+      )}
       <div className="diff__table">
         {rows.map((r, idx) => (
           <div key={idx} className={`diff__row diff__row--${r.type}`}>

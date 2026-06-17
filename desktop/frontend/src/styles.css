@@ -3803,10 +3803,10 @@ a[href] {
   --process-tone: var(--fg-dim);
   --process-tone-soft: color-mix(in srgb, var(--fg-dim) 12%, transparent);
   box-sizing: border-box;
-  margin: 6px auto;
+  margin: 4px auto;
   overflow: hidden;
   content-visibility: auto;
-  contain-intrinsic-size: 1px 36px;
+  contain-intrinsic-size: 1px 32px;
 }
 /* T1: a tone-colored sweep bar along the bottom while the card is running
    (running cards render a .process-card__spin status icon). */
@@ -3917,10 +3917,10 @@ a[href] {
 }
 .process-card__head {
   box-sizing: border-box;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
+  gap: 8px;
+  padding: 4px 8px;
   background: none;
   border: none;
   color: var(--fg-faint);
@@ -3928,8 +3928,9 @@ a[href] {
   font-size: 13px;
   text-align: left;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 3px;
   -webkit-app-region: no-drag;
+  width: 100%;
 }
 .process-card__head:hover {
   color: var(--fg);
@@ -3944,27 +3945,30 @@ a[href] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  background: var(--process-tone-soft);
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: transparent;
   color: var(--process-tone);
   flex-shrink: 0;
 }
 .process-card__kind {
   color: var(--fg-faint);
-  font-size: var(--font-control);
-  letter-spacing: 0.02em;
-  text-transform: lowercase;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-family: inherit;
+  font-weight: 500;
 }
 .process-card__name {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   min-width: 0;
   color: var(--fg);
-  font-size: var(--font-control);
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
 }
 .process-card__grow {
   flex: 1 1 auto;
@@ -3977,12 +3981,15 @@ a[href] {
   color: var(--fg-faint);
   font-size: var(--font-caption);
   flex-shrink: 0;
+  font-family: inherit;
 }
 .process-card__chevron {
   display: inline-flex;
   color: var(--fg-faint);
   transition: transform 0.15s ease;
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 .process-card[data-open="false"] .process-card__chevron {
   transform: rotate(-90deg);
@@ -4125,10 +4132,9 @@ a[href] {
 .md-code {
   font-family: var(--font-mono);
   font-size: 0.88em;
-  background: var(--bg-elev-2);
-  border: 1px solid var(--border-soft);
-  border-radius: 5px;
-  padding: 1px 5px;
+  background: color-mix(in srgb, var(--bg-soft) 50%, transparent);
+  border-radius: 4px;
+  padding: 1px 6px;
 }
 .md table {
   border-collapse: collapse;
@@ -4136,29 +4142,38 @@ a[href] {
   font-size: var(--font-content);
   display: block;
   overflow-x: auto;
+  width: 100%;
 }
 .md th,
 .md td {
-  border: 1px solid var(--border);
-  padding: 5px 10px;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  padding: 8px 12px;
   text-align: left;
 }
 .md th {
-  background: var(--bg-soft);
+  background: transparent;
   font-weight: var(--font-weight-strong);
+  color: var(--fg-dim);
+  font-size: 0.9em;
+  letter-spacing: 0.02em;
+  border-bottom-color: var(--border);
+}
+.md tr:last-child td {
+  border-bottom: none;
 }
 
 /* ── code (editor seam fallback) ─────────────────────────────────────────── */
 .code {
   position: relative;
   margin: 0;
-  padding: 10px 12px;
-  background: color-mix(in srgb, var(--bg-soft) 64%, transparent);
-  border: 1px solid color-mix(in srgb, var(--fg-faint) 11%, transparent);
-  border-radius: 8px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--bg-soft) 40%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--fg-faint) 20%, transparent);
+  border-radius: 4px;
   font-family: var(--font-mono);
   font-size: var(--font-code);
-  line-height: 1.55;
+  line-height: 1.6;
   overflow: auto;
   white-space: pre;
   color: var(--fg);
@@ -4340,6 +4355,29 @@ a[href] {
   line-height: 1.55;
   overflow: auto;
 }
+.diff__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg-elev);
+}
+.diff__filename {
+  font-weight: 600;
+  color: var(--fg);
+}
+.diff__stats {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+.diff__add {
+  color: var(--ok);
+}
+.diff__del {
+  color: var(--err);
+}
 .diff__table {
   display: block;
   min-width: max-content;
@@ -4347,36 +4385,31 @@ a[href] {
 }
 .diff__row {
   display: flex;
-  --diff-row-bg: var(--bg-soft);
-  background: var(--diff-row-bg);
   box-sizing: border-box;
   min-width: 100%;
   width: 100%;
   white-space: pre;
 }
-.diff__row--add {
-  --diff-row-bg: rgba(46, 160, 67, 0.06);
+.diff__row--add .diff__text {
+  background: rgba(46, 160, 67, 0.12);
 }
-.diff__row--del {
-  --diff-row-bg: rgba(248, 81, 73, 0.06);
+.diff__row--del .diff__text {
+  background: rgba(248, 81, 73, 0.12);
 }
 .diff__gutter {
-  position: sticky;
-  left: 0;
-  z-index: var(--z-local-raised);
   display: grid;
-  grid-template-columns: 4ch 4ch 0.7em;
-  gap: 6px;
+  grid-template-columns: 3.5ch 3.5ch 1.5ch;
+  gap: 4px;
   flex: 0 0 auto;
-  padding: 0 8px 0 12px;
-  background: var(--diff-row-bg);
-  box-shadow: 1px 0 0 var(--border-soft);
+  padding: 0 8px 0 10px;
+  background: transparent;
   user-select: none;
 }
 .diff__line {
   color: var(--fg-faint);
   font-variant-numeric: tabular-nums;
   text-align: right;
+  font-family: var(--font-mono);
 }
 .diff__sign {
   width: 0.7em;
@@ -4393,21 +4426,21 @@ a[href] {
 .diff__text {
   flex: 1 0 auto;
   font-family: var(--mono);
-  padding: 0 12px 0 8px;
+  padding: 0 12px 0 6px;
 }
 
 /* ── process cards: reasoning and tool calls share the same shell ─────────── */
 .tool {
-  margin: 6px auto;
+  margin: 4px auto;
   overflow: hidden;
   content-visibility: auto;
-  contain-intrinsic-size: 1px 36px;
+  contain-intrinsic-size: 1px 32px;
 }
 .tool__head {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px 3px 0;
+  gap: 8px;
+  padding: 4px 8px 4px 0;
   background: none;
   border: none;
   color: var(--fg-faint);
@@ -4415,27 +4448,29 @@ a[href] {
   font-size: 13px;
   text-align: left;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 3px;
   -webkit-app-region: no-drag;
   overflow: hidden;
+  width: 100%;
 }
 .tool__head:hover {
   color: var(--fg);
+  background: color-mix(in srgb, var(--bg-elev-2) 20%, transparent);
 }
 .tool__label-group {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
 }
 .tool--running {
-  border-color: var(--accent-soft);
+  border-color: transparent;
 }
 /* Read-only research calls keep the same process-card shell, but their content
    is visually quieter than write/shell/sub-agent calls. */
 .tool--quiet {
-  border-color: var(--border-soft);
+  border-color: transparent;
 }
 .tool--quiet .tool__row {
   color: var(--fg-dim);
@@ -4447,14 +4482,14 @@ a[href] {
   color: var(--fg-faint);
 }
 .tool--quiet .tool__row--clickable:hover {
-  background: var(--bg-elev-2);
+  background: color-mix(in srgb, var(--bg-elev-2) 30%, transparent);
 }
 .tool__row {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 42px;
-  padding: 9px 14px;
+  min-height: 36px;
+  padding: 6px 10px;
   width: 100%;
   background: none;
   border: none;
@@ -4465,12 +4500,14 @@ a[href] {
 .tool__row--clickable {
 }
 .tool__row--clickable:hover {
-  background: var(--bg-elev-2);
+  background: color-mix(in srgb, var(--bg-elev-2) 30%, transparent);
 }
 .tool__chevron {
   flex-shrink: 0;
   color: var(--fg-faint);
   transition: transform 0.2s;
+  width: 14px;
+  height: 14px;
 }
 .tool__chevron--open {
   transform: rotate(90deg);
@@ -4483,32 +4520,19 @@ a[href] {
   flex-shrink: 0;
   color: var(--fg-dim);
   opacity: 0.82;
+  width: 14px;
+  height: 14px;
 }
 .tool__name {
   font-family: inherit;
   font-size: inherit;
-  font-weight: 650;
+  font-weight: 600;
   color: inherit;
   flex-shrink: 0;
 }
 .process-card__name .tool__name {
   color: var(--fg);
-}
-.tool__duration {
-  color: inherit;
-  font-family: inherit;
-  font-size: var(--font-caption);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.tool__summary {
-  color: inherit;
-  flex-shrink: 0;
-  font-family: var(--mono);
-  font-size: var(--font-caption);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  font-size: 13px;
 }
 .tool__subject {
   flex: 1 1 auto;
@@ -4517,6 +4541,42 @@ a[href] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+}
+.tool__duration {
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+.tool__summary {
+  color: inherit;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tool__diffstats {
+  display: inline-flex;
+  gap: 6px;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+.tool__diffstats--add {
+  color: var(--ok);
+}
+.tool__diffstats--del {
+  color: var(--err);
 }
 .tool__profile {
   font-family: inherit;
@@ -4526,12 +4586,15 @@ a[href] {
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  font-weight: 400;
+  margin-left: 4px;
 }
 .tool__nested-count {
   font-family: inherit;
   font-size: 11px;
   color: var(--accent);
   flex-shrink: 0;
+  font-weight: 500;
 }
 .tool__meta {
   margin-left: auto;
@@ -4539,6 +4602,7 @@ a[href] {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  font-family: inherit;
 }
 .tool__body {
   overflow: hidden;
@@ -4553,29 +4617,30 @@ a[href] {
 }
 .tool__section {
   display: grid;
-  gap: 6px;
-  margin: 8px 0 10px;
+  gap: 4px;
+  margin: 6px 0 8px;
 }
 .tool__section:has(.hljs[data-lang="bash"]) {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 .tool__section-label {
-  color: color-mix(in srgb, var(--fg-faint) 82%, transparent);
-  font-family: var(--mono);
+  color: color-mix(in srgb, var(--fg-faint) 70%, transparent);
+  font-family: inherit;
   font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   line-height: 1;
   text-transform: uppercase;
 }
 .tool__section:has(.hljs[data-lang="bash"]) .code {
-  padding: 18px 22px;
+  padding: 12px 14px;
   border-color: color-mix(in srgb, var(--fg-faint) 14%, transparent);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-soft) 76%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-soft) 50%, transparent);
   color: var(--fg);
-  font-size: 14px;
-  line-height: 1.75;
+  font-size: 13px;
+  line-height: 1.65;
+  font-family: var(--font-mono);
 }
 .tool__section--shell {
   margin-top: 8px;
@@ -4584,14 +4649,14 @@ a[href] {
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 14px 16px;
-  border: 1px solid color-mix(in srgb, var(--fg-faint) 12%, transparent);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-soft) 60%, transparent);
-  color: color-mix(in srgb, var(--fg) 90%, transparent);
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg-elev) 60%, transparent);
+  color: color-mix(in srgb, var(--fg) 85%, transparent);
   font-family: var(--font-mono);
-  font-size: 12.5px;
-  line-height: 1.62;
+  font-size: 12px;
+  line-height: 1.55;
   overflow-wrap: anywhere;
   scrollbar-width: thin;
 }
@@ -4599,12 +4664,13 @@ a[href] {
   display: flex;
   gap: 9px;
   min-width: 0;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid color-mix(in srgb, var(--fg-faint) 10%, transparent);
-  color: color-mix(in srgb, var(--fg-dim) 92%, transparent);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--fg-faint) 6%, transparent);
+  color: color-mix(in srgb, var(--fg-dim) 85%, transparent);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  font-family: var(--font-mono);
 }
 .shell-output__command span {
   color: var(--accent);
@@ -4617,6 +4683,7 @@ a[href] {
   font: inherit;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  font-family: var(--font-mono);
 }
 .shell-output__copy {
   position: sticky;
@@ -4632,30 +4699,32 @@ a[href] {
   font-size: var(--font-caption);
   color: var(--fg-faint);
   margin-top: 3px;
+  font-family: inherit;
 }
 .tool__showall {
   display: inline-block;
   margin-top: 2px;
-  padding: 3px 8px;
+  padding: 2px 6px;
   font-size: 11px;
   color: var(--accent);
-  background: var(--accent-soft);
+  background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
   line-height: 1.6;
+  font-family: inherit;
 }
 .tool__showall:hover {
-  background: color-mix(in srgb, var(--accent-soft) 60%, transparent);
+  background: color-mix(in srgb, var(--accent-soft) 40%, transparent);
 }
 .tool__err {
   margin: 0;
   padding: 8px 10px;
-  border: 1px solid color-mix(in srgb, var(--err) 22%, transparent);
-  background: color-mix(in srgb, var(--err) 8%, transparent);
-  color: color-mix(in srgb, var(--err) 82%, var(--fg));
-  border-radius: 8px;
-  font-family: var(--mono);
+  border-left: 2px solid color-mix(in srgb, var(--err) 40%, transparent);
+  background: color-mix(in srgb, var(--err) 6%, transparent);
+  color: color-mix(in srgb, var(--err) 75%, var(--fg));
+  border-radius: 0;
+  font-family: inherit;
   font-size: 12px;
   white-space: pre-wrap;
 }
@@ -20153,66 +20222,67 @@ a[href] {
 :root[data-theme-style] .tool-card,
 :root[data-theme-style] .ask-card,
 :root[data-theme-style] .approval-modal {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-elev);
-  box-shadow: var(--app-graphite-shadow);
-  transition: border-color var(--dur-fast), transform var(--dur-fast) var(--ease-out), background var(--dur-fast);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition: none;
 }
 
 :root[data-theme-style] .process-card:hover {
-  border-color: color-mix(in srgb, var(--fg-faint) 30%, var(--border));
-  transform: translateY(-1px);
+  transform: none;
 }
 
 :root[data-theme-style] .process-card__head {
-  min-height: 42px;
-  padding: 10px 13px;
+  min-height: 36px;
+  padding: 8px 12px;
+  width: 100%;
 }
 
 :root[data-theme-style] .process-card__head:hover {
-  background: transparent;
+  background: color-mix(in srgb, var(--bg-elev-2) 20%, transparent);
 }
 
 :root[data-theme-style] .process-card__icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
   color: var(--accent);
-  background: var(--accent-soft);
+  background: transparent;
 }
 
 :root[data-theme-style] .process-card[data-tone="accent"] .process-card__icon,
 :root[data-theme-style] .process-card[data-tone="violet"] .process-card__icon {
   color: var(--accent-fg);
-  background: var(--grad);
-  box-shadow: 0 6px 14px -10px var(--accent);
+  background: transparent;
+  box-shadow: none;
 }
 
 :root[data-theme-style] .process-card[data-tone="success"] .process-card__icon {
   color: var(--ok);
-  background: color-mix(in srgb, var(--ok) 12%, transparent);
+  background: transparent;
 }
 
 :root[data-theme-style] .process-card[data-tone="warning"] .process-card__icon {
   color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  background: transparent;
 }
 
 :root[data-theme-style] .process-card.tool .process-card__icon {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
 
 :root[data-theme-style] .process-card__kind {
-  color: var(--fg);
-  font-size: 13px;
-  font-weight: 700;
+  color: var(--fg-faint);
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
+  font-family: inherit;
 }
 
 :root[data-theme-style] .process-card.tool .process-card__kind,
@@ -20224,15 +20294,15 @@ a[href] {
   color: var(--fg);
   font-family: inherit;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 :root[data-theme-style] .process-card__name,
 :root[data-theme-style] .process-card__meta {
   color: var(--fg-faint);
-  font-family: var(--mono);
+  font-family: inherit;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 :root[data-theme-style] .process-card__status--done {
