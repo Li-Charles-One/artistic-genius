@@ -877,7 +877,6 @@ function makeMockApp(): AppBindings {
       ],
     },
     desktopLanguage: "",
-    desktopLayoutStyle: "classic",
     desktopTheme: "light",
     desktopThemeStyle: "graphite",
     closeBehavior: "background",
@@ -2543,9 +2542,7 @@ function makeMockApp(): AppBindings {
           settings.desktopTheme = theme === "auto" || theme === "light" ? theme : "dark";
           settings.desktopThemeStyle = style;
         },
-        async SetDesktopLayoutStyle(style: string) {
-          settings.desktopLayoutStyle = style === "workbench" ? "workbench" : "classic";
-        },
+        async SetDesktopLayoutStyle(_style: string) {},
         async SetDesktopCheckUpdates(enabled: boolean) {
           settings.checkUpdates = enabled;
         },

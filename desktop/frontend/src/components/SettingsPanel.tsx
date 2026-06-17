@@ -402,7 +402,7 @@ function settingsTabMeta(id: SettingsTab, s: SettingsView, t: ReturnType<typeof 
     case "models":
       return settingsModelMeta(s, t);
     case "general":
-      return `${desktopLayoutStyleLabel(normalizeDesktopLayoutStyle(s.desktopLayoutStyle), t)} · ${closeBehaviorLabel(normalizeCloseBehavior(s.closeBehavior), t)}`;
+      return closeBehaviorLabel(normalizeCloseBehavior(s.closeBehavior), t);
     case "providers":
       return t("settings.providerCount", { n: s.providers.length });
     case "bots":
@@ -784,7 +784,6 @@ function normalizeSettingsView(view: SettingsView | null | undefined): SettingsV
     autoApproveTools: Boolean(view.autoApproveTools ?? view.bypass),
     bypass: Boolean(view.autoApproveTools ?? view.bypass),
     desktopLanguage: normalizeLangPref(view.desktopLanguage),
-    desktopLayoutStyle: normalizeDesktopLayoutStyle(view.desktopLayoutStyle),
     desktopTheme: normalizeThemePreference(view.desktopTheme),
     desktopThemeStyle: normalizeThemeStyleForTheme(view.desktopThemeStyle, normalizeThemePreference(view.desktopTheme)),
     closeBehavior: normalizeCloseBehavior(view.closeBehavior),
@@ -803,16 +802,6 @@ type DisplayMode = "standard" | "compact";
 
 function normalizeDisplayMode(mode: string | undefined): DisplayMode {
   return mode === "standard" || mode === "compact" ? mode : "standard";
-}
-
-type DesktopLayoutStyle = "classic" | "workbench";
-
-function normalizeDesktopLayoutStyle(style: string | undefined): DesktopLayoutStyle {
-  return style === "workbench" ? "workbench" : "classic";
-}
-
-function desktopLayoutStyleLabel(style: DesktopLayoutStyle, t: ReturnType<typeof useT>): string {
-  return t(`settings.desktopLayoutStyle.${style}`);
 }
 
 function closeBehaviorLabel(mode: CloseBehavior, t: ReturnType<typeof useT>): string {
@@ -855,7 +844,6 @@ function GeneralSection({ s, busy, apply, agentRunning }: SectionProps & { agent
   useEffect(() => onDisplayModeChange((mode) => setDisplayMode(mode)), []);
   const autoPlan = normalizeAutoPlan(s.autoPlan);
   const languagePref = normalizeLangPref(s.desktopLanguage);
-  const desktopLayoutStyle = normalizeDesktopLayoutStyle(s.desktopLayoutStyle);
   const [genMusicPreset, setGenMusicPreset] = useState<GenerativePreset>(getGenerativePreset());
   const [soundPref, setSoundPref] = useState<SoundWavPref>(getSuccessPreference());
   const [attentionPref, setAttentionPref] = useState<SoundWavPref>(getAttentionPreference());
@@ -877,20 +865,6 @@ function GeneralSection({ s, busy, apply, agentRunning }: SectionProps & { agent
               onClick={() => setLanguage(pref)}
             >
               {pref === "" ? t("settings.langAuto") : pref === "zh" ? "中文" : "English"}
-            </button>
-          ))}
-        </div>
-      </SettingsField>
-      <SettingsField label={t("settings.desktopLayoutStyle")}>
-        <div className="set-seg">
-          {(["classic", "workbench"] as const).map((style) => (
-            <button
-              key={style}
-              className={`set-seg__btn${desktopLayoutStyle === style ? " set-seg__btn--on" : ""}`}
-              disabled={busy}
-              onClick={() => void apply(() => app.SetDesktopLayoutStyle(style))}
-            >
-              {desktopLayoutStyleLabel(style, t)}
             </button>
           ))}
         </div>
@@ -4734,18 +4708,13 @@ function AppearanceSection({
               >
                 <span className="theme-card__head">
                   <span className="theme-card__name">
-                    {meta.name} <span className="theme-card__zh">{t(meta.zh)}</span>
+                    {t(meta.zh)}
                   </span>
-                  <span className="theme-card__tag">{t(meta.note)}</span>
                 </span>
                 <span className="theme-card__swatches" data-theme-style-card={opt}>
                   <span className="theme-card__swatch theme-card__swatch--bg" />
                   <span className="theme-card__swatch theme-card__swatch--surface" />
                   <span className="theme-card__swatch theme-card__swatch--accent" />
-                </span>
-                <span className="theme-card__desc">{t(meta.desc)}</span>
-                <span className="theme-card__check" aria-hidden="true">
-                  <Check size={13} strokeWidth={3} />
                 </span>
               </button>
             );

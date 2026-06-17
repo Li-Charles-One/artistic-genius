@@ -4,7 +4,7 @@
 // new topic.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, DragEvent as ReactDragEvent, KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from "react";
-import { Archive, ArrowDown, ChevronRight, Pencil, Plus, Folder, FolderPlus, Search, BriefcaseBusiness, Copy, FolderOpen, XCircle, History, Check, ListCollapse, ListRestart, MessageSquare, Clock, Pin, MoreHorizontal, SquarePen, Minimize2, Maximize2 } from "lucide-react";
+import { Archive, ChevronRight, Pencil, Plus, Folder, FolderPlus, Search, BriefcaseBusiness, Copy, FolderOpen, XCircle, History, Check, ListCollapse, ListRestart, MessageSquare, Clock } from "lucide-react";
 import { asArray } from "../lib/array";
 import { app } from "../lib/bridge";
 import type { ProjectNode, ProjectTopicStatus } from "../lib/types";
@@ -20,7 +20,6 @@ interface ProjectTreeProps {
   activeTopicId?: string;
   activeSessionPath?: string;
   imTopicSources?: Record<string, ProjectTreeImTopicSource>;
-  variant?: "classic" | "workbench";
   onOpenTopic: (scope: string, workspaceRoot: string, topicId: string, sessionPath?: string) => Promise<void> | void;
   onOpenProjectHistory: (scope: "global" | "project", workspaceRoot: string) => Promise<void> | void;
   onAddProject: () => Promise<void>;
@@ -158,51 +157,14 @@ function topicActivityLabel(ms: number, t: Translator, compact = false): string 
   return locale === "zh" || locale === "zh-TW" ? `${value} 年` : `${value}y`;
 }
 
-function topicActivityDateLabel(ms: number): string {
-  if (ms <= 0) return "";
-  const locale = getLocale();
-  const dateLocale = locale === "zh" ? "zh-CN" : locale === "zh-TW" ? "zh-TW" : "en";
-  return new Date(ms).toLocaleDateString(dateLocale);
-}
-
 type ProjectDropPosition = "before" | "after";
-type WorkbenchHeaderMenu = "more" | "add" | null;
-type WorkbenchOrganizeMode = "project" | "recent" | "time";
-type WorkbenchSortMode = "created" | "updated";
 
 type CollapseSnapshot = {
   expanded: Set<string>;
   manuallyCollapsed: Set<string>;
 };
 
-type WorkbenchTreeSections = {
-  pinned: ProjectNode[];
-  projects: ProjectNode[];
-};
-
 const GLOBAL_PROJECT_ORDER_KEY = "__global__";
-const WORKBENCH_ORGANIZE_KEY = "projectTree:workbenchOrganize";
-const WORKBENCH_SORT_KEY = "projectTree:workbenchSort";
-
-function loadWorkbenchOrganizeMode(): WorkbenchOrganizeMode {
-  try {
-    const value = localStorage.getItem(WORKBENCH_ORGANIZE_KEY);
-    if (value === "recent" || value === "time") return value;
-  } catch {
-    /* localStorage unavailable */
-  }
-  return "project";
-}
-
-function loadWorkbenchSortMode(): WorkbenchSortMode {
-  try {
-    const value = localStorage.getItem(WORKBENCH_SORT_KEY);
-    if (value === "created") return "created";
-  } catch {
-    /* localStorage unavailable */
-  }
-  return "updated";
-}
 
 function projectOrderKey(node: ProjectNode): string {
   if (node.kind === "global_folder") return GLOBAL_PROJECT_ORDER_KEY;
@@ -266,79 +228,6 @@ function applyProjectOrder(nodes: ProjectNode[], roots: string[]): ProjectNode[]
   return [...nonProjects, ...orderedProjects];
 }
 
-function topicSortValue(node: ProjectNode, sortMode: WorkbenchSortMode): number {
-  if (sortMode === "created") return node.createdAt || node.lastActivityAt || 0;
-  return topicActivityTime(node);
-}
-
-function projectSortValue(node: ProjectNode, sortMode: WorkbenchSortMode): number {
-  return asArray(node.children).reduce((max, child) => {
-    if (!isTopicNode(child)) return max;
-    return Math.max(max, topicSortValue(child, sortMode));
-  }, 0);
-}
-
-function sortWorkbenchChildren(children: ProjectNode[], sortMode: WorkbenchSortMode): ProjectNode[] {
-  return [...children].sort((a, b) => {
-    if (!isTopicNode(a) || !isTopicNode(b)) return 0;
-    if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1;
-    return topicSortValue(b, sortMode) - topicSortValue(a, sortMode);
-  });
-}
-
-function arrangeWorkbenchTree(nodes: ProjectNode[], organizeMode: WorkbenchOrganizeMode, sortMode: WorkbenchSortMode): ProjectNode[] {
-  const arranged = nodes.map((node) => {
-    if (node.kind !== "project" && node.kind !== "global_folder") return node;
-    return { ...node, children: sortWorkbenchChildren(asArray(node.children), sortMode) };
-  });
-  if (organizeMode === "project") return arranged;
-  const mode = organizeMode === "recent" ? "updated" : sortMode;
-  return [...arranged].sort((a, b) => {
-    if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1;
-    return projectSortValue(b, mode) - projectSortValue(a, mode);
-  });
-}
-
-function splitWorkbenchPinnedTree(nodes: ProjectNode[], sortMode: WorkbenchSortMode): WorkbenchTreeSections {
-  const pinnedTopics: ProjectNode[] = [];
-  const pinnedProjects: ProjectNode[] = [];
-  const projects: ProjectNode[] = [];
-
-  for (const node of nodes) {
-    if (!node) continue;
-    const isFolder = node.kind === "project" || node.kind === "global_folder";
-    if (!isFolder) {
-      if (node.pinned) pinnedTopics.push(node);
-      else projects.push(node);
-      continue;
-    }
-
-    if (node.pinned && node.kind === "project") {
-      pinnedProjects.push(node);
-      continue;
-    }
-
-    const children = asArray(node.children);
-    const nextChildren: ProjectNode[] = [];
-    for (const child of children) {
-      if (isTopicNode(child) && child.pinned) {
-        pinnedTopics.push(child);
-        continue;
-      }
-      nextChildren.push(child);
-    }
-    projects.push({ ...node, children: nextChildren });
-  }
-
-  pinnedTopics.sort((a, b) => topicSortValue(b, sortMode) - topicSortValue(a, sortMode));
-  pinnedProjects.sort((a, b) => projectSortValue(b, sortMode) - projectSortValue(a, sortMode));
-
-  return {
-    pinned: [...pinnedTopics, ...pinnedProjects],
-    projects,
-  };
-}
-
 // Global rows use the same project tree recipe; the fallback supplies their non-workspace accent.
 function projectAccentStyle(color?: string, fallbackValue?: string): CSSProperties | undefined {
   const value = projectColorValue(color) || fallbackValue;
@@ -357,15 +246,6 @@ function colorMenuLabel(label: string, color?: string, active = false) {
       />
       <span>{label}</span>
       {active && <Check className="project-tree__color-check" size={12} />}
-    </span>
-  );
-}
-
-function menuLabelWithCheck(label: string, checked: boolean) {
-  return (
-    <span className="context-menu__label-with-check">
-      <span className="context-menu__label-text">{label}</span>
-      {checked && <Check className="context-menu__check" size={13} aria-hidden="true" />}
     </span>
   );
 }
@@ -396,7 +276,6 @@ export function ProjectTree({
   activeTopicId,
   activeSessionPath,
   imTopicSources = {},
-  variant = "classic",
   onOpenTopic,
   onOpenProjectHistory,
   onAddProject,
@@ -408,7 +287,6 @@ export function ProjectTree({
   onTimeFilterChange,
 }: ProjectTreeProps) {
   const t = useT();
-  const compactTopics = variant === "workbench";
   const [tree, setTree] = useState<ProjectNode[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [manuallyCollapsed, setManuallyCollapsed] = useState<Set<string>>(new Set());
@@ -428,9 +306,6 @@ export function ProjectTree({
   const [dropProject, setDropProject] = useState<{ root: string; position: ProjectDropPosition } | null>(null);
   const [collapseSnapshot, setCollapseSnapshot] = useState<CollapseSnapshot | null>(null);
   const [platform, setPlatform] = useState("");
-  const [workbenchHeaderMenu, setWorkbenchHeaderMenu] = useState<WorkbenchHeaderMenu>(null);
-  const [workbenchOrganizeMode, setWorkbenchOrganizeMode] = useState<WorkbenchOrganizeMode>(loadWorkbenchOrganizeMode);
-  const [workbenchSortMode, setWorkbenchSortMode] = useState<WorkbenchSortMode>(loadWorkbenchSortMode);
   const filterRef = useRef<HTMLDivElement>(null);
   const filterTriggerRef = useRef<HTMLButtonElement>(null);
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
@@ -443,7 +318,6 @@ export function ProjectTree({
     setMenuPoint(null);
     setConfirmAction(null);
     setConfirmRemoveProject(null);
-    setWorkbenchHeaderMenu(null);
   }, []);
 
   const updateManuallyCollapsed = useCallback((updater: (prev: Set<string>) => Set<string>) => {
@@ -479,22 +353,6 @@ export function ProjectTree({
   useEffect(() => {
     void refresh();
   }, [refresh, refreshSignal]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(WORKBENCH_ORGANIZE_KEY, workbenchOrganizeMode);
-    } catch {
-      /* ignore */
-    }
-  }, [workbenchOrganizeMode]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(WORKBENCH_SORT_KEY, workbenchSortMode);
-    } catch {
-      /* ignore */
-    }
-  }, [workbenchSortMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -565,7 +423,6 @@ export function ProjectTree({
   const canRestoreCollapsedView = collapseSnapshot !== null;
   const canToggleCollapsedView = !searchActive && folderKeys.length > 0 && (hasExpandedFolders || canRestoreCollapsedView);
   const collapseToggleLabel = t(canRestoreCollapsedView ? "projectTree.restoreCollapsedTooltip" : "projectTree.collapseAllTooltip");
-  const workbenchCollapseToggleLabel = t(canRestoreCollapsedView ? "projectTree.restoreCollapsedWorkbench" : "projectTree.collapseAllWorkbench");
 
   const toggleCollapsedView = useCallback(() => {
     if (searchActive || folderKeys.length === 0) return;
@@ -623,21 +480,6 @@ export function ProjectTree({
     } finally {
       setAddingProject(false);
     }
-  };
-
-  const openWorkbenchHeaderMenu = (
-    event: ReactMouseEvent<HTMLElement> | ReactKeyboardEvent<HTMLElement>,
-    menu: Exclude<WorkbenchHeaderMenu, null>,
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setMenuTopic(null);
-    setMenuProject(null);
-    setConfirmAction(null);
-    setConfirmRemoveProject(null);
-    setFilterMenuOpen(false);
-    setMenuPoint(contextMenuPointFromEvent(event));
-    setWorkbenchHeaderMenu((value) => (value === menu ? null : menu));
   };
 
   const handleCreateTopic = async (scope: string, workspaceRoot: string, key: string) => {
@@ -733,31 +575,6 @@ export function ProjectTree({
     }
   };
 
-  const setTopicPinned = async (topicId: string, pinned: boolean) => {
-    try {
-      await app.SetTopicPinned(topicId, pinned);
-      setMenuTopic(null);
-      setMenuPoint(null);
-      await refresh();
-      await onTopicsChanged?.();
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const setProjectPinned = async (workspaceRoot: string, pinned: boolean) => {
-    if (!workspaceRoot) return;
-    try {
-      await app.SetProjectPinned(workspaceRoot, pinned);
-      setMenuProject(null);
-      setMenuPoint(null);
-      await refresh();
-      await onTopicsChanged?.();
-    } catch {
-      /* ignore */
-    }
-  };
-
   const copyProjectPath = async (path: string) => {
     if (!path) return;
     try {
@@ -844,13 +661,8 @@ export function ProjectTree({
     const filtered = tree
       .map(filterNode)
       .filter((node): node is ProjectNode => node !== null);
-    return compactTopics ? arrangeWorkbenchTree(filtered, workbenchOrganizeMode, workbenchSortMode) : filtered;
-  }, [compactTopics, query, tree, timeFilter, workbenchOrganizeMode, workbenchSortMode]);
-
-  const workbenchTreeSections = useMemo<WorkbenchTreeSections>(() => {
-    if (!compactTopics) return { pinned: [], projects: visibleTree };
-    return splitWorkbenchPinnedTree(visibleTree, workbenchSortMode);
-  }, [compactTopics, visibleTree, workbenchSortMode]);
+    return filtered;
+  }, [query, tree, timeFilter]);
 
   const projectDragEnabled = query.trim() === "";
 
@@ -930,22 +742,17 @@ export function ProjectTree({
       const accentStyle = projectAccentStyle(node.projectColor, scope === "global" ? "var(--project-tree-global-accent)" : undefined);
       const active = topicIsActive(node, activeScope, activeWorkspaceRoot, activeTopicId, activeSessionPath);
       const label = (node.label || node.topicId || "Untitled").replace(/^●\s*/, "");
-      const activityAt = node.lastActivityAt || node.createdAt || 0;
-      const timeLabel = compactTopics && activityAt ? topicActivityLabel(activityAt, t, true) : "";
-      const exactTimeLabel = compactTopics && activityAt ? topicActivityDateLabel(activityAt) : "";
-      const meta = topicMetaLine(node, t, compactTopics);
+      const meta = topicMetaLine(node, t);
       const status = topicStatus(node);
       const statusLabel = topicStatusLabel(node, t);
-      const showStatusInSide = status === "thinking" || status === "streaming" || status === "waiting_confirmation" || status === "background_job";
       const topicId = node.topicId ?? "";
       const imSource = scope === "global" && topicId ? imTopicSources[topicId] : undefined;
       const imSourceLabel = imSource?.label || "";
       const imSourceTitle = imSourceLabel ? t("msg.fromIm", { source: imSourceLabel }) : "";
       const imSourcePlatform = (imSource?.platform || "im").replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "im";
-      const title = [label, imSourceTitle, statusLabel, meta, exactTimeLabel].filter(Boolean).join(" · ");
+      const title = [label, imSourceTitle, statusLabel, meta].filter(Boolean).join(" · ");
       const topicMenuOpen = !isSessionNode && menuTopic === topicId;
       const pinned = Boolean(node.pinned);
-      const pinLabel = t(pinned ? "projectTree.unpinTopic" : "projectTree.pinTopic");
       const openTopicMenu = (event: ReactMouseEvent<HTMLElement> | ReactKeyboardEvent<HTMLElement>) => {
         if (isSessionNode) return;
         event.preventDefault();
@@ -957,16 +764,6 @@ export function ProjectTree({
         setConfirmAction(null);
       };
       const topicMenuItems: ContextMenuItem[] = [
-        ...(compactTopics
-          ? [
-              {
-                key: pinned ? "unpin" : "pin",
-                icon: <Pin size={13} />,
-                label: pinLabel,
-                onSelect: () => void setTopicPinned(topicId, !pinned),
-              },
-            ]
-          : []),
         {
           key: "rename",
           icon: <Pencil size={13} />,
@@ -1007,7 +804,7 @@ export function ProjectTree({
       }
       const row = (
         <div
-          className={`project-tree__topic${scopeClass}${isSessionNode ? " project-tree__topic--session" : ""}${active ? " project-tree__topic--active" : ""}${node.running ? " project-tree__topic--running" : ""}${status ? ` project-tree__topic--status-${status}` : ""}${!isSessionNode && pinned ? " project-tree__topic--pinned" : ""}${topicMenuOpen ? " project-tree__topic--menu-open" : ""}${compactTopics && (timeLabel || showStatusInSide) ? " project-tree__topic--with-side" : meta ? " project-tree__topic--has-meta" : ""}${imSource ? " project-tree__topic--im-source" : ""}`}
+          className={`project-tree__topic${scopeClass}${isSessionNode ? " project-tree__topic--session" : ""}${active ? " project-tree__topic--active" : ""}${node.running ? " project-tree__topic--running" : ""}${status ? ` project-tree__topic--status-${status}` : ""}${!isSessionNode && pinned ? " project-tree__topic--pinned" : ""}${topicMenuOpen ? " project-tree__topic--menu-open" : ""}${meta ? " project-tree__topic--has-meta" : ""}${imSource ? " project-tree__topic--im-source" : ""}`}
           style={accentStyle}
           onContextMenu={isSessionNode ? undefined : openTopicMenu}
         >
@@ -1038,64 +835,15 @@ export function ProjectTree({
                     <span>{imSourceLabel}</span>
                   </span>
                 )}
-                {!compactTopics && statusLabel && <span className={`project-tree__topic-status project-tree__topic-status--${status}`}>{statusLabel}</span>}
+                {statusLabel && <span className={`project-tree__topic-status project-tree__topic-status--${status}`}>{statusLabel}</span>}
               </span>
-              {!compactTopics && meta && (
+              {meta && (
                 <span className="project-tree__topic-meta">
                   <span className="project-tree__topic-meta-text">{meta}</span>
                 </span>
               )}
             </span>
-            {compactTopics && (timeLabel || showStatusInSide) && (
-              <span className="project-tree__topic-side" aria-hidden="true">
-                {showStatusInSide && <span className={`project-tree__topic-state project-tree__topic-state--${status}`} title={statusLabel} />}
-                {timeLabel && <span className="project-tree__topic-time">{timeLabel}</span>}
-              </span>
-            )}
-            {compactTopics && statusLabel && (
-              <span className="sr-only">
-                {statusLabel}
-              </span>
-            )}
-            {compactTopics && meta && (
-              <span className="sr-only">
-                {meta}
-              </span>
-            )}
           </button>
-          {!isSessionNode && compactTopics && (
-            <span className="project-tree__topic-actions" aria-label={t("projectTree.topicActions")}>
-              <Tooltip label={pinLabel} side="top" className="project-tree__topic-action-slot">
-                <button
-                  className={`project-tree__topic-action${pinned ? " project-tree__topic-action--pinned" : ""}`}
-                  type="button"
-                  aria-label={pinLabel}
-                  aria-pressed={pinned}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    void setTopicPinned(topicId, !pinned);
-                  }}
-                >
-                  <Pin size={15} aria-hidden="true" />
-                </button>
-              </Tooltip>
-              <Tooltip label={t("projectTree.archiveTopic")} side="top" className="project-tree__topic-action-slot">
-                <button
-                  className="project-tree__topic-action project-tree__topic-action--archive"
-                  type="button"
-                  aria-label={t("projectTree.archiveTopic")}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    void trashTopic(topicId);
-                  }}
-                >
-                  <Archive size={15} aria-hidden="true" />
-                </button>
-              </Tooltip>
-            </span>
-          )}
           {!isSessionNode && (
             <ContextMenu
               open={topicMenuOpen}
@@ -1131,10 +879,8 @@ export function ProjectTree({
     const projectPath = node.root ?? "";
     const colorTargetRoot = scope === "global" ? "" : projectPath;
     const projectLabel = node.label || (scope === "global" ? "Global" : "Untitled");
-    const projectPinned = Boolean(node.pinned);
     const projectActive = activeScope === scope && (scope === "global" || activeWorkspaceRoot === node.root);
     const projectMenuOpen = menuProject?.key === key;
-    const activeTopicInProject = Boolean(activeTopicId) && activeScope === scope && (scope === "global" || activeWorkspaceRoot === projectRoot);
     const draggableProject = section !== "pinned" && projectDragEnabled && depth === 0 && Boolean(projectDragKey) && editingProject?.key !== key;
     const projectDropPosition = dropProject?.root === projectDragKey ? dropProject.position : null;
     const handleProjectDragStart = (event: ReactDragEvent<HTMLElement>) => {
@@ -1250,79 +996,6 @@ export function ProjectTree({
           ]
         : []),
     ];
-    const workbenchProjectMenuItems: ContextMenuItem[] = [
-      ...(scope === "project"
-        ? [
-            {
-              key: projectPinned ? "unpin-project" : "pin-project",
-              icon: <Pin size={13} />,
-              label: t(projectPinned ? "projectTree.unpinProject" : "projectTree.pinProject"),
-              onSelect: () => {
-                void setProjectPinned(projectRoot, !projectPinned);
-              },
-            },
-          ]
-        : []),
-      {
-        key: "reveal",
-        icon: <FolderOpen size={13} />,
-        label: t(revealLabelKey(platform)),
-        disabled: !projectPath,
-        onSelect: () => {
-          void app.RevealPath(projectPath).catch(() => {});
-          closeMenu();
-        },
-      },
-      ...(scope === "project"
-        ? [
-            {
-              key: "project-history",
-              icon: <History size={13} />,
-              label: t("projectTree.projectHistory"),
-              onSelect: () => {
-                closeMenu();
-                void onOpenProjectHistory(scope, projectRoot);
-              },
-            },
-          ]
-        : []),
-      {
-        key: "rename",
-        icon: <Pencil size={13} />,
-        label: t("projectTree.renameProjectWorkbench"),
-        onSelect: () => startRenameProject(key, projectRoot, projectLabel),
-      },
-      {
-        key: "archive-active-topic",
-        icon: <Archive size={13} />,
-        label: activeTopicId && confirmAction?.topicId === activeTopicId && confirmAction.action === "trash"
-          ? t("history.confirmMoveToTrash")
-          : t("projectTree.archiveConversation"),
-        disabled: !activeTopicInProject || !activeTopicId,
-        danger: true,
-        onSelect: () => {
-          if (!activeTopicId) return;
-          if (confirmAction?.topicId === activeTopicId && confirmAction.action === "trash") void trashTopic(activeTopicId);
-          else setConfirmAction({ topicId: activeTopicId, action: "trash" });
-        },
-      },
-      ...(scope === "project"
-        ? [
-            { type: "separator" as const, key: "remove-separator" },
-            {
-              key: "remove",
-              icon: <XCircle size={13} />,
-              label: confirmRemoveProject === key ? t("projectTree.confirmRemoveProjectShort") : t("projectTree.removeProjectShort"),
-              danger: true,
-              onSelect: () => {
-                if (confirmRemoveProject === key) void removeProject(projectPath);
-                else setConfirmRemoveProject(key);
-              },
-            },
-          ]
-        : []),
-    ];
-
     if (editingProject?.key === key) {
       return (
         <div key={key}>
@@ -1394,28 +1067,10 @@ export function ProjectTree({
               <span style={{ width: 12 }} />
             )}
           </button>
-          {compactTopics && (
-            <Tooltip label={t("projectTree.projectActions")} className="project-tree__folder-action-slot">
-              <button
-                type="button"
-                className="project-tree__folder-action project-tree__folder-action--menu"
-                aria-label={t("projectTree.projectActions")}
-                aria-haspopup="menu"
-                aria-expanded={projectMenuOpen}
-                onClick={(e) => {
-                  openProjectMenu(e);
-                }}
-              >
-                <MoreHorizontal size={16} aria-hidden="true" />
-              </button>
-            </Tooltip>
-          )}
-          <Tooltip label={t("projectTree.newTopicTooltip")} className={compactTopics ? "project-tree__folder-action-slot" : "project-tree__action-slot"}>
+          <Tooltip label={t("projectTree.newTopicTooltip")} className="project-tree__action-slot">
             <button
               type="button"
-              className={compactTopics
-                ? `project-tree__folder-action project-tree__folder-action--create${creatingProject === key ? " project-tree__folder-action--active" : ""}`
-                : `project-tree__new-topic${creatingProject === key ? " project-tree__new-topic--active" : ""}`}
+              className={`project-tree__new-topic${creatingProject === key ? " project-tree__new-topic--active" : ""}`}
               aria-label={t("projectTree.newTopicTooltip")}
               disabled={creatingProject !== null}
               onClick={(e) => {
@@ -1423,14 +1078,14 @@ export function ProjectTree({
                 void handleCreateTopic(scope, projectRoot, key);
               }}
             >
-              {compactTopics ? <SquarePen size={15} aria-hidden="true" /> : <Plus size={12} aria-hidden="true" />}
+              <Plus size={12} aria-hidden="true" />
             </button>
           </Tooltip>
           <ContextMenu
             open={projectMenuOpen}
             point={menuPoint}
-            items={compactTopics ? workbenchProjectMenuItems : projectMenuItems}
-            minWidth={compactTopics ? 206 : 212}
+            items={projectMenuItems}
+            minWidth={212}
             ariaLabel={t("projectTree.projectActions")}
             onClose={closeMenu}
           />
@@ -1446,125 +1101,15 @@ export function ProjectTree({
     );
   };
 
-  const workbenchHeaderMoreItems: ContextMenuItem[] = [
-    {
-      key: "archive-all",
-      icon: <Archive size={13} />,
-      label: t("projectTree.archiveAllConversations"),
-      disabled: true,
-      onSelect: () => {},
-    },
-    { type: "separator", key: "organize-separator" },
-    {
-      key: "organize-heading",
-      icon: <Folder size={13} />,
-      label: t("projectTree.organizeSidebar"),
-      disabled: true,
-      variant: "section",
-      onSelect: () => {},
-    },
-    {
-      key: "organize-project",
-      icon: <Folder size={13} />,
-      label: menuLabelWithCheck(t("projectTree.organizeByProject"), workbenchOrganizeMode === "project"),
-      onSelect: () => {
-        setWorkbenchOrganizeMode("project");
-        closeMenu();
-      },
-    },
-    {
-      key: "organize-recent",
-      icon: <Folder size={13} />,
-      label: menuLabelWithCheck(t("projectTree.organizeRecentProjects"), workbenchOrganizeMode === "recent"),
-      onSelect: () => {
-        setWorkbenchOrganizeMode("recent");
-        closeMenu();
-      },
-    },
-    {
-      key: "organize-time",
-      icon: <Clock size={13} />,
-      label: menuLabelWithCheck(t("projectTree.organizeByTime"), workbenchOrganizeMode === "time"),
-      onSelect: () => {
-        setWorkbenchOrganizeMode("time");
-        closeMenu();
-      },
-    },
-    {
-      key: "move-section-down",
-      icon: <ArrowDown size={13} />,
-      label: t("projectTree.moveSectionDown"),
-      disabled: true,
-      onSelect: () => {},
-    },
-    { type: "separator", key: "sort-separator" },
-    {
-      key: "sort-heading",
-      icon: <Clock size={13} />,
-      label: t("projectTree.sortCriteria"),
-      disabled: true,
-      variant: "section",
-      onSelect: () => {},
-    },
-    {
-      key: "sort-created",
-      icon: <Clock size={13} />,
-      label: menuLabelWithCheck(t("projectTree.sortByCreatedAt"), workbenchSortMode === "created"),
-      onSelect: () => {
-        setWorkbenchSortMode("created");
-        closeMenu();
-      },
-    },
-    {
-      key: "sort-updated",
-      icon: <Pencil size={13} />,
-      label: menuLabelWithCheck(t("projectTree.sortByUpdatedAt"), workbenchSortMode === "updated"),
-      onSelect: () => {
-        setWorkbenchSortMode("updated");
-        closeMenu();
-      },
-    },
-  ];
-
-  const workbenchHeaderAddItems: ContextMenuItem[] = [
-    {
-      key: "blank-project",
-      icon: <FolderPlus size={13} />,
-      label: t("projectTree.createBlankProject"),
-      disabled: true,
-      onSelect: () => {},
-    },
-    {
-      key: "existing-folder",
-      icon: <FolderPlus size={13} />,
-      label: t("projectTree.useExistingFolder"),
-      disabled: addingProject,
-      onSelect: () => {
-        closeMenu();
-        void handleAddProject();
-      },
-    },
-  ];
-
   const timeFilterBadge = timeFilter !== "all" ? (timeFilter === "1d" ? "24h" : timeFilter) : "";
-  const timeFilterDisplayLabel = timeFilter === "all" ? t("projectTree.timeFilterAll")
-    : timeFilter === "10" ? t("projectTree.timeFilter10")
-    : timeFilter === "20" ? t("projectTree.timeFilter20")
-    : timeFilter === "1h" ? t("projectTree.timeFilter1h")
-    : timeFilter === "3h" ? t("projectTree.timeFilter3h")
-    : timeFilter === "5h" ? t("projectTree.timeFilter5h")
-    : t("projectTree.timeFilter1d");
-  const renderTimeFilterControl = (mode: "classic" | "workbench") => {
-    const workbench = mode === "workbench";
+  const renderTimeFilterControl = () => {
     const active = timeFilter !== "all";
-    const controlLabel = workbench ? `${t("projectTree.timeFilter")}: ${timeFilterDisplayLabel}` : t("projectTree.timeFilter");
-    const buttonClassName = workbench
-      ? `project-tree__header-icon-btn project-tree__header-icon-btn--filter${active ? " project-tree__header-icon-btn--active" : ""}`
-      : `project-tree__header-action-btn${active ? " project-tree__header-action-btn--active" : ""}`;
+    const controlLabel = t("projectTree.timeFilter");
+    const buttonClassName = `project-tree__header-action-btn${active ? " project-tree__header-action-btn--active" : ""}`;
     return (
       <Tooltip
         label={controlLabel}
-        className={`project-tree__action-slot project-tree__header-action-slot project-tree__header-action-slot--filter${workbench ? " project-tree__header-action-slot--workbench-filter" : ""}`}
+        className="project-tree__action-slot project-tree__header-action-slot project-tree__header-action-slot--filter"
       >
         <div ref={filterRef} className="project-tree__time-filter">
           <button
@@ -1575,12 +1120,11 @@ export function ProjectTree({
             aria-haspopup="menu"
             aria-expanded={filterMenuOpen}
             onClick={() => {
-              setWorkbenchHeaderMenu(null);
               setMenuPoint(null);
               setFilterMenuOpen(!filterMenuOpen);
             }}
           >
-            <Clock size={workbench ? 15 : 14} aria-hidden="true" />
+            <Clock size={14} aria-hidden="true" />
             {timeFilterBadge && (
               <span className="project-tree__time-filter-label">
                 {timeFilterBadge}
@@ -1654,105 +1198,37 @@ export function ProjectTree({
     );
   };
 
-  const renderProjectHeader = (mode: "classic" | "workbench") => (
+  const renderProjectHeader = () => (
     <div className="project-tree__header">
       <span className="project-tree__header-title">
         <BriefcaseBusiness className="project-tree__header-icon" size={13} />
         {t("projectTree.workspaceTitle")}
       </span>
       <span className="project-tree__header-actions">
-        {mode === "workbench" ? (
-          <>
-            {renderTimeFilterControl("workbench")}
-            <Tooltip label={workbenchCollapseToggleLabel} className="project-tree__header-action-slot">
-              <button
-                type="button"
-                className="project-tree__header-icon-btn"
-                aria-label={workbenchCollapseToggleLabel}
-                disabled={!canToggleCollapsedView}
-                onClick={toggleCollapsedView}
-              >
-                {canRestoreCollapsedView ? <Maximize2 size={15} aria-hidden="true" /> : <Minimize2 size={15} aria-hidden="true" />}
-              </button>
-            </Tooltip>
-            <span className="project-tree__header-menu-wrap">
-              <Tooltip label={t("projectTree.moreActions")} className="project-tree__header-action-slot">
-                <button
-                  type="button"
-                  className={`project-tree__header-icon-btn${workbenchHeaderMenu === "more" ? " project-tree__header-icon-btn--active" : ""}`}
-                  aria-label={t("projectTree.moreActions")}
-                  aria-haspopup="menu"
-                  aria-expanded={workbenchHeaderMenu === "more"}
-                  onClick={(event) => {
-                    openWorkbenchHeaderMenu(event, "more");
-                  }}
-                >
-                  <MoreHorizontal size={16} aria-hidden="true" />
-                </button>
-              </Tooltip>
-              <ContextMenu
-                open={workbenchHeaderMenu === "more"}
-                point={menuPoint}
-                items={workbenchHeaderMoreItems}
-                minWidth={222}
-                ariaLabel={t("projectTree.moreActions")}
-                onClose={closeMenu}
-              />
-            </span>
-            <span className="project-tree__header-menu-wrap">
-              <Tooltip label={t("projectTree.addProjectTooltip")} className="project-tree__header-action-slot">
-                <button
-                  type="button"
-                  className={`project-tree__header-icon-btn${workbenchHeaderMenu === "add" ? " project-tree__header-icon-btn--active" : ""}`}
-                  aria-label={t("projectTree.addProjectTooltip")}
-                  aria-haspopup="menu"
-                  aria-expanded={workbenchHeaderMenu === "add"}
-                  disabled={addingProject}
-                  onClick={(event) => {
-                    openWorkbenchHeaderMenu(event, "add");
-                  }}
-                >
-                  <FolderPlus size={16} aria-hidden="true" />
-                </button>
-              </Tooltip>
-              <ContextMenu
-                open={workbenchHeaderMenu === "add"}
-                point={menuPoint}
-                items={workbenchHeaderAddItems}
-                minWidth={206}
-                ariaLabel={t("projectTree.addProjectTooltip")}
-                onClose={closeMenu}
-              />
-            </span>
-          </>
-        ) : (
-          <>
-            {renderTimeFilterControl("classic")}
-            <Tooltip label={collapseToggleLabel} className="project-tree__action-slot project-tree__header-action-slot project-tree__action-slot--collapse">
-              <button
-                type="button"
-                className={`project-tree__collapse-all${canRestoreCollapsedView ? " project-tree__collapse-all--restore" : ""}`}
-                aria-label={collapseToggleLabel}
-                aria-pressed={canRestoreCollapsedView}
-                disabled={!canToggleCollapsedView}
-                onClick={toggleCollapsedView}
-              >
-                {canRestoreCollapsedView ? <ListRestart size={14} /> : <ListCollapse size={14} />}
-              </button>
-            </Tooltip>
-            <Tooltip label={t("projectTree.addProjectTooltip")} className="project-tree__action-slot project-tree__header-action-slot project-tree__action-slot--add">
-              <button
-                type="button"
-                className="project-tree__add-project"
-                aria-label={t("projectTree.addProjectTooltip")}
-                disabled={addingProject}
-                onClick={() => void handleAddProject()}
-              >
-                <FolderPlus size={14} />
-              </button>
-            </Tooltip>
-          </>
-        )}
+        {renderTimeFilterControl()}
+        <Tooltip label={collapseToggleLabel} className="project-tree__action-slot project-tree__header-action-slot project-tree__action-slot--collapse">
+          <button
+            type="button"
+            className={`project-tree__collapse-all${canRestoreCollapsedView ? " project-tree__collapse-all--restore" : ""}`}
+            aria-label={collapseToggleLabel}
+            aria-pressed={canRestoreCollapsedView}
+            disabled={!canToggleCollapsedView}
+            onClick={toggleCollapsedView}
+          >
+            {canRestoreCollapsedView ? <ListRestart size={14} /> : <ListCollapse size={14} />}
+          </button>
+        </Tooltip>
+        <Tooltip label={t("projectTree.addProjectTooltip")} className="project-tree__action-slot project-tree__header-action-slot project-tree__action-slot--add">
+          <button
+            type="button"
+            className="project-tree__add-project"
+            aria-label={t("projectTree.addProjectTooltip")}
+            disabled={addingProject}
+            onClick={() => void handleAddProject()}
+          >
+            <FolderPlus size={14} />
+          </button>
+        </Tooltip>
       </span>
     </div>
   );
@@ -1788,8 +1264,6 @@ export function ProjectTree({
     );
   };
 
-  const hasWorkbenchRows = workbenchTreeSections.pinned.length > 0 || workbenchTreeSections.projects.length > 0;
-
   return (
     <div className="project-tree">
       <label className="project-tree__search">
@@ -1800,33 +1274,10 @@ export function ProjectTree({
           placeholder={t("projectTree.searchPlaceholder")}
         />
       </label>
-      {compactTopics ? (
-        <div className="project-tree__list project-tree__list--workbench">
-          {!hasWorkbenchRows ? (
-            renderEmptyState()
-          ) : (
-            <>
-              {workbenchTreeSections.pinned.length > 0 && (
-                <div className="project-tree__section project-tree__section--pinned">
-                  <div className="project-tree__section-title">{t("projectTree.pinnedTitle")}</div>
-                  {workbenchTreeSections.pinned.map((node) => renderNode(node, 0, "pinned"))}
-                </div>
-              )}
-              <div className="project-tree__section project-tree__section--projects">
-                {renderProjectHeader("workbench")}
-                {workbenchTreeSections.projects.map((node) => renderNode(node, 0, "projects"))}
-              </div>
-            </>
-          )}
-        </div>
-      ) : (
-        <>
-          {renderProjectHeader("classic")}
-          <div className="project-tree__list">
-            {visibleTree.length === 0 ? renderEmptyState() : visibleTree.map((node) => renderNode(node, 0))}
-          </div>
-        </>
-      )}
+      {renderProjectHeader()}
+      <div className="project-tree__list">
+        {visibleTree.length === 0 ? renderEmptyState() : visibleTree.map((node) => renderNode(node, 0))}
+      </div>
     </div>
   );
 }

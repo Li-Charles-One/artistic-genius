@@ -98,7 +98,7 @@ ok(
 for (const selector of [
   ".sidebar-im__summary-label",
   ".sidebar-im__summary-status",
-  ".workbench-dock__tab-label",
+  ".right-dock__tab-label",
   ".workspace-files__scope-title",
   ".workspace-files__scope-meta",
   ".context-panel__metric > span",

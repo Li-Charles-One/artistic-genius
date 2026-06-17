@@ -94,11 +94,6 @@ ok(
 );
 
 ok(
-  /workbenchChrome \? \(\s*<span className="app-chrome__spacer" aria-hidden="true" \/>/s.test(appChromeSource),
-  "AppChrome workbench branch skips the tab strip",
-);
-
-ok(
   /app-chrome__tools--fixed/.test(appChromeSource),
   "AppChrome renders the command search as a fixed chrome tool",
 );

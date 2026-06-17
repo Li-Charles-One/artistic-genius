@@ -120,11 +120,6 @@ function isThemeMode(value: string): value is Theme {
   return value === "auto" || value === "light" || value === "dark";
 }
 
-type DesktopLayoutStyle = "classic" | "workbench";
-
-function normalizeDesktopLayoutStyle(style: string | undefined): DesktopLayoutStyle {
-  return style === "workbench" ? "workbench" : "classic";
-}
 const RIGHT_DOCK_TREE_DEFAULT_WIDTH = 300;
 const RIGHT_DOCK_TREE_MIN_WIDTH = 300;
 const RIGHT_DOCK_TREE_MAX_WIDTH = 560;
@@ -856,7 +851,6 @@ export default function App() {
   const [needsOnboarding, setNeedsOnboarding] = useState<boolean | null>(null);
   const [settingsTarget, setSettingsTarget] = useState<SettingsTab | null>(null);
   const [settingsFocus, setSettingsFocus] = useState<SettingsInitialFocus | null>(null);
-  const [_desktopLayoutStyle, setDesktopLayoutStyle] = useState<DesktopLayoutStyle>("classic");
   const [startupUpdateChecksEnabled, setStartupUpdateChecksEnabled] = useState<boolean | null>(null);
   const [histView, setHistView] = useState<HistoryViewState | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -1040,11 +1034,10 @@ export default function App() {
   }, []);
 
   const applyDesktopPreferences = useCallback(
-    (settings: Pick<SettingsView, "desktopTheme" | "desktopThemeStyle" | "desktopLayoutStyle" | "desktopLanguage" | "checkUpdates">) => {
+    (settings: Pick<SettingsView, "desktopTheme" | "desktopThemeStyle" | "desktopLanguage" | "checkUpdates">) => {
       const nextTheme = normalizeThemePreference(settings.desktopTheme);
       const nextStyle = normalizeThemeStyleForTheme(settings.desktopThemeStyle, nextTheme);
       applyTheme(nextTheme, nextStyle, { persist: false });
-      setDesktopLayoutStyle(normalizeDesktopLayoutStyle(settings.desktopLayoutStyle));
       setLocalePref(normalizeLangPref(settings.desktopLanguage));
       setStartupUpdateChecksEnabled(settings.checkUpdates !== false);
     },
@@ -2766,48 +2759,48 @@ export default function App() {
         {workspacePanelRenderable && (
           <aside
             className={[
-              "workbench-dock",
-              `workbench-dock--${rightDockMode}`,
+              "right-dock",
+              `right-dock--${rightDockMode}`,
             ].join(" ")}
-            aria-label={t("rightDock.workbench")}
+            aria-label={t("rightDock.panel")}
           >
-            <div className="workbench-dock__tools">
-              <div className="workbench-dock__tabs" role="tablist" aria-label={t("rightDock.views")}>
+            <div className="right-dock__tools">
+              <div className="right-dock__tabs" role="tablist" aria-label={t("rightDock.views")}>
                 {SHOW_CONTEXT_DOCK && (
                   <button
                     type="button"
                     role="tab"
                     aria-selected={rightDockMode === "context"}
-                    className={`workbench-dock__tab${rightDockMode === "context" ? " workbench-dock__tab--active" : ""}`}
+                    className={`right-dock__tab${rightDockMode === "context" ? " right-dock__tab--active" : ""}`}
                     onClick={() => openRightDockMode("context")}
                   >
                     <Activity size={13} />
-                    <span className="workbench-dock__tab-label">{t("rightDock.overview")}</span>
+                    <span className="right-dock__tab-label">{t("rightDock.overview")}</span>
                   </button>
                 )}
                 <button
                   type="button"
                   role="tab"
                   aria-selected={rightDockMode === "files"}
-                  className={`workbench-dock__tab${rightDockMode === "files" ? " workbench-dock__tab--active" : ""}`}
+                  className={`right-dock__tab${rightDockMode === "files" ? " right-dock__tab--active" : ""}`}
                   onClick={() => openRightDockMode("files")}
                 >
                   <FileText size={13} />
-                  <span className="workbench-dock__tab-label">{t("workspace.filesTab")}</span>
+                  <span className="right-dock__tab-label">{t("workspace.filesTab")}</span>
                 </button>
                 <button
                   type="button"
                   role="tab"
                   aria-selected={rightDockMode === "changed"}
-                  className={`workbench-dock__tab${rightDockMode === "changed" ? " workbench-dock__tab--active" : ""}`}
+                  className={`right-dock__tab${rightDockMode === "changed" ? " right-dock__tab--active" : ""}`}
                   onClick={() => openRightDockMode("changed")}
                 >
                   <GitBranch size={13} />
-                  <span className="workbench-dock__tab-label">{t("workspace.changedTab")}</span>
+                  <span className="right-dock__tab-label">{t("workspace.changedTab")}</span>
                 </button>
               </div>
             </div>
-            <div className="workbench-dock__body">
+            <div className="right-dock__body">
               {rightDockMode === "context" ? (
                 <ContextPanel
                   tabId={activeTabId}
