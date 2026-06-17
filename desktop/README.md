@@ -35,7 +35,12 @@ wails dev -tags webkit2_41
 
 ## Release Status
 
-Automatic update publishing is intentionally disabled during the local product reset. Re-enable it after choosing the target GitHub repository, signing keys, and update channel.
+Automatic updates read signed GitHub Release artifacts from `Li-Charles-One/artistic-genius`.
+
+- Tag `desktop-vX.Y.Z` to publish a stable desktop release.
+- The `desktop-latest` release stores the stable `latest.json` updater pointer.
+- The `desktop-canary` release stores the canary artifacts and manifest.
+- Configure `MINISIGN_PRIVATE_KEY` and `MINISIGN_PASSWORD` repository secrets before publishing updater-safe builds.
 
 ## Files
 

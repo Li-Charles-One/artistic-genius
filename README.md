@@ -29,4 +29,9 @@ For desktop packaging, use the scripts under `scripts/` from the `desktop` modul
 
 ## Release Status
 
-Website, npm, Homebrew, and automatic update publishing have been removed for the local reset. GitHub release/updater wiring can be added back once the target repository and signing choices are confirmed.
+GitHub Releases are the desktop update source for `Li-Charles-One/artistic-genius`.
+
+- Stable desktop releases use `desktop-vX.Y.Z` tags.
+- The updater reads `latest.json` from the `desktop-latest` release pointer.
+- Canary builds use the `desktop-canary` release pointer.
+- Website, npm, Homebrew, R2, and crash-report publishing remain removed.

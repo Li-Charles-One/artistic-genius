@@ -32,34 +32,26 @@ import (
 // has no Wails dependency so the logic is unit-tested directly; updater_app.go is
 // the thin Wails binding that wires these into App methods and progress events.
 
-// Manifest endpoints are configured in the release wiring layer. They are empty
-// until the app is connected to an owned GitHub release channel.
 const (
-	ghReleasesBase = ""
+	ghReleasesBase = "https://github.com/Li-Charles-One/artistic-genius/releases"
 	httpTimeout    = 15 * time.Second
 )
 
 // manifestEndpoints returns manifest URLs for the running build's channel.
 func manifestEndpoints() []string {
-	if ghReleasesBase == "" {
-		return nil
-	}
 	if channel == "canary" {
-		return []string{ghReleasesBase + "/latest/download/latest.json"}
+		return []string{ghReleasesBase + "/download/desktop-canary/latest.json"}
 	}
-	return []string{ghReleasesBase + "/latest/download/latest.json"}
+	return []string{ghReleasesBase + "/download/desktop-latest/latest.json"}
 }
 
 // downloadPage is the human-facing releases page shown when self-update is
 // unavailable (macOS) or the manifest omits its own link.
 func downloadPage() string {
-	if ghReleasesBase == "" {
-		return ""
-	}
 	if channel == "canary" {
-		return ghReleasesBase // lists pre-releases too
+		return ghReleasesBase + "/tag/desktop-canary"
 	}
-	return ghReleasesBase + "/latest"
+	return ghReleasesBase + "/tag/desktop-latest"
 }
 
 // UpdateInfo is the CheckUpdate result that drives the frontend's update banner.

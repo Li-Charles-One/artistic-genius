@@ -78,20 +78,22 @@ func TestEvaluate(t *testing.T) {
 	}
 }
 
-func TestManifestEndpointsDisabledUntilReleaseRepositoryIsConfigured(t *testing.T) {
+func TestManifestEndpointsUseDesktopPointerReleases(t *testing.T) {
 	orig := channel
 	t.Cleanup(func() { channel = orig })
 
 	channel = "stable"
-	if endpoints := manifestEndpoints(); len(endpoints) != 0 {
-		t.Fatalf("stable endpoints = %#v, want none", endpoints)
+	stable := manifestEndpoints()
+	if len(stable) != 1 || !strings.Contains(stable[0], "/download/desktop-latest/latest.json") {
+		t.Fatalf("stable endpoints = %#v, want desktop-latest manifest", stable)
 	}
 	channel = "canary"
-	if endpoints := manifestEndpoints(); len(endpoints) != 0 {
-		t.Fatalf("canary endpoints = %#v, want none", endpoints)
+	canary := manifestEndpoints()
+	if len(canary) != 1 || !strings.Contains(canary[0], "/download/desktop-canary/latest.json") {
+		t.Fatalf("canary endpoints = %#v, want desktop-canary manifest", canary)
 	}
-	if page := downloadPage(); page != "" {
-		t.Fatalf("downloadPage = %q, want empty", page)
+	if page := downloadPage(); !strings.Contains(page, "/tag/desktop-canary") {
+		t.Fatalf("downloadPage = %q, want canary release page", page)
 	}
 }
 

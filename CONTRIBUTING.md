@@ -116,11 +116,11 @@ ci: add golangci-lint and govulncheck
 ## Submitting changes
 
 1. Fork the repository
-2. Create a feature branch from `main-v2`
+2. Create a feature branch from `master`
 3. Make your changes with tests
 4. Ensure `go test ./...` passes
 5. Ensure `gofmt -l .` shows no changes
-6. Submit a pull request to `main-v2`
+6. Submit a pull request to `master`
 
 ## Reporting issues
 

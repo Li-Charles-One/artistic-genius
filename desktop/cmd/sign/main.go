@@ -12,8 +12,7 @@
 //
 //	manifest <dir> <ver> <tag>   Scan <dir> for the per-platform artifacts, compute
 //	                             size + sha256, and write <dir>/latest.json with GitHub
-//	                             release download URLs. The R2 mirror step rewrites those
-//	                             URLs to the CDN afterwards (url + sig fields together).
+//	                             release download URLs.
 package main
 
 import (
@@ -171,7 +170,7 @@ func genManifest(dir, version, tag string) error {
 	}
 	m := update.Manifest{
 		Version:      version,
-		DownloadPage: fmt.Sprintf("https://github.com/%s/releases/latest", repo),
+		DownloadPage: fmt.Sprintf("https://github.com/%s/releases/tag/%s", repo, tag),
 		Platforms:    map[string]update.Asset{},
 	}
 	entries, err := os.ReadDir(dir)

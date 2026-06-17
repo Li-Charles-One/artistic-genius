@@ -85,6 +85,9 @@ func TestGenManifest(t *testing.T) {
 	if m.Version != "v1.2.0" {
 		t.Fatalf("version = %q, want v1.2.0", m.Version)
 	}
+	if m.DownloadPage != "https://github.com/owner/artistic-genius/releases/tag/desktop-v1.2.0" {
+		t.Fatalf("download page = %q", m.DownloadPage)
+	}
 	if len(m.Platforms) != 5 {
 		t.Fatalf("want 5 platforms, got %d: %v", len(m.Platforms), m.Platforms)
 	}

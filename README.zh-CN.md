@@ -29,4 +29,9 @@ make test
 
 ## 发布状态
 
-官网、npm、Homebrew、自动更新发布链路已经在本地重置中移除。等确认你的目标 GitHub 仓库和签名方案后，再接第二层 release/updater。
+GitHub Releases 是 `Li-Charles-One/artistic-genius` 的桌面更新源。
+
+- 稳定桌面版本使用 `desktop-vX.Y.Z` tag。
+- updater 从 `desktop-latest` release 指针读取 `latest.json`。
+- Canary 构建使用 `desktop-canary` release 指针。
+- 官网、npm、Homebrew、R2、崩溃上报发布链路仍保持删除。

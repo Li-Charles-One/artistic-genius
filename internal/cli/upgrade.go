@@ -26,8 +26,8 @@ import (
 )
 
 const (
-	ghOwner        = ""
-	ghRepo         = ""
+	ghOwner        = "Li-Charles-One"
+	ghRepo         = "artistic-genius"
 	ghAPIReleases  = "https://api.github.com/repos/" + ghOwner + "/" + ghRepo + "/releases"
 	ghDownloadBase = "https://github.com/" + ghOwner + "/" + ghRepo + "/releases/download"
 	upgradeTimeout = 60 * time.Second
@@ -61,11 +61,6 @@ func upgradeCommand(args []string, version string) int {
 		fmt.Fprintf(os.Stderr, "%s %s\n", i18n.M.ErrorPrefix, i18n.M.UpgradeDevBuild)
 		return 1
 	}
-	if ghOwner == "" || ghRepo == "" {
-		fmt.Fprintf(os.Stderr, "%s upgrade release repository is not configured\n", i18n.M.ErrorPrefix)
-		return 1
-	}
-
 	// 2. Build HTTP client using configured proxy.
 	cfg, _ := config.Load()
 	spec := cfg.NetworkProxySpec()

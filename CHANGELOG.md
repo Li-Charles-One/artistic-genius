@@ -5,7 +5,7 @@ All notable changes to Artistic Genius are recorded here.
 ## [1.0.0] — 2026-06-03
 
 First stable release — a **ground-up rewrite in Go**. Not an upgrade of the `0.x`
-TypeScript line; a new codebase that becomes the default (`main-v2`).
+TypeScript line; a new codebase that becomes the default (`master`).
 
 ### Highlights
 
