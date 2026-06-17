@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/evidence"
-	"reasonix/internal/instruction"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/evidence"
+	"artistic-genius/internal/instruction"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(completeStep{}) }

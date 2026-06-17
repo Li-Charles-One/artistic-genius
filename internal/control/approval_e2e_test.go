@@ -6,11 +6,11 @@ import (
 	"sync"
 	"testing"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/event"
-	"reasonix/internal/permission"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/permission"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 type recordingWriter struct {

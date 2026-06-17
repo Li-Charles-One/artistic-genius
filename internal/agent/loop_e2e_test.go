@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/agent/testutil"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent/testutil"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 func echoRegistry() *tool.Registry {

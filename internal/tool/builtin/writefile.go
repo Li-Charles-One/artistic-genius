@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"reasonix/internal/tool"
+	"artistic-genius/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(writeFile{}) }

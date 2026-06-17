@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/evidence"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/evidence"
+	"artistic-genius/internal/provider"
 )
 
 func TestFinalReadinessFallsBackToCanonicalTodos(t *testing.T) {

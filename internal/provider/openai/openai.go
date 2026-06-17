@@ -24,8 +24,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"reasonix/internal/netclient"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/netclient"
+	"artistic-genius/internal/provider"
 )
 
 // defaultStreamIdleTimeout caps how long a started SSE stream may go without any

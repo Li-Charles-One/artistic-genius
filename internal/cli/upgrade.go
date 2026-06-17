@@ -18,16 +18,16 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/config"
-	"reasonix/internal/i18n"
-	"reasonix/internal/netclient"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/i18n"
+	"artistic-genius/internal/netclient"
 
 	"golang.org/x/mod/semver"
 )
 
 const (
-	ghOwner        = "esengine"
-	ghRepo         = "DeepSeek-Reasonix"
+	ghOwner        = ""
+	ghRepo         = ""
 	ghAPIReleases  = "https://api.github.com/repos/" + ghOwner + "/" + ghRepo + "/releases"
 	ghDownloadBase = "https://github.com/" + ghOwner + "/" + ghRepo + "/releases/download"
 	upgradeTimeout = 60 * time.Second
@@ -46,7 +46,7 @@ type ghAsset struct {
 	Size               int64  `json:"size"`
 }
 
-// upgradeCommand handles `reasonix upgrade` (and `reasonix update`).
+// upgradeCommand handles `artistic-genius upgrade` (and `artistic-genius update`).
 func upgradeCommand(args []string, version string) int {
 	fs := flag.NewFlagSet("upgrade", flag.ContinueOnError)
 	checkOnly := fs.Bool("check", false, "check for updates without installing")
@@ -59,6 +59,10 @@ func upgradeCommand(args []string, version string) int {
 	cur, ok := normalizeVersion(version)
 	if !ok {
 		fmt.Fprintf(os.Stderr, "%s %s\n", i18n.M.ErrorPrefix, i18n.M.UpgradeDevBuild)
+		return 1
+	}
+	if ghOwner == "" || ghRepo == "" {
+		fmt.Fprintf(os.Stderr, "%s upgrade release repository is not configured\n", i18n.M.ErrorPrefix)
 		return 1
 	}
 
@@ -106,7 +110,7 @@ func upgradeCommand(args []string, version string) int {
 	}
 
 	// 5. Find the asset for the current platform.
-	base := fmt.Sprintf("reasonix-%s-%s", runtime.GOOS, runtime.GOARCH)
+	base := fmt.Sprintf("artistic-genius-%s-%s", runtime.GOOS, runtime.GOARCH)
 	var asset *ghAsset
 	for i := range rel.Assets {
 		if strings.HasPrefix(rel.Assets[i].Name, base) {
@@ -143,9 +147,9 @@ func upgradeCommand(args []string, version string) int {
 	}
 
 	// 9. Extract binary from archive.
-	binName := "reasonix"
+	binName := "artistic-genius"
 	if runtime.GOOS == "windows" {
-		binName = "reasonix.exe"
+		binName = "artistic-genius.exe"
 	}
 	binary, err := extractBinary(archiveData, asset.Name, binName)
 	if err != nil {
@@ -180,17 +184,15 @@ func normalizeVersion(v string) (string, bool) {
 }
 
 // isCLITag reports whether a tag belongs to the CLI release namespace (v*).
-// Tags like "desktop-v1.5.0" or "npm-v1.4.0" are excluded.
+// Tags like "desktop-v1.5.0" or package-manager release tags are excluded.
 func isCLITag(tag string) bool {
 	tag = strings.TrimSpace(tag)
 	return len(tag) >= 2 && tag[0] == 'v' && tag[1] >= '0' && tag[1] <= '9'
 }
 
 // pickCLIRelease returns the newest CLI-namespace (v*) release from a
-// reverse-chronological list, skipping foreign namespaces ("desktop-v",
-// "npm-v"). Prereleases are kept: only 1.x carries `reasonix upgrade`, and the
-// 1.x line ships as rc on npm @next, so there is no stable user to hold back —
-// the command should always move to the newest 1.x.
+// reverse-chronological list, skipping foreign namespaces. Prereleases are kept:
+// the command should always move to the newest configured CLI release.
 func pickCLIRelease(rels []ghRelease) *ghRelease {
 	for i := range rels {
 		if isCLITag(rels[i].TagName) {
@@ -208,7 +210,7 @@ func fetchLatestRelease(c *http.Client) (*ghRelease, error) {
 		return nil, err
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", "reasonix-cli")
+	req.Header.Set("User-Agent", "artistic-genius-cli")
 
 	resp, err := c.Do(req)
 	if err != nil {
@@ -265,7 +267,7 @@ func verifyChecksum(data []byte, fileName string, checksumFile []byte) error {
 	return fmt.Errorf(i18n.M.UpgradeChecksumNotFoundFmt, fileName)
 }
 
-// extractBinary pulls the "reasonix" binary from a .tar.gz or .zip archive.
+// extractBinary pulls the "artistic-genius" binary from a .tar.gz or .zip archive.
 func extractBinary(data []byte, archiveName, binaryName string) ([]byte, error) {
 	if strings.HasSuffix(archiveName, ".zip") {
 		return extractFromZip(data, binaryName)
@@ -323,7 +325,7 @@ func extractFromZip(data []byte, name string) ([]byte, error) {
 //
 // On Unix this is a simple temp-file + rename. On Windows the running
 // executable is memory-mapped and cannot be overwritten directly, so we
-// rename it aside to .reasonix.old first, then place the new binary.
+// rename it aside to .artistic-genius.old first, then place the new binary.
 // The .old file is cleaned up best-effort (Windows may still hold a lock
 // on it; we hide it in that case).
 func replaceBinary(newBin []byte) error {

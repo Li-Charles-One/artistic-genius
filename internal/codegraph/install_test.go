@@ -155,7 +155,7 @@ func TestInstallReturnsCachedWithoutNetwork(t *testing.T) {
 		t.Skip("uses a POSIX +x launcher")
 	}
 	base := t.TempDir()
-	t.Setenv("REASONIX_CACHE_DIR", base)
+	t.Setenv("ARTISTIC_GENIUS_CACHE_DIR", base)
 	// Seed a fake cached launcher so Install short-circuits before any download.
 	launcher := filepath.Join(CacheDir(), "bin", "codegraph")
 	if err := os.MkdirAll(filepath.Dir(launcher), 0o755); err != nil {
@@ -179,7 +179,7 @@ func TestUpdateDownloadsLatestAndActivates(t *testing.T) {
 		t.Skip("uses a POSIX +x launcher")
 	}
 	base := t.TempDir()
-	t.Setenv("REASONIX_CACHE_DIR", base)
+	t.Setenv("ARTISTIC_GENIUS_CACHE_DIR", base)
 	asset := assetName()
 	body := makeTarGz(t, map[string]struct {
 		body string
@@ -247,7 +247,7 @@ func TestUpdateDownloadsLatestAndActivates(t *testing.T) {
 
 func TestActiveVersionRejectsTraversal(t *testing.T) {
 	base := t.TempDir()
-	t.Setenv("REASONIX_CACHE_DIR", base)
+	t.Setenv("ARTISTIC_GENIUS_CACHE_DIR", base)
 	dir := filepath.Join(base, "codegraph")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
@@ -319,10 +319,11 @@ func TestDownloadAssetRejectsMirrorChecksumMismatch(t *testing.T) {
 
 func TestDownloadBasesUseOfficialSourcesBeforeGitHub(t *testing.T) {
 	got := downloadBases()
-	want := []string{
-		officialMirrorBase + "/" + Version,
-		fmt.Sprintf("https://github.com/%s/releases/download/%s", cgRepo, Version),
+	var want []string
+	if strings.TrimSpace(officialMirrorBase) != "" {
+		want = append(want, strings.TrimRight(officialMirrorBase, "/")+"/"+Version)
 	}
+	want = append(want, fmt.Sprintf("https://github.com/%s/releases/download/%s", cgRepo, Version))
 	if len(got) != len(want) {
 		t.Fatalf("downloadBases = %#v, want %#v", got, want)
 	}

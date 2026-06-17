@@ -1,12 +1,12 @@
-# Reasonix configuration.
-# Resolution order: flag > ./reasonix.toml > ~/.config/reasonix/config.toml > built-in defaults.
+# Artistic Genius configuration.
+# Resolution order: flag > ./artistic-genius.toml > ~/.config/artistic-genius/config.toml > built-in defaults.
 # Secrets come from the environment via api_key_env; never put keys here.
 
 default_model = "deepseek"   # a provider name (→ its default model) or "provider/model"
-# language      = "zh"   # ui language; empty = auto-detect from $LANG / $REASONIX_LANG
+# language      = "zh"   # ui language; empty = auto-detect from $LANG / $ARTISTIC_GENIUS_LANG
 
 [ui]
-theme = "auto"   # auto|dark|light; controls CLI colors only; REASONIX_THEME can override per run
+theme = "auto"   # auto|dark|light; controls CLI colors only; ARTISTIC_GENIUS_THEME can override per run
 # theme_style = "graphite"   # graphite|aurora|slate|carbon|nocturne|amber and legacy aliases
 # shortcut_layout = "desktop"   # classic|desktop; compatibility setting; Shift+Tab toggles Plan, Ctrl+Y toggles YOLO
 
@@ -23,7 +23,7 @@ ask_request = true   # notify when a question is waiting
 
 [agent]
 system_prompt = """
-You are Reasonix, a coding agent focused on executing code tasks.
+You are Artistic Genius, a coding agent focused on executing code tasks.
 Use the provided tools to read and write files and run shell commands.
 Principles: understand the request before acting; verify with tools instead of
 guessing; keep changes minimal and correct; briefly summarize what you did."""
@@ -41,7 +41,7 @@ compact_force_ratio = 0.9   # force compacting at this high-water mark
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
 # subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
 # output_style = "explanatory"   # persona/tone folded into the prompt: explanatory | learning | concise,
-#                                  or a custom .reasonix/output-styles/<name>.md ; empty = default
+#                                  or a custom .artistic-genius/output-styles/<name>.md ; empty = default
 
 # A provider is a vendor endpoint (one base_url + key) that offers one or more
 # models. Use `models = [...]` to expose several under a single entry — switching
@@ -132,10 +132,10 @@ stalled_warning_seconds = 900   # warn once per background job after this many q
 # [codegraph]
 # enabled      = false
 # auto_install = true
-# path         = ""   # empty = cache, then PATH, then a bundle beside reasonix
+# path         = ""   # empty = cache, then PATH, then a bundle beside artistic-genius
 
 # Skills are invokable playbooks (SKILL.md / <name>.md with frontmatter), found
-# under .reasonix/skills, .agents/skills, .agent/skills, .claude/skills (project)
+# under .artistic-genius/skills, .agents/skills, .agent/skills, .claude/skills (project)
 # and the same dirs under ~ (global). Built-ins (explore/research/review/security-review/test)
 # ship out of the box. The model invokes them via run_skill / explore / …; you
 # invoke them via /<name>. Manage with /skill (list, show, enable, disable, new, paths).
@@ -146,10 +146,10 @@ stalled_warning_seconds = 900   # warn once per background job after this many q
 
 # Hooks run shell commands around the loop (PreToolUse / PostToolUse /
 # PermissionRequest / UserPromptSubmit / Stop). They are NOT configured here — put them in
-# settings.json: ~/.reasonix/settings.json (global, always on) and
-# <project>/.reasonix/settings.json (project, runs only after `/hooks trust`).
+# settings.json: ~/.artistic-genius/settings.json (global, always on) and
+# <project>/.artistic-genius/settings.json (project, runs only after `/hooks trust`).
 # Exit 0 = pass, exit 2 = block (PreToolUse / UserPromptSubmit only). Example
-# ~/.reasonix/settings.json:
+# ~/.artistic-genius/settings.json:
 #   { "hooks": {
 #       "PreToolUse":  [ { "match": "bash", "command": "my-guard.sh" } ],
 #       "PermissionRequest": [ { "match": "bash", "command": "notify-send 'approval needed'" } ],
@@ -164,12 +164,12 @@ stalled_warning_seconds = 900   # warn once per background job after this many q
 # External stdio plugins (MCP-compatible); each is a standalone executable.
 # [[plugins]]
 # name    = "example"
-# command = "reasonix-plugin-example"
+# command = "artistic-genius-plugin-example"
 # # Enabled MCP servers connect automatically in the background after session
 # # start. Use /mcp or the desktop MCP panel to refresh, reconnect, or disable.
 
 # Bot gateway: multi-channel IM bot for QQ, Feishu, and WeChat.
-# Start with `reasonix bot start --channels qq,feishu,weixin`.
+# Start with `artistic-genius bot start --channels qq,feishu,weixin`.
 # All secrets are read from environment variables; never put keys here.
 # [bot]
 # enabled    = false

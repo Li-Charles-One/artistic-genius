@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/bot"
-	"reasonix/internal/botruntime"
-	"reasonix/internal/config"
+	"artistic-genius/internal/bot"
+	"artistic-genius/internal/botruntime"
+	"artistic-genius/internal/config"
 )
 
 type BotRuntimeStatusView struct {

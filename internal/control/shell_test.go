@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/event"
-	"reasonix/internal/sandbox"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/sandbox"
 )
 
 // collectSink returns a Sink that collects events and a channel that receives

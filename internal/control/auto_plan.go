@@ -7,7 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"reasonix/internal/agent"
+	"artistic-genius/internal/agent"
 )
 
 const (

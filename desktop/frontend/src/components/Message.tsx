@@ -20,8 +20,8 @@ type ImSourceMessage = {
   text: string;
 };
 
-const IM_SOURCE_START = "[[reasonix-im]]";
-const IM_SOURCE_END = "[[/reasonix-im]]";
+const IM_SOURCE_START = "[[artistic-genius-im]]";
+const IM_SOURCE_END = "[[/artistic-genius-im]]";
 
 function parseImSourceMessage(text: string): ImSourceMessage | null {
   // Display-only metadata: keep IM sender/chat details out of model prompts.

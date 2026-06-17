@@ -8,11 +8,11 @@ import (
 	"time"
 	"unicode"
 
-	"reasonix/internal/control"
-	"reasonix/internal/event"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
 )
 
-// renderSink 将 Reasonix 事件流渲染为平台消息。
+// renderSink 将 Artistic Genius 事件流渲染为平台消息。
 type renderSink struct {
 	ctx        context.Context
 	adapter    Adapter

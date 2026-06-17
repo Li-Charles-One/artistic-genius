@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"reasonix/internal/agent"
+	"artistic-genius/internal/agent"
 )
 
 // --- loadSessionTitles ---

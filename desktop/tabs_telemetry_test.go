@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 type usageProvider struct {

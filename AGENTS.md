@@ -1,37 +1,37 @@
-# AGENTS.md — Reasonix project guide for coding agents
+# AGENTS.md — Artistic Genius project guide for coding agents
 
 ## Build & test
 
 ```sh
-make build        # → bin/reasonix(.exe) + bin/reasonix-plugin-example(.exe)
+make build        # → bin/artistic-genius(.exe) + bin/artistic-genius-plugin-example(.exe)
 make vet          # go vet ./...
 make test         # go test ./...
 make cross        # → dist/ (darwin|linux|windows × amd64|arm64)
 make hooks        # install .githooks pre-push (runs go vet)
 ```
 
-- **Go 1.25.0** (toolchain go1.26.4); module `reasonix`.
-- `CGO_ENABLED=0` for the CLI; the **desktop** (Wails) is a **separate `reasonix/desktop` module** that uses CGO/WebKit and imports `internal/*` without polluting the CLI's zero-CGO guarantee.
+- **Go 1.25.0** (toolchain go1.26.4); module `artistic-genius`.
+- `CGO_ENABLED=0` for the CLI; the **desktop** (Wails) is a **separate `artistic-genius/desktop` module** that uses CGO/WebKit and imports `internal/*` without polluting the CLI's zero-CGO guarantee.
 - `make e2e-codegraph` fetches the **CodeGraph** binary (`v0.9.7`) and runs the gated MCP end-to-end test; requires `gh`.
 
 ## Architecture
 
-Reasonix is a **config- and plugin-driven coding agent** — a single Go binary. All models and tools are resolved by name from registries; nothing is hardcoded.
+Artistic Genius is a **config- and plugin-driven coding agent** — a single Go binary. All models and tools are resolved by name from registries; nothing is hardcoded.
 
 ```
-cmd/reasonix/main.go          → cli.Run()  (entry; blank-imports built-in providers & tools)
-cmd/reasonix-plugin-example/  → reference MCP stdio plugin
+cmd/artistic-genius/main.go          → cli.Run()  (entry; blank-imports built-in providers & tools)
+cmd/artistic-genius-plugin-example/  → reference MCP stdio plugin
 desktop/                      → Wails desktop shell (separate go.mod, imports internal/*)
 internal/
   cli/          → subcommand routing, flags, TUI (Bubble Tea), exit codes
-  config/       → TOML loading: flag > ./reasonix.toml > user config > built-in defaults
+  config/       → TOML loading: flag > ./artistic-genius.toml > user config > built-in defaults
   control/      → transport-agnostic Controller: turn lifecycle, approval, plan mode
   agent/        → Session + run loop + compaction + coordinator (two-model)
   provider/     → Provider interface + kind→factory registry; openai/ anthropic/ subpackages
   tool/         → Tool interface + Registry
     builtin/    → bash, read_file, write_file, edit_file, multi_edit, glob, grep, ls, …
   permission/   → per-call Policy: allow/ask/deny rules → Decision
-  command/      → slash commands: built-in actions + custom .md from .reasonix/commands/
+  command/      → slash commands: built-in actions + custom .md from .artistic-genius/commands/
   plugin/       → MCP client (stdio JSON-RPC subprocesses + streamable HTTP + SSE)
   serve/        → HTTP/SSE frontend (control.Controller over HTTP)
   skill/        → skill loading, installation, slash-command integration
@@ -74,14 +74,14 @@ Sessions never mix — both grow prepend-only, keeping prefix caches warm.
 
 ### Compaction
 
-When prompt tokens reach `compact_ratio` (default 0.8) of `context_window`, the executor compacts once before the next turn: user turns + prior digests stay verbatim; assistant/tool work is summarized. Originals archived to `<user-config>/reasonix/archive/<timestamp>.jsonl`.
+When prompt tokens reach `compact_ratio` (default 0.8) of `context_window`, the executor compacts once before the next turn: user turns + prior digests stay verbatim; assistant/tool work is summarized. Originals archived to `<user-config>/artistic-genius/archive/<timestamp>.jsonl`.
 
 ## Configuration
 
-- **Resolution:** flag > `./reasonix.toml` > user config (`~/.config/reasonix/config.toml` on Linux, `~/Library/Application Support/reasonix/` on macOS, `%AppData%\reasonix\` on Windows) > built-in defaults.
+- **Resolution:** flag > `./artistic-genius.toml` > user config (`~/.config/artistic-genius/config.toml` on Linux, `~/Library/Application Support/artistic-genius/` on macOS, `%AppData%\artistic-genius\` on Windows) > built-in defaults.
 - **Secrets:** `api_key_env` references environment variables; never in config files. `.env` loaded if present.
-- **MCP servers:** also loadable from project `.mcp.json` (Claude Code schema); on name clash `reasonix.toml` wins.
-- Reference: `reasonix.example.toml` (commented, exhaustive).
+- **MCP servers:** also loadable from project `.mcp.json` (Claude Code schema); on name clash `artistic-genius.toml` wins.
+- Reference: `artistic-genius.example.toml` (commented, exhaustive).
 
 ## Code conventions
 
@@ -95,21 +95,21 @@ When prompt tokens reach `compact_ratio` (default 0.8) of `context_window`, the 
 
 | File | Role |
 |------|------|
-| `REASONIX.md` | Project memory loaded into every session's system prompt prefix — keep concise & cache-stable |
-| `REASONIX.local.md` | Personal memory (git-ignored), same format |
-| `AGENTS.md` | This file — human+agent project guide (fallback when REASONIX.md missing) |
-| `reasonix.toml` | Project config (shared); often git-ignored for secrets |
-| `reasonix.example.toml` | Annotated reference config |
-| `.reasonix/commands/*.md` | Custom slash commands (project scope) |
-| `.reasonix/skills/` | Project-scoped skills |
-| `.reasonix/output-styles/` | Custom output style/tone templates |
+| `ARTISTIC_GENIUS.md` | Project memory loaded into every session's system prompt prefix — keep concise & cache-stable |
+| `ARTISTIC_GENIUS.local.md` | Personal memory (git-ignored), same format |
+| `AGENTS.md` | This file — human+agent project guide (fallback when ARTISTIC_GENIUS.md missing) |
+| `artistic-genius.toml` | Project config (shared); often git-ignored for secrets |
+| `artistic-genius.example.toml` | Annotated reference config |
+| `.artistic-genius/commands/*.md` | Custom slash commands (project scope) |
+| `.artistic-genius/skills/` | Project-scoped skills |
+| `.artistic-genius/output-styles/` | Custom output style/tone templates |
 | `.mcp.json` | MCP servers in Claude Code format |
 | `docs/SPEC.md` | Engineering contract — the authoritative spec |
 | `docs/GUIDE.md` | User guide |
 
 ## Desktop app
 
-- **Separate module:** `desktop/go.mod` (module `reasonix/desktop`), uses Wails v2 + CGO.
+- **Separate module:** `desktop/go.mod` (module `artistic-genius/desktop`), uses Wails v2 + CGO.
 - Frontend at `desktop/frontend/`; built via `pnpm build`, embedded via `//go:embed`.
 - Imports the same `internal/*` kernel as the CLI; binds `control.Controller` directly (no HTTP hop).
 - Version injected via `-ldflags "-X main.version=..."`; auto-updater uses a published manifest.
@@ -117,7 +117,7 @@ When prompt tokens reach `compact_ratio` (default 0.8) of `context_window`, the 
 ## Slash commands
 
 - **Built-in:** `/compact`, `/new`, `/clear`, `/effort`, `/mcp`, `/help`, `/rewind`, `/resume`, `/memory`, `/review`, `/goal`.
-- **Custom:** `.reasonix/commands/*.md` (project) and `<user-config>/reasonix/commands/` (user). Project wins on name clash. MCP prompts also surface as `/mcp__<server>__<prompt>`.
+- **Custom:** `.artistic-genius/commands/*.md` (project) and `<user-config>/artistic-genius/commands/` (user). Project wins on name clash. MCP prompts also surface as `/mcp__<server>__<prompt>`.
 - Format: optional YAML-free frontmatter (`description`, `argument-hint`), body with `$ARGUMENTS`, `$1`…`$N`, `$$`.
 
 ## Built-in tools

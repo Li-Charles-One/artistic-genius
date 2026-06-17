@@ -16,9 +16,9 @@ import (
 
 	"golang.org/x/text/transform"
 
-	fileenc "reasonix/internal/fileutil/encoding"
-	"reasonix/internal/proc"
-	"reasonix/internal/tool"
+	fileenc "artistic-genius/internal/fileutil/encoding"
+	"artistic-genius/internal/proc"
+	"artistic-genius/internal/tool"
 )
 
 const (

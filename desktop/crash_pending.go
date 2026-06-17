@@ -6,8 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 
-	"reasonix/internal/config"
+	"artistic-genius/internal/config"
 )
 
 // crash_pending.go captures Go-side panics to disk and ships them on the next
@@ -90,7 +91,7 @@ func (a *App) flushPendingCrash() {
 	if err != nil {
 		return
 	}
-	if postCrashReport(a.bootContext(), c, crashEndpoint, r) == nil {
+	if strings.TrimSpace(crashEndpoint) != "" && postCrashReport(a.bootContext(), c, crashEndpoint, r) == nil {
 		_ = os.Remove(path)
 	}
 }

@@ -15,10 +15,10 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/jobs"
-	"reasonix/internal/proc"
-	"reasonix/internal/sandbox"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/jobs"
+	"artistic-genius/internal/proc"
+	"artistic-genius/internal/sandbox"
+	"artistic-genius/internal/tool"
 )
 
 const (
@@ -274,7 +274,7 @@ func defaultBashShellPATH(ctx context.Context) string {
 	if shell == "" {
 		return ""
 	}
-	const marker = "__REASONIX_BASH_PATH__="
+	const marker = "__ARTISTIC_GENIUS_BASH_PATH__="
 	script := "printf '\\n" + marker + "%s\\n' \"$PATH\""
 	for _, args := range [][]string{
 		{"-l", "-i", "-c", script},

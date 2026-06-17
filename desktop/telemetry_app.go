@@ -12,14 +12,14 @@ import (
 	"regexp"
 	"runtime"
 
-	"reasonix/internal/config"
+	"artistic-genius/internal/config"
 )
 
 // telemetry_app.go is the anonymous launch ping: one POST per app start carrying a
 // random install id, version, and OS facts — never conversation, key, or file data.
 // Gated on config desktop.telemetry (default on) and skipped entirely in dev builds.
 
-var pingEndpoint = "https://crash.reasonix.io/v1/ping"
+var pingEndpoint = ""
 
 var installIDPattern = regexp.MustCompile(`^[0-9a-f]{32}$`)
 
@@ -53,7 +53,7 @@ func installID() (string, error) {
 }
 
 func (a *App) sendStartupPing() {
-	if version == "dev" {
+	if version == "dev" || pingEndpoint == "" {
 		return
 	}
 	cfg, err := config.Load()

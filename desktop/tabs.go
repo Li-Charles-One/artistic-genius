@@ -17,13 +17,13 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/boot"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/fileutil"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/boot"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/fileutil"
+	"artistic-genius/internal/provider"
 )
 
 // --- WorkspaceTab -----------------------------------------------------------
@@ -1019,7 +1019,7 @@ func (a *App) openTopicTab(scope, workspaceRoot, topicID, sessionPath string) (T
 }
 
 // OpenGlobalTab opens a new global-scope tab (no project root). The global
-// workspace root is the reasonix user config directory.
+// workspace root is the artistic-genius user config directory.
 func (a *App) OpenGlobalTab(topicID string) (TabMeta, error) {
 	globalRoot := globalWorkspaceRoot()
 	if err := os.MkdirAll(globalRoot, 0o755); err != nil {
@@ -1855,9 +1855,9 @@ func desktopConfigDir() string {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		home, _ := os.UserHomeDir()
-		return filepath.Join(home, ".reasonix")
+		return filepath.Join(home, ".artistic-genius")
 	}
-	return filepath.Join(dir, "reasonix")
+	return filepath.Join(dir, "artistic-genius")
 }
 
 func (a *App) saveTabsLocked() {
@@ -2387,21 +2387,21 @@ func topicTitlesPath(workspaceRoot string) string {
 	if workspaceRoot == "" {
 		return filepath.Join(desktopConfigDir(), "global", topicTitlesFile)
 	}
-	return filepath.Join(workspaceRoot, ".reasonix", topicTitlesFile)
+	return filepath.Join(workspaceRoot, ".artistic-genius", topicTitlesFile)
 }
 
 func topicTitleSourcesPath(workspaceRoot string) string {
 	if workspaceRoot == "" {
 		return filepath.Join(desktopConfigDir(), "global", topicTitleSourcesFile)
 	}
-	return filepath.Join(workspaceRoot, ".reasonix", topicTitleSourcesFile)
+	return filepath.Join(workspaceRoot, ".artistic-genius", topicTitleSourcesFile)
 }
 
 func topicCreatedAtsPath(workspaceRoot string) string {
 	if workspaceRoot == "" {
 		return filepath.Join(desktopConfigDir(), "global", topicCreatedAtsFile)
 	}
-	return filepath.Join(workspaceRoot, ".reasonix", topicCreatedAtsFile)
+	return filepath.Join(workspaceRoot, ".artistic-genius", topicCreatedAtsFile)
 }
 
 func loadTopicTitles(workspaceRoot string) map[string]string {
@@ -4009,9 +4009,9 @@ func globalWorkspaceRoot() string {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		home, _ := os.UserHomeDir()
-		return filepath.Join(home, ".reasonix", "global-workspace")
+		return filepath.Join(home, ".artistic-genius", "global-workspace")
 	}
-	return filepath.Join(dir, "reasonix", "global-workspace")
+	return filepath.Join(dir, "artistic-genius", "global-workspace")
 }
 
 func ensureGlobalWorkspaceRoot() (string, error) {

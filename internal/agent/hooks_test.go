@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // stubHooks blocks PreToolUse for named tools and records what it saw.

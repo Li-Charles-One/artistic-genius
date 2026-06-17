@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/event"
-	"reasonix/internal/nilutil"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/nilutil"
+	"artistic-genius/internal/provider"
 )
 
 const autoPlanClassifierPrompt = `You classify whether a coding-agent user request should first enter read-only planning mode.

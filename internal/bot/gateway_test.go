@@ -9,11 +9,11 @@ import (
 	"sync"
 	"testing"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // fakeAdapter 是一个内存中的假适配器，用于测试 BotGateway。

@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/desktop/internal/update"
+	"artistic-genius/desktop/internal/update"
 )
 
 func TestNormalizeVersion(t *testing.T) {
@@ -78,33 +78,20 @@ func TestEvaluate(t *testing.T) {
 	}
 }
 
-func TestChannelSelectsDistinctPointers(t *testing.T) {
+func TestManifestEndpointsDisabledUntilReleaseRepositoryIsConfigured(t *testing.T) {
 	orig := channel
 	t.Cleanup(func() { channel = orig })
 
 	channel = "stable"
-	stable := manifestEndpoints()
+	if endpoints := manifestEndpoints(); len(endpoints) != 0 {
+		t.Fatalf("stable endpoints = %#v, want none", endpoints)
+	}
 	channel = "canary"
-	canary := manifestEndpoints()
-
-	for _, u := range stable {
-		if strings.Contains(u, "canary") {
-			t.Errorf("stable endpoint leaks into canary: %q", u)
-		}
+	if endpoints := manifestEndpoints(); len(endpoints) != 0 {
+		t.Fatalf("canary endpoints = %#v, want none", endpoints)
 	}
-	if !strings.Contains(stable[0], "/latest/latest.json") {
-		t.Errorf("stable primary = %q, want the latest/ pointer", stable[0])
-	}
-	for _, u := range canary {
-		if strings.Contains(u, "/latest/") {
-			t.Errorf("canary endpoint hits the stable latest/ pointer: %q", u)
-		}
-	}
-	if !strings.Contains(canary[0], "/canary/latest.json") {
-		t.Errorf("canary primary = %q, want the canary/ pointer", canary[0])
-	}
-	if downloadPage() == (ghReleasesBase + "/latest") {
-		t.Error("canary download page should not be the stable latest releases page")
+	if page := downloadPage(); page != "" {
+		t.Fatalf("downloadPage = %q, want empty", page)
 	}
 }
 
@@ -125,11 +112,11 @@ func TestCheckSHA256(t *testing.T) {
 }
 
 func TestExtractBinary(t *testing.T) {
-	want := []byte("#!/bin/sh\necho reasonix\n")
+	want := []byte("#!/bin/sh\necho artistic-genius\n")
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
 	tw := tar.NewWriter(gz)
-	files := map[string][]byte{"README": []byte("ignore me"), "reasonix-desktop": want}
+	files := map[string][]byte{"README": []byte("ignore me"), "artistic-genius-desktop": want}
 	for name, body := range files {
 		if err := tw.WriteHeader(&tar.Header{Name: name, Mode: 0o755, Size: int64(len(body)), Typeflag: tar.TypeReg}); err != nil {
 			t.Fatal(err)
@@ -141,7 +128,7 @@ func TestExtractBinary(t *testing.T) {
 	tw.Close()
 	gz.Close()
 
-	got, err := extractBinary(buf.Bytes(), "reasonix-desktop")
+	got, err := extractBinary(buf.Bytes(), "artistic-genius-desktop")
 	if err != nil {
 		t.Fatalf("extractBinary: %v", err)
 	}

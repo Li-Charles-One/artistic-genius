@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/control"
-	"reasonix/internal/proc"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/proc"
 )
 
 type gitStatusEntry struct {

@@ -14,7 +14,7 @@ import (
 // crash_app.go is the crash/feedback/performance reporting surface. Reports are
 // sent only on an explicit user click in the frontend UI — never automatically.
 
-var crashEndpoint = "https://crash.reasonix.io/v1/report"
+var crashEndpoint = ""
 
 const maxCrashDetailBytes = 16 << 10
 const maxCrashStackBytes = 8 << 10
@@ -245,6 +245,9 @@ func (a *App) ReportCrash(kind, detail string) error {
 	r, err := crashReportFromDetail(kind, detail)
 	if err != nil {
 		return err
+	}
+	if strings.TrimSpace(crashEndpoint) == "" {
+		return fmt.Errorf("crash reporting endpoint is not configured")
 	}
 	c, err := httpClient()
 	if err != nil {

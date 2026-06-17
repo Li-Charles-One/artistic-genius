@@ -10,10 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/hook"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/hook"
+	"artistic-genius/internal/provider"
 )
 
 func TestWithFreshSystemPromptReplacesExistingSystemMessage(t *testing.T) {
@@ -222,7 +222,7 @@ func TestSetReasoningLanguagePersistsToUserConfig(t *testing.T) {
 func TestSetReasoningLanguageUpdatesLiveTabControllers(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	projectRoot := t.TempDir()
-	if err := os.WriteFile(filepath.Join(projectRoot, "reasonix.toml"), []byte("[agent]\nreasoning_language = \"en\"\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(projectRoot, "artistic-genius.toml"), []byte("[agent]\nreasoning_language = \"en\"\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -266,22 +266,22 @@ func TestSetDesktopCheckUpdatesPersistsToUserConfig(t *testing.T) {
 	isolateDesktopUserDirs(t)
 
 	app := NewApp()
-	if !app.Settings().CheckUpdates {
-		t.Fatal("Settings().CheckUpdates default = false, want true")
+	if app.Settings().CheckUpdates {
+		t.Fatal("Settings().CheckUpdates default = true, want false")
 	}
-	if err := app.SetDesktopCheckUpdates(false); err != nil {
+	if err := app.SetDesktopCheckUpdates(true); err != nil {
 		t.Fatalf("SetDesktopCheckUpdates: %v", err)
 	}
 	view := app.Settings()
-	if view.CheckUpdates {
-		t.Fatal("Settings().CheckUpdates = true, want false")
+	if !view.CheckUpdates {
+		t.Fatal("Settings().CheckUpdates = false, want true")
 	}
 	cfg := config.LoadForEdit(config.UserConfigPath())
-	if cfg.Desktop.CheckUpdates == nil || *cfg.Desktop.CheckUpdates {
-		t.Fatalf("desktop.check_updates = %+v, want false", cfg.Desktop.CheckUpdates)
+	if cfg.Desktop.CheckUpdates == nil || !*cfg.Desktop.CheckUpdates {
+		t.Fatalf("desktop.check_updates = %+v, want true", cfg.Desktop.CheckUpdates)
 	}
-	if cfg.DesktopCheckUpdates() {
-		t.Fatal("DesktopCheckUpdates() = true, want false")
+	if !cfg.DesktopCheckUpdates() {
+		t.Fatal("DesktopCheckUpdates() = false, want true")
 	}
 }
 
@@ -350,7 +350,7 @@ func TestProjectHooksSettingsUseActiveWorkspaceRootAndTrust(t *testing.T) {
 	if len(view.Hooks) != 1 || view.Hooks[0].Event != string(hook.Stop) || view.Hooks[0].Description != "Turn done" {
 		t.Fatalf("project hooks = %+v", view.Hooks)
 	}
-	if _, err := os.Stat(filepath.Join(project, ".reasonix", "settings.json")); err != nil {
+	if _, err := os.Stat(filepath.Join(project, ".artistic-genius", "settings.json")); err != nil {
 		t.Fatalf("project hooks settings file missing: %v", err)
 	}
 }
@@ -394,10 +394,10 @@ func TestSaveHooksSettingsForRootUsesDisplayedProjectRoot(t *testing.T) {
 	}}); err != nil {
 		t.Fatalf("SaveHooksSettingsForRoot: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(projectA, ".reasonix", "settings.json")); err != nil {
+	if _, err := os.Stat(filepath.Join(projectA, ".artistic-genius", "settings.json")); err != nil {
 		t.Fatalf("displayed project root settings missing: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(projectB, ".reasonix", "settings.json")); err == nil {
+	if _, err := os.Stat(filepath.Join(projectB, ".artistic-genius", "settings.json")); err == nil {
 		t.Fatal("active project root was written instead of displayed project root")
 	}
 }

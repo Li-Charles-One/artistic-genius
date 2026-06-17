@@ -1,4 +1,4 @@
-module reasonix
+module artistic-genius
 
 go 1.25.0
 

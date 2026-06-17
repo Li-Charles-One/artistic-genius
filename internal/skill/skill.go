@@ -4,7 +4,7 @@
 // a tool result, a "subagent" skill runs in an isolated child loop and returns
 // only its final answer. Project scope wins over global; only names+descriptions
 // enter the cache-stable system-prompt index (see index.go) — bodies load on
-// demand. Discovery scans several conventions (.reasonix / .agents / .agent /
+// demand. Discovery scans several conventions (.artistic-genius / .agents / .agent /
 // .claude under the project root and the home dir — see config.ConventionDirs) so
 // skills authored for other agent tools migrate in unchanged. Directory skills
 // use <name>/SKILL.md; flat <name>.md files from Claude roots are loaded only
@@ -20,8 +20,8 @@ import (
 	"sort"
 	"strings"
 
-	"reasonix/internal/config"
-	"reasonix/internal/frontmatter"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/frontmatter"
 )
 
 // Scope records where a skill was loaded from. Higher-priority scopes win on a
@@ -167,7 +167,7 @@ type discoveryRoot struct {
 }
 
 // roots returns the discovery directories, highest priority first: the
-// convention dirs (config.ConventionDirs: .reasonix / .agents / .agent / .claude)
+// convention dirs (config.ConventionDirs: .artistic-genius / .agents / .agent / .claude)
 // under the project root → custom paths → the same convention dirs under the home
 // dir. A later root never overrides an earlier one.
 func (s *Store) roots() []discoveryRoot {
@@ -549,9 +549,9 @@ func (s *Store) CreateWithContent(name string, scope Scope, content string) (str
 		if s.projectRoot == "" {
 			return "", fmt.Errorf("project scope requires a workspace — run from a project directory, or use global scope")
 		}
-		root = filepath.Join(s.projectRoot, ".reasonix", SkillsDirname)
+		root = filepath.Join(s.projectRoot, ".artistic-genius", SkillsDirname)
 	default:
-		root = filepath.Join(s.homeDir, ".reasonix", SkillsDirname)
+		root = filepath.Join(s.homeDir, ".artistic-genius", SkillsDirname)
 	}
 	flat := filepath.Join(root, name+".md")
 	folder := filepath.Join(root, name, SkillFile)

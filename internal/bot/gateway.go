@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/boot"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/boot"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
 )
 
 // GatewayConfig 是 BotGateway 的配置。
@@ -64,7 +64,7 @@ type AllowlistConfig struct {
 	Groups   map[Platform][]string
 }
 
-// BotGateway 是 reasonix bot 消息网关，管理 Controller 生命周期、session 并发、
+// BotGateway 是 artistic-genius bot 消息网关，管理 Controller 生命周期、session 并发、
 // 事件渲染和平台适配器。
 type BotGateway struct {
 	cfg      GatewayConfig

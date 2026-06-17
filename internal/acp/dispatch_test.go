@@ -9,7 +9,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"reasonix/internal/event"
+	"artistic-genius/internal/event"
 )
 
 // fakeNotifier captures Notify calls and answers Request via an injectable hook,

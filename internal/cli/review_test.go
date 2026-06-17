@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/skill"
+	"artistic-genius/internal/skill"
 )
 
 func TestBuildReviewTask(t *testing.T) {

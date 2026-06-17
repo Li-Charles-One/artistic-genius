@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/tool"
 )
 
 const (

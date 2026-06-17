@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"reasonix/internal/memory"
+	"artistic-genius/internal/memory"
 )
 
 // VerifyCheck is a host-observable project check extracted from structured
@@ -33,7 +33,7 @@ func FromContext(ctx context.Context) []VerifyCheck {
 	return append([]VerifyCheck(nil), checks...)
 }
 
-// ExtractHostChecks reads only the structured "Reasonix host checks" section.
+// ExtractHostChecks reads only the structured "Artistic Genius host checks" section.
 // Ordinary project instructions remain guidance and do not become hard gates.
 func ExtractHostChecks(docs []memory.Source) []VerifyCheck {
 	seen := map[string]bool{}
@@ -43,7 +43,7 @@ func ExtractHostChecks(docs []memory.Source) []VerifyCheck {
 		for i, raw := range strings.Split(doc.Body, "\n") {
 			line := strings.TrimRight(raw, "\r")
 			if heading, ok := markdownHeading(line); ok {
-				inSection = strings.EqualFold(heading, "Reasonix host checks")
+				inSection = isHostChecksHeading(heading)
 				continue
 			}
 			if !inSection {
@@ -62,6 +62,10 @@ func ExtractHostChecks(docs []memory.Source) []VerifyCheck {
 		}
 	}
 	return checks
+}
+
+func isHostChecksHeading(heading string) bool {
+	return strings.EqualFold(heading, "Artistic Genius host checks") || strings.EqualFold(heading, "artistic-genius host checks")
 }
 
 func markdownHeading(line string) (string, bool) {

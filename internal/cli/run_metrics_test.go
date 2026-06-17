@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/evidence"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/evidence"
 )
 
 func TestMetricsSinkAccumulatesReadinessAudit(t *testing.T) {

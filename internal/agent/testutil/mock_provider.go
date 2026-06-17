@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"sync"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 // Turn describes one expected Stream call: the text, optional reasoning,

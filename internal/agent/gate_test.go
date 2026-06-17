@@ -1,14 +1,14 @@
 package agent
 
 import (
+	"artistic-genius/internal/event"
 	"context"
 	"encoding/json"
-	"reasonix/internal/event"
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // stubGate denies any call whose tool name is in deny; everything else allows.

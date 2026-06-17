@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 func pruneFixture(toolContent string) *Session {

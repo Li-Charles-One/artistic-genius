@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/diff"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/diff"
+	"artistic-genius/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(deleteRange{}) }

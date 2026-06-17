@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 // TestStreamStallTimesOut covers issue #3374: a half-open connection (a proxy

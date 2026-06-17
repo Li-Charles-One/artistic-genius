@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/tool"
+	"artistic-genius/internal/tool"
 )
 
 type subagentRegistryTool struct {

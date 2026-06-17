@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	agenttest "reasonix/internal/agent/testutil"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	agenttest "artistic-genius/internal/agent/testutil"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 type desktopCountingTool struct {

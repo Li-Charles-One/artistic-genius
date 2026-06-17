@@ -1,15 +1,15 @@
-// Command reasonix is a config- and plugin-driven coding agent CLI.
+// Command artistic-genius is a config- and plugin-driven coding agent CLI.
 package main
 
 import (
 	"os"
 
-	"reasonix/internal/cli"
+	"artistic-genius/internal/cli"
 
 	// Blank imports wire compile-time built-ins into their registries.
-	_ "reasonix/internal/provider/anthropic"
-	_ "reasonix/internal/provider/openai"
-	_ "reasonix/internal/tool/builtin"
+	_ "artistic-genius/internal/provider/anthropic"
+	_ "artistic-genius/internal/provider/openai"
+	_ "artistic-genius/internal/tool/builtin"
 )
 
 // version is injected at build time via -ldflags "-X main.version=...".

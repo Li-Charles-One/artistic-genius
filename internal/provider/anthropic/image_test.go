@@ -3,7 +3,7 @@ package anthropic
 import (
 	"testing"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 func TestBuildRequestEmbedsImageBlockForVisionModel(t *testing.T) {

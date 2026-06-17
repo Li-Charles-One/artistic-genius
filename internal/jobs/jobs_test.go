@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/event"
+	"artistic-genius/internal/event"
 )
 
 type recordingSink struct {

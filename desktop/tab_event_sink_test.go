@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/event"
+	"artistic-genius/internal/event"
 )
 
 func TestTabEventSinkDoesNotBlockOnRuntimeEventsEmit(t *testing.T) {

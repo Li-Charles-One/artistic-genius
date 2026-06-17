@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
+
+	"artistic-genius/internal/config"
 )
 
 func readPending(t *testing.T) (crashReport, bool) {
@@ -87,6 +90,14 @@ func TestWritePendingCrashScrubsSensitiveText(t *testing.T) {
 }
 
 func TestFlushPendingCrashSendsAndClears(t *testing.T) {
+	isolateDesktopUserDirs(t)
+	cfgPath := config.UserConfigPath()
+	if err := os.MkdirAll(filepath.Dir(cfgPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(cfgPath, []byte("[desktop]\ntelemetry = true\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	oldVersion, oldEndpoint := version, crashEndpoint
 	t.Cleanup(func() {
 		version, crashEndpoint = oldVersion, oldEndpoint
@@ -114,6 +125,7 @@ func TestFlushPendingCrashSendsAndClears(t *testing.T) {
 }
 
 func TestFlushPendingCrashDevGuard(t *testing.T) {
+	isolateDesktopUserDirs(t)
 	oldVersion := version
 	t.Cleanup(func() {
 		version = oldVersion

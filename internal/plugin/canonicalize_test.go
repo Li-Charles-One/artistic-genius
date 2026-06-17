@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/tool"
+	"artistic-genius/internal/tool"
 )
 
 func TestCanonicalizeSchemaStable(t *testing.T) {

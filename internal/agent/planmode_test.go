@@ -1,13 +1,13 @@
 package agent
 
 import (
+	"artistic-genius/internal/event"
 	"context"
-	"reasonix/internal/event"
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // TestPlanModeBlocksWriters proves the read-only gate refuses non-ReadOnly

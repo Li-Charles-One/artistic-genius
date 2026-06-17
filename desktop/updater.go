@@ -22,9 +22,9 @@ import (
 	"github.com/minio/selfupdate"
 	"golang.org/x/mod/semver"
 
-	"reasonix/desktop/internal/update"
-	"reasonix/internal/config"
-	"reasonix/internal/netclient"
+	"artistic-genius/desktop/internal/update"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/netclient"
 )
 
 // updater.go is the transport-free core of the desktop auto-updater: manifest
@@ -32,32 +32,30 @@ import (
 // has no Wails dependency so the logic is unit-tested directly; updater_app.go is
 // the thin Wails binding that wires these into App methods and progress events.
 
-// Manifest endpoints — R2 CDN first (fast, especially in CN), GitHub releases as
-// fallback. The build channel picks the rolling pointer so a canary build polls
-// the canary line and a stable build polls latest; the two never cross.
+// Manifest endpoints are configured in the release wiring layer. They are empty
+// until the app is connected to an owned GitHub release channel.
 const (
-	r2Base         = "https://dl.reasonix.io"
-	ghReleasesBase = "https://github.com/esengine/reasonix/releases"
+	ghReleasesBase = ""
 	httpTimeout    = 15 * time.Second
 )
 
-// manifestEndpoints returns the primary (R2) then fallback (GitHub) manifest URLs
-// for the running build's channel.
+// manifestEndpoints returns manifest URLs for the running build's channel.
 func manifestEndpoints() []string {
+	if ghReleasesBase == "" {
+		return nil
+	}
 	if channel == "canary" {
-		// Canary publishes only to R2 (no GitHub release), so there is no
-		// GitHub fallback for this channel.
-		return []string{r2Base + "/canary/latest.json"}
+		return []string{ghReleasesBase + "/latest/download/latest.json"}
 	}
-	return []string{
-		r2Base + "/latest/latest.json",
-		ghReleasesBase + "/latest/download/latest.json",
-	}
+	return []string{ghReleasesBase + "/latest/download/latest.json"}
 }
 
 // downloadPage is the human-facing releases page shown when self-update is
 // unavailable (macOS) or the manifest omits its own link.
 func downloadPage() string {
+	if ghReleasesBase == "" {
+		return ""
+	}
 	if channel == "canary" {
 		return ghReleasesBase // lists pre-releases too
 	}
@@ -125,7 +123,11 @@ func normalizeVersion(v string) (string, bool) {
 // and decodes it.
 func fetchManifest(ctx context.Context, c *http.Client) (*update.Manifest, error) {
 	var lastErr error
-	for _, url := range manifestEndpoints() {
+	endpoints := manifestEndpoints()
+	if len(endpoints) == 0 {
+		return nil, fmt.Errorf("update: release channel is not configured")
+	}
+	for _, url := range endpoints {
 		b, err := fetchBytes(ctx, c, url)
 		if err != nil {
 			lastErr = err
@@ -357,7 +359,7 @@ func extractBinary(targz []byte, name string) ([]byte, error) {
 // applyLinux replaces the running binary with the one inside the downloaded
 // tar.gz; the caller relaunches afterwards.
 func applyLinux(targz []byte) error {
-	bin, err := extractBinary(targz, "reasonix-desktop")
+	bin, err := extractBinary(targz, "artistic-genius-desktop")
 	if err != nil {
 		return err
 	}
@@ -371,7 +373,7 @@ func applyLinux(targz []byte) error {
 // overwrites in place instead of landing a second copy at the per-user default —
 // this also covers upgrades from builds that predate the registry InstallLocation.
 func applyWindows(installer []byte) error {
-	f, err := os.CreateTemp("", "reasonix-update-*.exe")
+	f, err := os.CreateTemp("", "artistic-genius-update-*.exe")
 	if err != nil {
 		return err
 	}

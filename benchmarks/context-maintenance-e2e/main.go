@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	_ "reasonix/internal/provider/openai"
-	"reasonix/internal/tool"
-	"reasonix/internal/tool/builtin"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	_ "artistic-genius/internal/provider/openai"
+	"artistic-genius/internal/tool"
+	"artistic-genius/internal/tool/builtin"
 )
 
 const (

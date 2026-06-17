@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 func TestBranchMetaRoundTripAndList(t *testing.T) {

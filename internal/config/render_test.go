@@ -27,8 +27,8 @@ func TestUserConfigDisplayPathCollapsesHome(t *testing.T) {
 	if !strings.HasPrefix(got, "~/") {
 		t.Fatalf("display path = %q, want ~/ prefix", got)
 	}
-	if !strings.HasSuffix(got, "reasonix/config.toml") {
-		t.Fatalf("display path = %q, want reasonix/config.toml suffix", got)
+	if !strings.HasSuffix(got, "artistic-genius/config.toml") {
+		t.Fatalf("display path = %q, want artistic-genius/config.toml suffix", got)
 	}
 	if strings.Contains(got, home) {
 		t.Fatalf("display path %q must not embed the absolute home", got)
@@ -87,7 +87,7 @@ func TestRenderTOMLRoundTrips(t *testing.T) {
 			Server:   "127.0.0.1",
 			Port:     7890,
 			Username: "user",
-			Password: "${REASONIX_PROXY_PASSWORD}",
+			Password: "${ARTISTIC_GENIUS_PROXY_PASSWORD}",
 		},
 	}
 	orig.Skills.Paths = []string{"~/my-skills", "../shared/skills"}
@@ -106,13 +106,13 @@ func TestRenderTOMLRoundTrips(t *testing.T) {
 		Status:           "connected",
 		Model:            "deepseek-pro",
 		ToolApprovalMode: "yolo",
-		WorkspaceRoot:    "/tmp/reasonix-bot",
+		WorkspaceRoot:    "/tmp/artistic-genius-bot",
 		Credential:       BotConnectionCredential{AppID: "cli_lark", AppSecretEnv: "LARK_BOT_APP_SECRET"},
 		SessionMappings: []BotConnectionSessionMapping{{
 			RemoteID:      "ou_123",
 			SessionID:     "topic:topic_bot",
 			Scope:         "project",
-			WorkspaceRoot: "/tmp/reasonix-bot",
+			WorkspaceRoot: "/tmp/artistic-genius-bot",
 			UpdatedAt:     "2026-06-11T00:00:00Z",
 		}},
 	}}
@@ -130,7 +130,7 @@ func TestRenderTOMLRoundTrips(t *testing.T) {
 		},
 	}
 	orig.Plugins = []PluginEntry{
-		{Name: "example", Command: "reasonix-plugin-example"},
+		{Name: "example", Command: "artistic-genius-plugin-example"},
 		{Name: "stripe", Type: "http", URL: "https://mcp.stripe.com", Headers: map[string]string{"Authorization": "Bearer x"}, AutoStart: boolPtr(false), Tier: "background"},
 	}
 	mm, _ := orig.Provider("mimo-pro")
@@ -197,13 +197,13 @@ func TestRenderTOMLRoundTrips(t *testing.T) {
 	if got.Agent.PlannerMaxSteps != orig.Agent.PlannerMaxSteps {
 		t.Errorf("planner_max_steps = %d, want %d", got.Agent.PlannerMaxSteps, orig.Agent.PlannerMaxSteps)
 	}
-	if len(got.Bot.Connections) != 1 || got.Bot.Connections[0].Model != "deepseek-pro" || got.Bot.Connections[0].WorkspaceRoot != "/tmp/reasonix-bot" {
+	if len(got.Bot.Connections) != 1 || got.Bot.Connections[0].Model != "deepseek-pro" || got.Bot.Connections[0].WorkspaceRoot != "/tmp/artistic-genius-bot" {
 		t.Errorf("bot connection not preserved: %+v", got.Bot.Connections)
 	}
 	if got.Bot.ToolApprovalMode != "auto" || got.Bot.Connections[0].ToolApprovalMode != "yolo" {
 		t.Errorf("bot tool approval mode not preserved: bot=%q connection=%q", got.Bot.ToolApprovalMode, got.Bot.Connections[0].ToolApprovalMode)
 	}
-	if len(got.Bot.Connections[0].SessionMappings) != 1 || got.Bot.Connections[0].SessionMappings[0].Scope != "project" || got.Bot.Connections[0].SessionMappings[0].WorkspaceRoot != "/tmp/reasonix-bot" {
+	if len(got.Bot.Connections[0].SessionMappings) != 1 || got.Bot.Connections[0].SessionMappings[0].Scope != "project" || got.Bot.Connections[0].SessionMappings[0].WorkspaceRoot != "/tmp/artistic-genius-bot" {
 		t.Errorf("bot session mapping scope not preserved: %+v", got.Bot.Connections[0].SessionMappings)
 	}
 	if got.Agent.Temperature != orig.Agent.Temperature {
@@ -583,7 +583,7 @@ func TestRenderTOMLNonDefaultStepsWrittenExplicitly(t *testing.T) {
 
 func TestRenderTOMLDefaultStepsDoNotOverrideGlobalConfig(t *testing.T) {
 	home := isolateUserConfigHome(t)
-	globalDir := filepath.Join(home, ".config", "reasonix")
+	globalDir := filepath.Join(home, ".config", "artistic-genius")
 	if err := os.MkdirAll(globalDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -594,7 +594,7 @@ func TestRenderTOMLDefaultStepsDoNotOverrideGlobalConfig(t *testing.T) {
 
 	projectDir := t.TempDir()
 	projectTOML := RenderTOML(Default())
-	projectPath := filepath.Join(projectDir, "reasonix.toml")
+	projectPath := filepath.Join(projectDir, "artistic-genius.toml")
 	if err := os.WriteFile(projectPath, []byte(projectTOML), 0o644); err != nil {
 		t.Fatal(err)
 	}

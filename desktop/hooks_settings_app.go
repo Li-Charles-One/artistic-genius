@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/hook"
+	"artistic-genius/internal/hook"
 )
 
 type HookConfigView struct {

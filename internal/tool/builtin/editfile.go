@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/tool"
+	"artistic-genius/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(editFile{}) }

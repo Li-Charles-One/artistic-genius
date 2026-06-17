@@ -8,10 +8,10 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
 )
 
 func TestHistoryMessagesIncludeAssistantReasoning(t *testing.T) {

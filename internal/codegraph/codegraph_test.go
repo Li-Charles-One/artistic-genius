@@ -271,7 +271,7 @@ func TestKillDaemonKillsMatchingSocketDaemon(t *testing.T) {
 
 func shortTempDir(t *testing.T) string {
 	t.Helper()
-	dir, err := os.MkdirTemp("/tmp", "reasonix-codegraph-")
+	dir, err := os.MkdirTemp("/tmp", "artistic-genius-codegraph-")
 	if err != nil {
 		t.Fatal(err)
 	}

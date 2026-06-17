@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 func TestBuildRequestEmbedsImagesForVisionModel(t *testing.T) {

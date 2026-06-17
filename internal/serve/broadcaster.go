@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"reasonix/internal/event"
+	"artistic-genius/internal/event"
 )
 
 // Broadcaster is the event.Sink the controller emits to in server mode. It

@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/hook"
-	"reasonix/internal/memory"
-	"reasonix/internal/skill"
+	"artistic-genius/internal/hook"
+	"artistic-genius/internal/memory"
+	"artistic-genius/internal/skill"
 )
 
 func labelsOf(items []SlashItem) []string {

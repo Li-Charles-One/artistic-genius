@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"reasonix/internal/config"
-	"reasonix/internal/skill"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/skill"
 )
 
 // apply dispatches to the per-action implementation. Each branch is

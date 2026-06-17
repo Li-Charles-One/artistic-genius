@@ -11,8 +11,8 @@ import (
 	"strings"
 	"sync"
 
-	"reasonix/internal/config"
-	"reasonix/internal/event"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/event"
 )
 
 // metrics_app.go is the opt-in aggregate agent-metrics flush: anonymous
@@ -20,7 +20,7 @@ import (
 // launch. Never carries content, keys, prompts, or paths — only enumerated
 // integer counts. Gated on config desktop.metrics (default off), dev-skipped.
 
-var metricsEndpoint = "https://crash.reasonix.io/v1/metrics"
+var metricsEndpoint = ""
 
 const metricsPendingFile = "metrics-pending.json"
 
@@ -214,7 +214,7 @@ func flatten(c counters) []metricCounter {
 // clears it on success or folds it back to retry next launch. Runs at launch
 // (mirroring the ping) so the current session's counts ship next time.
 func (a *App) flushMetrics() {
-	if version == "dev" {
+	if version == "dev" || metricsEndpoint == "" {
 		return
 	}
 	cfg, err := config.Load()

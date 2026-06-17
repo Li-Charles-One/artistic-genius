@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 // --- NewSession ---

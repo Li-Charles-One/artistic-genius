@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
 )
 
 // renderUsage drives a Usage event through a fresh TextSink (no renderer) and

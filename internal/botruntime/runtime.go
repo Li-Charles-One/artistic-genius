@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/bot"
-	"reasonix/internal/bot/feishu"
-	"reasonix/internal/bot/qq"
-	"reasonix/internal/bot/weixin"
-	"reasonix/internal/config"
+	"artistic-genius/internal/bot"
+	"artistic-genius/internal/bot/feishu"
+	"artistic-genius/internal/bot/qq"
+	"artistic-genius/internal/bot/weixin"
+	"artistic-genius/internal/config"
 )
 
 var rememberPersistMu sync.Mutex

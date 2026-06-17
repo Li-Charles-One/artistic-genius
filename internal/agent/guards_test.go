@@ -11,10 +11,10 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
-	_ "reasonix/internal/tool/builtin"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
+	_ "artistic-genius/internal/tool/builtin"
 )
 
 // TestTruncateToolOutputUnderCap leaves small payloads alone — the cap should

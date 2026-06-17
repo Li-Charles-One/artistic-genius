@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	"reasonix/internal/codegraph"
-	"reasonix/internal/config"
-	"reasonix/internal/netclient"
+	"artistic-genius/internal/codegraph"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/netclient"
 )
 
-// codegraphCommand backs `reasonix codegraph` — managing the CodeGraph
-// code-intelligence runtime that reasonix otherwise fetches lazily on first use.
+// codegraphCommand backs `artistic-genius codegraph` — managing the CodeGraph
+// code-intelligence runtime that artistic-genius otherwise fetches lazily on first use.
 func codegraphCommand(args []string) int {
 	sub := ""
 	if len(args) > 0 {
@@ -91,21 +91,21 @@ func codegraphStatus() int {
 	if p, ok := codegraph.Resolve(cfg.Codegraph.Path); ok {
 		fmt.Printf("%-13s %s\n", "resolved:", p)
 	} else {
-		fmt.Printf("%-13s %s\n", "resolved:", "(not installed — run `reasonix codegraph install`)")
+		fmt.Printf("%-13s %s\n", "resolved:", "(not installed — run `artistic-genius codegraph install`)")
 	}
 	return 0
 }
 
 func codegraphUsage() {
-	fmt.Print(`reasonix codegraph — manage the CodeGraph code-intelligence runtime
+	fmt.Print(`artistic-genius codegraph — manage the CodeGraph code-intelligence runtime
 
 Usage:
-  reasonix codegraph install   download + cache the runtime for this platform
-  reasonix codegraph update    download latest upstream runtime and make it active
-  reasonix codegraph status    show config, cache dir, and resolved launcher
+  artistic-genius codegraph install   download + cache the runtime for this platform
+  artistic-genius codegraph update    download latest upstream runtime and make it active
+  artistic-genius codegraph status    show config, cache dir, and resolved launcher
 
 CodeGraph is fetched automatically on first use (unless [codegraph].auto_install
-is false); install uses Reasonix's pinned runtime. Update is explicit because a
+is false); install uses Artistic Genius's pinned runtime. Update is explicit because a
 new CodeGraph release can change MCP tool schemas and prompt-cache shape.
 `)
 }

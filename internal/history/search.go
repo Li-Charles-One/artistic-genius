@@ -9,9 +9,9 @@ import (
 	"sort"
 	"strings"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/provider"
-	"reasonix/internal/retrieval"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/retrieval"
 )
 
 // Kind identifies the part of a saved message indexed for retrieval.

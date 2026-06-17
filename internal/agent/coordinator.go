@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/event"
-	"reasonix/internal/nilutil"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/nilutil"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // Runner carries out one task turn. Both Agent (single model) and Coordinator
@@ -28,10 +28,10 @@ for the executor. Output executor-ready instructions: what to do, which files or
 commands are relevant, expected blockers, and key decisions. Keep it short and
 actionable.`
 
-const executorHandoffMarker = "Reasonix executor handoff"
+const executorHandoffMarker = "Artistic Genius executor handoff"
 
 // PlannerPromptWithContext appends cache-stable standing context, such as loaded
-// REASONIX.md / AGENTS.md memory, to the planner's smaller system prompt.
+// ARTISTIC_GENIUS.md / AGENTS.md memory, to the planner's smaller system prompt.
 func PlannerPromptWithContext(context string) string {
 	context = strings.TrimSpace(context)
 	if context == "" {

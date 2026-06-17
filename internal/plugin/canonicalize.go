@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"sort"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // sortToolsByName returns a new slice of tools sorted alphabetically by Name().

@@ -32,25 +32,25 @@ Settings -> Models -> Usage -> Agent runtime -> Thinking language
 ```
 
 The desktop setting writes the user-level default. A project can still override
-it with `./reasonix.toml`.
+it with `./artistic-genius.toml`.
 
 ## CLI And TUI
 
 For shell scripts or one-off configuration:
 
 ```bash
-reasonix config reasoning-language auto
-reasonix config reasoning-language zh
-reasonix config reasoning-language en
+artistic-genius config reasoning-language auto
+artistic-genius config reasoning-language zh
+artistic-genius config reasoning-language en
 ```
 
 By default this writes the user config. To write a project-local override:
 
 ```bash
-reasonix config reasoning-language --local zh
+artistic-genius config reasoning-language --local zh
 ```
 
-Inside `reasonix chat`, use the slash command:
+Inside `artistic-genius chat`, use the slash command:
 
 ```text
 /reasoning-language auto
@@ -60,12 +60,12 @@ Inside `reasonix chat`, use the slash command:
 
 The slash command writes the user-level setting and updates the current chat
 controller for subsequent turns. It does not rewrite the current project's
-`reasonix.toml`; use the shell command with `--local` for that.
+`artistic-genius.toml`; use the shell command with `--local` for that.
 
 Headless runs also use the same setting:
 
 ```bash
-reasonix run "explain this module"
+artistic-genius run "explain this module"
 ```
 
 ## Config File
@@ -80,7 +80,7 @@ reasoning_language = "auto" # auto|zh|en
 Resolution order for this setting:
 
 ```text
-./reasonix.toml > user config.toml > built-in defaults
+./artistic-genius.toml > user config.toml > built-in defaults
 ```
 
 There is currently no command-line flag for this setting. Prefer config because
@@ -92,7 +92,7 @@ argument.
 `auto` is the cache-friendliest choice. It injects nothing and relies on the
 existing stable language policy.
 
-When set to `zh` or `en`, Reasonix adds a small transient
+When set to `zh` or `en`, Artistic Genius adds a small transient
 `<reasoning-language>` block to the user turn. It does not change:
 
 - the system prompt

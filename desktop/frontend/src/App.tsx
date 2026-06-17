@@ -110,7 +110,7 @@ import { useGlobalShortcut } from "./lib/keyboardShortcuts";
 import { ShortcutsCheatsheet } from "./components/ShortcutsCheatsheet";
 import logoSymbol from "./assets/logo-symbol.svg";
 
-const SIDEBAR_COLLAPSED_KEY = "reasonix.sidebar.collapsed";
+const SIDEBAR_COLLAPSED_KEY = "artistic-genius.sidebar.collapsed";
 const SIDEBAR_DEFAULT_WIDTH = 232;
 const SIDEBAR_MIN_WIDTH = 220;
 const SIDEBAR_MAX_WIDTH = 320;
@@ -727,7 +727,7 @@ function fence(label: string, value: string): string {
 }
 
 function sessionItemsToMarkdown(title: string, items: Item[], live?: LiveStream): string {
-  const lines: string[] = [`# ${title.trim() || "Reasonix session"}`, ""];
+  const lines: string[] = [`# ${title.trim() || "Artistic Genius session"}`, ""];
   for (const item of materializeLiveItems(items, live)) {
     switch (item.kind) {
       case "user":
@@ -786,7 +786,7 @@ function sessionItemsToJson(title: string, items: Item[], live?: LiveStream): st
 
 function safeFilename(name: string): string {
   const cleaned = name.trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").slice(0, 80);
-  return cleaned || "reasonix-session";
+  return cleaned || "artistic-genius-session";
 }
 
 /** Global hotkey handler for shell-expand toggle (Ctrl/Cmd+B). */

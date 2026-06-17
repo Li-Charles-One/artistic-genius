@@ -5,13 +5,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"reasonix/internal/control"
+	"artistic-genius/internal/control"
 )
 
 func TestEnsureBlankTabInheritsActiveTabSettings(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	workspace := robustTempDir(t)
-	if err := os.WriteFile(filepath.Join(workspace, "reasonix.toml"),
+	if err := os.WriteFile(filepath.Join(workspace, "artistic-genius.toml"),
 		[]byte("[codegraph]\nenabled = false\n"), 0o644); err != nil {
 		t.Fatalf("write workspace config: %v", err)
 	}

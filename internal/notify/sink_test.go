@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"reasonix/internal/config"
-	"reasonix/internal/event"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/event"
 )
 
 var errTestFailure = errors.New("failed")

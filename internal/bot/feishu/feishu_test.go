@@ -10,8 +10,8 @@ import (
 	"sync"
 	"testing"
 
-	"reasonix/internal/bot"
-	"reasonix/internal/config"
+	"artistic-genius/internal/bot"
+	"artistic-genius/internal/config"
 
 	"github.com/larksuite/oapi-sdk-go/v3/event/dispatcher/callback"
 )

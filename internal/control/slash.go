@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"reasonix/internal/config"
-	"reasonix/internal/hook"
-	"reasonix/internal/i18n"
-	"reasonix/internal/skill"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/hook"
+	"artistic-genius/internal/i18n"
+	"artistic-genius/internal/skill"
 )
 
 // SlashItem is one slash-completion suggestion. Insert is the token text placed
@@ -396,7 +396,7 @@ func (c *Controller) managementNotice(trimmed string) bool {
 			if err := hook.Trust(root, ""); err != nil {
 				c.notice("hooks trust: " + err.Error())
 			} else {
-				c.notice("trusted this project's hooks — restart Reasonix to load them")
+				c.notice("trusted this project's hooks — restart Artistic Genius to load them")
 			}
 		default:
 			c.notice("unknown /hooks subcommand " + fields[1] + " — try: /hooks, /hooks trust")

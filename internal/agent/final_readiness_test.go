@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/evidence"
-	"reasonix/internal/instruction"
+	"artistic-genius/internal/evidence"
+	"artistic-genius/internal/instruction"
 )
 
 func readinessLedger(receipts ...evidence.Receipt) *evidence.Ledger {

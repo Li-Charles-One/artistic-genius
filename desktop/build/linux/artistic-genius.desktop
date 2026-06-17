@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Artistic Genius
+Comment=Artistic Genius desktop — a Wails shell around the Go kernel
+Exec=artistic-genius-desktop
+Icon=artistic-genius-desktop
+Categories=Development;Utility;
+Terminal=false
+StartupWMClass=artistic-genius-desktop

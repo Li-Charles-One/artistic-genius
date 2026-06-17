@@ -19,7 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/tool"
+	"artistic-genius/internal/tool"
 )
 
 // DefaultStartupBudget is the per-plugin latency budget used by boot when

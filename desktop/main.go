@@ -1,7 +1,7 @@
-// Command reasonix-desktop is the Wails shell around the Reasonix kernel: a native
+// Command artistic-genius-desktop is the Wails shell around the Artistic Genius kernel: a native
 // window hosting a webview frontend, with the Go-side control.Controller bound
 // directly to the UI (no HTTP hop — bindings in, runtime events out). It lives in
-// a nested module (reasonix/desktop) so the CGO/WebKit desktop build never touches
+// a nested module (artistic-genius/desktop) so the CGO/WebKit desktop build never touches
 // the CLI's CGO_ENABLED=0 single-static-binary guarantee, while still importing
 // the same internal/* kernel.
 package main
@@ -18,13 +18,13 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
-	"reasonix/internal/builtinmcp"
+	"artistic-genius/internal/builtinmcp"
 
 	// Blank imports wire compile-time built-ins into their registries, exactly as
-	// cmd/reasonix does — boot.Build resolves providers/tools from these registries.
-	_ "reasonix/internal/provider/anthropic"
-	_ "reasonix/internal/provider/openai"
-	_ "reasonix/internal/tool/builtin"
+	// cmd/artistic-genius does — boot.Build resolves providers/tools from these registries.
+	_ "artistic-genius/internal/provider/anthropic"
+	_ "artistic-genius/internal/provider/openai"
+	_ "artistic-genius/internal/tool/builtin"
 )
 
 // assets embeds the built frontend. `all:` so dotfiles (e.g. the dist .gitkeep
@@ -35,7 +35,7 @@ import (
 var assets embed.FS
 
 // version is injected at build time via `wails build -ldflags "-X main.version=..."`,
-// mirroring cmd/reasonix/main.go. The auto-updater reads it (App.Version) to compare
+// mirroring cmd/artistic-genius/main.go. The auto-updater reads it (App.Version) to compare
 // against the published manifest; an un-injected dev build stays "dev" and never
 // prompts to update.
 var version = "dev"
@@ -45,7 +45,7 @@ var version = "dev"
 // tracks the opt-in pre-release line and never crosses over to stable.
 var channel = "stable"
 
-const disableWebview2GPUEnv = "REASONIX_DESKTOP_DISABLE_WEBVIEW2_GPU"
+const disableWebview2GPUEnv = "ARTISTIC_GENIUS_DESKTOP_DISABLE_WEBVIEW2_GPU"
 
 func windowsWebview2GPUDisabled() bool {
 	if raw, ok := os.LookupEnv(disableWebview2GPUEnv); ok {
@@ -122,7 +122,7 @@ func main() {
 			WebviewGpuIsDisabled: windowsWebview2GPUDisabled(),
 		},
 		Linux: &linux.Options{
-			ProgramName: "Reasonix",
+			ProgramName: "Artistic Genius",
 			// WebKitGTK GPU compositing is inconsistent across distros/drivers and
 			// is the one real cross-platform rough edge for a Go+webview stack:
 			// "always" can yield blank or flickering webviews on some setups, so

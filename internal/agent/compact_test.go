@@ -1,16 +1,16 @@
 package agent
 
 import (
+	"artistic-genius/internal/event"
 	"context"
 	"errors"
 	"os"
 	"path/filepath"
-	"reasonix/internal/event"
 	"strings"
 	"testing"
 
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // fakeProvider returns a fixed reply and records the messages it was asked to

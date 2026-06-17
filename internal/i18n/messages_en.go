@@ -7,7 +7,7 @@ var English = Messages{
 	WelcomeTitleFmt: "Welcome to %s",
 	NoConfigYet:     "No configuration found yet — let's set it up.",
 	StartingChatFmt: "Starting %s…",
-	SetKeyHint:      "Set your API key, then run `reasonix chat`.",
+	SetKeyHint:      "Set your API key, then run `artistic-genius chat`.",
 	ConfigLabel:     "config",
 	ModelsLabel:     "models",
 	ConfigNotFound:  "not found — using built-in defaults",
@@ -15,18 +15,18 @@ var English = Messages{
 	NoKey:           "no key",
 	Ready:           "ready",
 	GetStarted:      "Get started",
-	StepScaffold:    "scaffold reasonix.toml",
+	StepScaffold:    "scaffold artistic-genius.toml",
 	StepSetKey:      "set API key",
 
-	InitHint:       "Project memory (AGENTS.md) is generated in-session: run `reasonix chat`, then `/init` — the model analyzes the codebase and writes it. For configuration, use `reasonix setup`.",
-	StepSetKeyHint: "run `reasonix setup`, or export DEEPSEEK_API_KEY=…",
+	InitHint:       "Project memory (AGENTS.md) is generated in-session: run `artistic-genius chat`, then `/init` — the model analyzes the codebase and writes it. For configuration, use `artistic-genius setup`.",
+	StepSetKeyHint: "run `artistic-genius setup`, or export DEEPSEEK_API_KEY=…",
 	StepChatDesc:   "interactive session",
 	StepRunDesc:    "one-shot task",
-	HelpFooter:     "reasonix help · all commands",
+	HelpFooter:     "artistic-genius help · all commands",
 
 	ChatTip:           "Context is kept across turns. Type 'exit' or Ctrl-D to quit.",
 	TurnCancelled:     "cancelled — back to prompt",
-	NoSessionToResume: "no saved session to resume — start a new one with `reasonix chat`",
+	NoSessionToResume: "no saved session to resume — start a new one with `artistic-genius chat`",
 	ResumeRequiresTTY: "--resume needs an interactive terminal; pass --continue for the most recent session",
 	PickSessionLabel:  "Resume which session?",
 
@@ -78,7 +78,7 @@ var English = Messages{
 
 	OutputStyleNone:    "no output styles available",
 	OutputStyleHeader:  "output styles:",
-	OutputStyleHint:    "set agent.output_style in reasonix.toml to apply one (takes effect next session)",
+	OutputStyleHint:    "set agent.output_style in artistic-genius.toml to apply one (takes effect next session)",
 	ThemeHeader:        "themes:",
 	ThemeHint:          "switch with /theme <auto|light|dark|style>",
 	ThemeChangedFmt:    "theme switched to %s / %s",
@@ -150,7 +150,7 @@ var English = Messages{
 	SkillPickerStatusNotDir:      "not-directory",
 	SkillPickerStatusUnreadable:  "unreadable",
 	SlashPromptEmpty:             "the MCP prompt returned no content to send",
-	SlashMCPNone:                 "no MCP servers configured — add a [[plugins]] entry in reasonix.toml",
+	SlashMCPNone:                 "no MCP servers configured — add a [[plugins]] entry in artistic-genius.toml",
 	CtrlCQuitHint:                "press Ctrl+C again to quit",
 	CompHintSlash:                "↑/↓ move · Tab/Enter select · Esc close",
 	CompHintFile:                 "↑/↓ move · Tab/Enter open folder or pick file · Esc close",
@@ -208,7 +208,7 @@ var English = Messages{
 	ArgEffortXHigh:  "extra deep reasoning",
 	ArgEffortMax:    "maximum reasoning",
 	ArgThemeCurrent: "current",
-	ArgLanguageAuto: "auto-detect from REASONIX_LANG / locale",
+	ArgLanguageAuto: "auto-detect from ARTISTIC_GENIUS_LANG / locale",
 	ArgLanguageEn:   "English",
 	ArgLanguageZh:   "中文",
 
@@ -221,11 +221,11 @@ var English = Messages{
 	ListSkillsHeaderFmt: "skills (%d)",
 	ListSkillsNone:      "skills: none defined — invoke a built-in like /init, or author one with install_skill",
 	ListHooksHeaderFmt:  "hooks (%d active)",
-	ListHooksNone:       "hooks: none active — configure in .reasonix/settings.json (project, after trust) or ~/.reasonix/settings.json (global)",
+	ListHooksNone:       "hooks: none active — configure in .artistic-genius/settings.json (project, after trust) or ~/.artistic-genius/settings.json (global)",
 	ListMcpHeader:       "mcp servers",
-	ListMcpNone:         "mcp: no servers connected — add one in reasonix.toml ([[plugins]]) or a project .mcp.json",
+	ListMcpNone:         "mcp: no servers connected — add one in artistic-genius.toml ([[plugins]]) or a project .mcp.json",
 
-	MemoryNone:             "memory: none — add with “/remember <note>” or create REASONIX.md in the project root",
+	MemoryNone:             "memory: none — add with “/remember <note>” or create ARTISTIC_GENIUS.md in the project root",
 	MemoryLoaded:           "memory loaded:",
 	MemorySavedHeader:      "  saved memories (archive with “/forget <name>”):",
 	MemoryStoredUnderFmt:   "  stored under %s",
@@ -259,12 +259,12 @@ var English = Messages{
 
 	SelectProvidersLabel:  "Select providers to enable",
 	EnterAPIKeysHeader:    "Enter API keys (Enter to skip and set later):",
-	MissingKeyIntro:       "reasonix.toml is ready — just an API key away.",
+	MissingKeyIntro:       "artistic-genius.toml is ready — just an API key away.",
 	WroteFileFmt:          "Wrote %s",
 	SetupComplete:         "Setup complete.",
 	SetupCancelled:        "setup cancelled.",
 	TryHintFmt:            "Try: %s",
-	NextHint:              "Next: set your API key (run `reasonix setup` or export DEEPSEEK_API_KEY=...), then run `reasonix run \"your task\"`.",
+	NextHint:              "Next: set your API key (run `artistic-genius setup` or export DEEPSEEK_API_KEY=...), then run `artistic-genius run \"your task\"`.",
 	ConfirmReconfigureFmt: "%s already exists. Reconfigure and overwrite?",
 	KeepingExisting:       "Keeping existing config.",
 	NotOverwritingFmt:     "%s already exists; not overwriting",
@@ -279,7 +279,7 @@ var English = Messages{
 	NoModelsAvailableFmt:       "%s: no models available, skipping",
 	CustomFetchEmpty:           "/models returned an empty list — falling back to manual entry",
 	AnthropicFetchEmpty:        "/models returned an empty list — Anthropic-compatible providers usually don't expose one, falling back to manual entry",
-	SkipStaleCustomEntryFmt:    "skipping stale %q entry from reasonix.toml (pointing at %s) — please remove it from [[providers]]",
+	SkipStaleCustomEntryFmt:    "skipping stale %q entry from artistic-genius.toml (pointing at %s) — please remove it from [[providers]]",
 	APIKeyAlreadySetFmt:        "reusing existing value for %s",
 	APIKeyResetPromptFmt:       "Re-enter %s?",
 
@@ -312,15 +312,15 @@ var English = Messages{
 	AnthropicSelectModelsLabel:     "Select models to enable for %s",
 
 	UnknownCommandFmt:         "unknown command %q",
-	UsageRunHint:              "usage: reasonix run [--model NAME] <task>",
+	UsageRunHint:              "usage: artistic-genius run [--model NAME] <task>",
 	ErrorPrefix:               "error:",
 	ReconfigureOnUnknownModel: "Configured model is no longer available — re-running setup.",
 	WriteConfigErr:            "write config:",
 	WriteEnvErr:               "write .env:",
 
 	ProviderErrBadRequest:          "Malformed request (HTTP 400): the request body was rejected. This is likely a bug — please report it if it persists.",
-	ProviderErrAuth:                "Authentication failed (HTTP 401): your API key is missing or unset. Add it to .env or run `reasonix setup`.",
-	ProviderErrAuthRejected:        "Authentication failed (HTTP 401): the server rejected your API key. It may be wrong or expired, or the provider hit a transient auth/quota issue — retried with backoff and still failed. Try again shortly, or check the key in .env / run `reasonix setup`.",
+	ProviderErrAuth:                "Authentication failed (HTTP 401): your API key is missing or unset. Add it to .env or run `artistic-genius setup`.",
+	ProviderErrAuthRejected:        "Authentication failed (HTTP 401): the server rejected your API key. It may be wrong or expired, or the provider hit a transient auth/quota issue — retried with backoff and still failed. Try again shortly, or check the key in .env / run `artistic-genius setup`.",
 	ProviderErrInsufficientBalance: "Insufficient balance (HTTP 402): your account is out of credit. Top up your account, then retry.",
 	ProviderErrUnprocessable:       "Invalid parameters (HTTP 422): a request parameter was rejected. This is likely a bug — please report it if it persists.",
 	ProviderErrRateLimited:         "Rate limit reached (HTTP 429): too many requests (TPM/RPM). Retried with backoff — slow down or try again shortly.",
@@ -361,33 +361,33 @@ var English = Messages{
 	UpgradeApplyFailed:         "failed to apply update: %v",
 	UpgradeSuccessFmt:          "Updated %s → %s",
 
-	UsageBody: `reasonix — a config- and plugin-driven coding agent (multi-model)
+	UsageBody: `artistic-genius — a config- and plugin-driven coding agent (multi-model)
 
 Usage:
-  reasonix chat [--model NAME] [-c|--continue] [--resume]   interactive session (multi-turn; -c resumes the latest, --resume picks one)
-  reasonix run  [--model NAME] [--max-steps N] [-c|--continue] [--resume PATH] <task>   run one task and exit
-  reasonix serve [--model NAME] [--addr HOST:PORT]      serve the session over HTTP+SSE (browser client at /)
-  reasonix acp [--model NAME]                           serve Agent Client Protocol over stdio (also: reasonix --acp)
-  reasonix setup [path]                                 interactive config wizard; writes reasonix.toml (+ .env)
-  reasonix config auto-plan [off|on]                    configure automatic plan mode
-  reasonix config reasoning-language [auto|zh|en]        configure visible reasoning language
-  reasonix mcp <add|remove|list>                        manage MCP servers in reasonix.toml
-  reasonix doctor [--json]                              print redacted local diagnostics
-  reasonix bot start|doctor|weixin-login                multi-channel IM bot gateway
-  reasonix upgrade [--check] [--force]                   self-update to the latest release
-  reasonix version
-  reasonix help
+  artistic-genius chat [--model NAME] [-c|--continue] [--resume]   interactive session (multi-turn; -c resumes the latest, --resume picks one)
+  artistic-genius run  [--model NAME] [--max-steps N] [-c|--continue] [--resume PATH] <task>   run one task and exit
+  artistic-genius serve [--model NAME] [--addr HOST:PORT]      serve the session over HTTP+SSE (browser client at /)
+  artistic-genius acp [--model NAME]                           serve Agent Client Protocol over stdio (also: artistic-genius --acp)
+  artistic-genius setup [path]                                 interactive config wizard; writes artistic-genius.toml (+ .env)
+  artistic-genius config auto-plan [off|on]                    configure automatic plan mode
+  artistic-genius config reasoning-language [auto|zh|en]        configure visible reasoning language
+  artistic-genius mcp <add|remove|list>                        manage MCP servers in artistic-genius.toml
+  artistic-genius doctor [--json]                              print redacted local diagnostics
+  artistic-genius bot start|doctor|weixin-login                multi-channel IM bot gateway
+  artistic-genius upgrade [--check] [--force]                   self-update to the latest release
+  artistic-genius version
+  artistic-genius help
 
 Examples:
-  reasonix chat
-  reasonix chat --continue
-  reasonix run "implement the TODOs in main.go"
-  reasonix run --model mimo-pro "add unit tests for this function"
-  echo "explain this code" | reasonix run
+  artistic-genius chat
+  artistic-genius chat --continue
+  artistic-genius run "implement the TODOs in main.go"
+  artistic-genius run --model mimo-pro "add unit tests for this function"
+  echo "explain this code" | artistic-genius run
 
 Configuration:
-  Resolution: flag > ./reasonix.toml > ~/.config/reasonix/config.toml > built-in defaults
+  Resolution: flag > ./artistic-genius.toml > ~/.config/artistic-genius/config.toml > built-in defaults
   Secrets come from the environment via api_key_env (e.g. DEEPSEEK_API_KEY).
-  Run 'reasonix setup' to scaffold a config; see docs/SPEC.md.
+  Run 'artistic-genius setup' to scaffold a config; see docs/SPEC.md.
 `,
 }

@@ -8,12 +8,12 @@ import (
 	"os/exec"
 	"strings"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/boot"
-	"reasonix/internal/config"
-	"reasonix/internal/event"
-	"reasonix/internal/skill"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/boot"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/skill"
+	"artistic-genius/internal/tool"
 )
 
 func reviewCommand(args []string) int {

@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/provider"
 )
 
 // fakeRunner stands in for an agent.Runner: it records the composed input and
@@ -286,6 +286,7 @@ func TestServeIndexPagePassesLanguagePreferenceToClient(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	t.Setenv("AppData", filepath.Join(home, "AppData", "Roaming"))
 
 	bc := NewBroadcaster()
 	ctrl := control.New(control.Options{Sink: bc})

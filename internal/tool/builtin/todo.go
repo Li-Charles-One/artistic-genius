@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"reasonix/internal/evidence"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/evidence"
+	"artistic-genius/internal/tool"
 )
 
 func init() { tool.RegisterBuiltin(todoWrite{}) }

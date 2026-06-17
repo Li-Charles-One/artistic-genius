@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"reasonix/internal/jobs"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/jobs"
+	"artistic-genius/internal/tool"
 )
 
 // bash_output / kill_shell / wait operate the background jobs registered by

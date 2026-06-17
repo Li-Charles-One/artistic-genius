@@ -1,5 +1,5 @@
-const KEY = "reasonix-status-bar-visible";
-const EVENT = "reasonix:status-bar-visible";
+const KEY = "artistic-genius-status-bar-visible";
+const EVENT = "artistic-genius:status-bar-visible";
 
 export function getStatusBarVisible(): boolean {
   if (typeof localStorage === "undefined") return true;

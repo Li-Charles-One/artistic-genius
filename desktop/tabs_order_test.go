@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
 )
 
 func testAppWithOrderedTabs(t *testing.T, active string, ids ...string) *App {

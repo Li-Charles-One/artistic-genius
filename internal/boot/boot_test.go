@@ -19,34 +19,34 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/agent/testutil"
-	"reasonix/internal/builtinmcp"
-	"reasonix/internal/codegraph"
-	"reasonix/internal/config"
-	"reasonix/internal/event"
-	"reasonix/internal/memory"
-	"reasonix/internal/netclient"
-	"reasonix/internal/plugin"
-	"reasonix/internal/provider"
-	"reasonix/internal/sandbox"
-	"reasonix/internal/tool"
-	"reasonix/internal/tool/builtin"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/agent/testutil"
+	"artistic-genius/internal/builtinmcp"
+	"artistic-genius/internal/codegraph"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/memory"
+	"artistic-genius/internal/netclient"
+	"artistic-genius/internal/plugin"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/sandbox"
+	"artistic-genius/internal/tool"
+	"artistic-genius/internal/tool/builtin"
 
-	// Blank import registers the provider kind the same way cmd/reasonix's main
+	// Blank import registers the provider kind the same way cmd/artistic-genius's main
 	// does; importing builtin above registers the built-in tools.
-	_ "reasonix/internal/provider/openai"
+	_ "artistic-genius/internal/provider/openai"
 )
 
 // TestBuildFoldsProjectMemoryIntoSystemPrompt is the end-to-end proof of the
-// cache-first wiring: a project REASONIX.md is discovered at boot and folded
+// cache-first wiring: a project ARTISTIC_GENIUS.md is discovered at boot and folded
 // into the session's system message (the cached prefix), and the `remember`
 // tool is registered. It builds a real Controller from a throwaway project dir.
 func TestBuildFoldsProjectMemoryIntoSystemPrompt(t *testing.T) {
 	dir := robustTempDir(t)
 	t.Chdir(dir)
 
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -60,9 +60,9 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
-	writeFile(t, dir, "REASONIX.md", "Project rule: always run go vet before committing.")
+	writeFile(t, dir, "ARTISTIC_GENIUS.md", "Project rule: always run go vet before committing.")
 
 	ctrl, err := Build(context.Background(), Options{}) // RequireKey false: no network/key needed
 	if err != nil {
@@ -77,7 +77,7 @@ api_key_env = "REASONIX_TEST_KEY_UNSET"
 		t.Fatalf("base prompt missing from system message:\n%s", sys)
 	}
 	if !strings.Contains(sys, "always run go vet before committing") {
-		t.Fatalf("project REASONIX.md not folded into system message:\n%s", sys)
+		t.Fatalf("project ARTISTIC_GENIUS.md not folded into system message:\n%s", sys)
 	}
 	// Base must come first so it stays a valid cache prefix when memory changes.
 	if strings.Index(sys, "BASE SYSTEM PROMPT") > strings.Index(sys, "always run go vet") {
@@ -85,7 +85,7 @@ api_key_env = "REASONIX_TEST_KEY_UNSET"
 	}
 
 	if mem := ctrl.Memory(); mem == nil || len(mem.Docs) == 0 {
-		t.Fatal("controller memory set is empty after discovering REASONIX.md")
+		t.Fatal("controller memory set is empty after discovering ARTISTIC_GENIUS.md")
 	}
 }
 
@@ -94,7 +94,7 @@ func TestBuildRegistersUsableHistoryAndMemoryRetrievalTools(t *testing.T) {
 	dir := robustTempDir(t)
 	t.Chdir(dir)
 
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -337,7 +337,7 @@ func TestBuildSubagentSkillFailedContinuationPersistsTranscript(t *testing.T) {
 	registerBootSubagentTestProvider()
 	prov := &bootSubagentTestProvider{}
 	setBootSubagentTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -398,7 +398,7 @@ func TestBuildSubagentStoreHonorsSessionDirOverride(t *testing.T) {
 	registerBootSubagentTestProvider()
 	prov := &bootSubagentTestProvider{}
 	setBootSubagentTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -448,7 +448,7 @@ func TestBuildSubagentSkillUsesLiveReasoningLanguage(t *testing.T) {
 	registerBootSubagentTestProvider()
 	prov := &bootSubagentTestProvider{}
 	setBootSubagentTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -494,7 +494,7 @@ func TestBuildSubagentSkillGetsForegroundOnlyBash(t *testing.T) {
 	registerBootSubagentTestProvider()
 	prov := &bootSubagentTestProvider{}
 	setBootSubagentTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -663,7 +663,7 @@ func subagentRefFromHistory(t *testing.T, msgs []provider.Message) string {
 }
 
 // TestBuildHeadlessRunRunsTaskSubagentWithoutSessionPath reproduces headless
-// `reasonix run`: a controller built via Build with NO SetSessionPath (exactly
+// `artistic-genius run`: a controller built via Build with NO SetSessionPath (exactly
 // what internal/cli.runAgent does) must still be able to run a `task` sub-agent.
 // Before the ephemeral fallback this failed with "parent session is required".
 func TestBuildHeadlessRunRunsTaskSubagentWithoutSessionPath(t *testing.T) {
@@ -674,7 +674,7 @@ func TestBuildHeadlessRunRunsTaskSubagentWithoutSessionPath(t *testing.T) {
 	registerHeadlessTaskTestProvider()
 	prov := &headlessTaskTestProvider{}
 	setHeadlessTaskTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -871,7 +871,7 @@ func TestBuildHonorsSessionDirOverride(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
 	t.Setenv("AppData", filepath.Join(home, "AppData"))
 	t.Chdir(dir)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -882,7 +882,7 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
 
 	sessionDir := filepath.Join(t.TempDir(), "desktop-workspace-sessions")
@@ -906,7 +906,7 @@ func TestBuildDiscoversSkills(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
 	t.Chdir(dir)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -920,9 +920,9 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
-	writeFile(t, dir, ".reasonix/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
+	writeFile(t, dir, ".artistic-genius/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
 
 	ctrl, err := Build(context.Background(), Options{})
 	if err != nil {
@@ -957,7 +957,7 @@ func TestBuildTokenFullMatchesDefaultRequestPrefix(t *testing.T) {
 	dir := robustTempDir(t)
 	t.Chdir(dir)
 
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -971,7 +971,7 @@ name = "test-model"
 kind = "boot-token-profile-test"
 model = "x"
 `)
-	writeFile(t, dir, ".reasonix/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
+	writeFile(t, dir, ".artistic-genius/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
 
 	defaultReq := firstTokenProfileRequest(t, "")
 	fullReq := firstTokenProfileRequest(t, TokenModeFull)
@@ -1004,7 +1004,7 @@ func TestBuildTokenEconomyStartsWithLeanToolSurface(t *testing.T) {
 	registerBootTokenProfileTestProvider()
 	prov := testutil.NewMock("token-economy", testutil.Turn{Text: "done"})
 	setBootTokenProfileTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1020,9 +1020,9 @@ model = "x"
 
 [[plugins]]
 name = "mockmcp"
-command = "reasonix-missing-mockmcp"
+command = "artistic-genius-missing-mockmcp"
 `)
-	writeFile(t, dir, ".reasonix/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
+	writeFile(t, dir, ".artistic-genius/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
 
 	ctrl, err := Build(context.Background(), Options{Sink: event.Discard, TokenMode: TokenModeEconomy})
 	if err != nil {
@@ -1102,7 +1102,7 @@ func TestBuildTokenEconomyConnectsWebFetchOnDemand(t *testing.T) {
 		testutil.Turn{Text: "done"},
 	)
 	setBootTokenProfileTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1143,7 +1143,7 @@ func TestBuildTokenEconomyCodegraphSetsShortDaemonIdleTimeout(t *testing.T) {
 	t.Chdir(dir)
 	launcher := writeCodegraphHelper(t, dir)
 	envOut := filepath.Join(dir, "codegraph-idle-env")
-	t.Setenv("REASONIX_CODEGRAPH_HELPER_ENV_OUT", envOut)
+	t.Setenv("ARTISTIC_GENIUS_CODEGRAPH_HELPER_ENV_OUT", envOut)
 
 	registerBootTokenProfileTestProvider()
 	prov := testutil.NewMock("token-economy",
@@ -1153,7 +1153,7 @@ func TestBuildTokenEconomyCodegraphSetsShortDaemonIdleTimeout(t *testing.T) {
 		testutil.Turn{Text: "done"},
 	)
 	setBootTokenProfileTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", fmt.Sprintf(`
+	writeFile(t, dir, "artistic-genius.toml", fmt.Sprintf(`
 default_model = "test-model"
 
 [codegraph]
@@ -1191,8 +1191,8 @@ model = "x"
 	if err != nil {
 		t.Fatalf("read codegraph idle timeout env: %v", err)
 	}
-	if string(got) != codegraph.ReasonixDaemonIdleTimeoutMS {
-		t.Fatalf("%s = %q; want %q", codegraph.DaemonIdleTimeoutEnv, got, codegraph.ReasonixDaemonIdleTimeoutMS)
+	if string(got) != codegraph.ArtisticGeniusDaemonIdleTimeoutMS {
+		t.Fatalf("%s = %q; want %q", codegraph.DaemonIdleTimeoutEnv, got, codegraph.ArtisticGeniusDaemonIdleTimeoutMS)
 	}
 }
 
@@ -1209,7 +1209,7 @@ func TestBuildTokenEconomyPlanModeCanConnectWebFetch(t *testing.T) {
 		testutil.Turn{Text: "done"},
 	)
 	setBootTokenProfileTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1260,7 +1260,7 @@ func TestBuildTokenEconomyWebFetchConnectorHonorsDisabledBuiltin(t *testing.T) {
 		testutil.Turn{Text: "done"},
 	)
 	setBootTokenProfileTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [tools]
@@ -1317,7 +1317,7 @@ func TestBuildTokenEconomyConnectsSkillsOnDemand(t *testing.T) {
 		testutil.Turn{Text: "done"},
 	)
 	setBootTokenProfileTestProvider(t, prov)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1331,7 +1331,7 @@ name = "test-model"
 kind = "boot-token-profile-test"
 model = "x"
 `)
-	writeFile(t, dir, ".reasonix/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
+	writeFile(t, dir, ".artistic-genius/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
 
 	ctrl, err := Build(context.Background(), Options{Sink: event.Discard, TokenMode: TokenModeEconomy})
 	if err != nil {
@@ -1389,7 +1389,7 @@ func TestBuildOmitsDisabledSkillsFromPromptAndRuntimeList(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
 	t.Chdir(dir)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1406,9 +1406,9 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
-	writeFile(t, dir, ".reasonix/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
+	writeFile(t, dir, ".artistic-genius/skills/projskill.md", "---\ndescription: a project skill\n---\nplaybook")
 
 	ctrl, err := Build(context.Background(), Options{})
 	if err != nil {
@@ -1443,9 +1443,9 @@ func TestBuildOmitsExcludedSkillRootsFromPromptAndRuntimeList(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
 	t.Chdir(dir)
 	excluded := filepath.Join(home, ".agents", "skills")
-	writeFile(t, home, ".reasonix/skills/keep.md", "---\ndescription: keep\n---\nplaybook")
+	writeFile(t, home, ".artistic-genius/skills/keep.md", "---\ndescription: keep\n---\nplaybook")
 	writeFile(t, home, ".agents/skills/noisy.md", "---\ndescription: noisy\n---\nplaybook")
-	writeFile(t, dir, "reasonix.toml", fmt.Sprintf(`
+	writeFile(t, dir, "artistic-genius.toml", fmt.Sprintf(`
 default_model = "test-model"
 
 [codegraph]
@@ -1462,7 +1462,7 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `, excluded))
 
 	ctrl, err := Build(context.Background(), Options{})
@@ -1495,7 +1495,7 @@ func TestBuildWithoutMemoryLeavesPromptUnchanged(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
 	t.Setenv("AppData", filepath.Join(home, "AppData"))
 	t.Chdir(dir)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1509,7 +1509,7 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
 
 	ctrl, err := Build(context.Background(), Options{})
@@ -1522,7 +1522,7 @@ api_key_env = "REASONIX_TEST_KEY_UNSET"
 	// The built-in skills always append a "# Skills" index to the prefix; this
 	// test is about memory, so strip that and assert the remaining base is exactly
 	// the configured prompt — i.e. no *project/ancestor* memory leaked in. (A
-	// user-global REASONIX.md in the real config dir could append; the test
+	// user-global ARTISTIC_GENIUS.md in the real config dir could append; the test
 	// environment has none, so the base stands alone.)
 	base := sys
 	if i := strings.Index(sys, "\n\n# Skills"); i >= 0 {
@@ -1539,7 +1539,7 @@ api_key_env = "REASONIX_TEST_KEY_UNSET"
 func TestBuildLanguagePolicyIsAppended(t *testing.T) {
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1553,7 +1553,7 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
 
 	ctrl, err := Build(context.Background(), Options{})
@@ -1604,11 +1604,11 @@ func TestRememberPermissionRuleUsesWorkspaceRoot(t *testing.T) {
 	cwd := robustTempDir(t)
 	workspace := robustTempDir(t)
 	t.Chdir(cwd)
-	writeFile(t, cwd, "reasonix.toml", `
+	writeFile(t, cwd, "artistic-genius.toml", `
 [permissions]
 allow = ["Bash(cwd*)"]
 `)
-	writeFile(t, workspace, "reasonix.toml", `
+	writeFile(t, workspace, "artistic-genius.toml", `
 [permissions]
 allow = ["Bash(workspace*)"]
 `)
@@ -1616,11 +1616,11 @@ allow = ["Bash(workspace*)"]
 	const rule = "Bash(go test ./...)"
 	rememberPermissionRule(workspace, rule)
 
-	cwdCfg := config.LoadForEdit(filepath.Join(cwd, "reasonix.toml"))
+	cwdCfg := config.LoadForEdit(filepath.Join(cwd, "artistic-genius.toml"))
 	if hasPermissionRule(cwdCfg.Permissions.Allow, rule) {
 		t.Fatalf("remembered rule was written to cwd config: %v", cwdCfg.Permissions.Allow)
 	}
-	workspaceCfg := config.LoadForEdit(filepath.Join(workspace, "reasonix.toml"))
+	workspaceCfg := config.LoadForEdit(filepath.Join(workspace, "artistic-genius.toml"))
 	if !hasPermissionRule(workspaceCfg.Permissions.Allow, rule) {
 		t.Fatalf("remembered rule missing from workspace config: %v", workspaceCfg.Permissions.Allow)
 	}
@@ -1642,7 +1642,7 @@ allow = ["Bash(user)"]
 
 	const rule = "Edit(src/app.go)"
 	res := rememberPermissionRule(workspace, rule)
-	if !res.Saved || res.Path != filepath.Join(workspace, "reasonix.toml") {
+	if !res.Saved || res.Path != filepath.Join(workspace, "artistic-genius.toml") {
 		t.Fatalf("remember result = %+v, want saved to workspace config", res)
 	}
 
@@ -1650,7 +1650,7 @@ allow = ["Bash(user)"]
 	if hasPermissionRule(userCfg.Permissions.Allow, rule) {
 		t.Fatalf("workspace rule was written to user config: %v", userCfg.Permissions.Allow)
 	}
-	workspaceCfg := config.LoadForEdit(filepath.Join(workspace, "reasonix.toml"))
+	workspaceCfg := config.LoadForEdit(filepath.Join(workspace, "artistic-genius.toml"))
 	if !hasPermissionRule(workspaceCfg.Permissions.Allow, rule) {
 		t.Fatalf("workspace rule missing from project config: %v", workspaceCfg.Permissions.Allow)
 	}
@@ -1681,14 +1681,14 @@ allow = ["Bash(user*)"]
 	if !hasPermissionRule(userCfg.Permissions.Allow, rule) {
 		t.Fatalf("empty root should remember into SourcePath config: %v", userCfg.Permissions.Allow)
 	}
-	if _, err := os.Stat(filepath.Join(cwd, "reasonix.toml")); !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(cwd, "artistic-genius.toml")); !os.IsNotExist(err) {
 		t.Fatalf("empty root should not create cwd config when SourcePath exists, err=%v", err)
 	}
 }
 
 func TestRememberPermissionRuleSkipsRuleCoveredByExistingAllow(t *testing.T) {
 	workspace := robustTempDir(t)
-	writeFile(t, workspace, "reasonix.toml", `
+	writeFile(t, workspace, "artistic-genius.toml", `
 [permissions]
 allow = ["Bash(go test:*)"]
 `)
@@ -1697,7 +1697,7 @@ allow = ["Bash(go test:*)"]
 	if res.Saved || res.CoveredBy != "Bash(go test:*)" {
 		t.Fatalf("remember result = %+v, want already covered", res)
 	}
-	cfg := config.LoadForEdit(filepath.Join(workspace, "reasonix.toml"))
+	cfg := config.LoadForEdit(filepath.Join(workspace, "artistic-genius.toml"))
 	if len(cfg.Permissions.Allow) != 1 || cfg.Permissions.Allow[0] != "Bash(go test:*)" {
 		t.Fatalf("allow rules = %v, want only existing prefix", cfg.Permissions.Allow)
 	}
@@ -1705,7 +1705,7 @@ allow = ["Bash(go test:*)"]
 
 func TestRememberPermissionRulePrunesNarrowRulesWhenSavingBroaderRule(t *testing.T) {
 	workspace := robustTempDir(t)
-	writeFile(t, workspace, "reasonix.toml", `
+	writeFile(t, workspace, "artistic-genius.toml", `
 [permissions]
 allow = ["Bash(go test ./...)", "Bash(go build ./...)"]
 `)
@@ -1714,7 +1714,7 @@ allow = ["Bash(go test ./...)", "Bash(go build ./...)"]
 	if !res.Saved || res.CoveredBy != "" {
 		t.Fatalf("remember result = %+v, want saved broader rule", res)
 	}
-	cfg := config.LoadForEdit(filepath.Join(workspace, "reasonix.toml"))
+	cfg := config.LoadForEdit(filepath.Join(workspace, "artistic-genius.toml"))
 	if hasPermissionRule(cfg.Permissions.Allow, "Bash(go test ./...)") {
 		t.Fatalf("narrow go test rule should be pruned: %v", cfg.Permissions.Allow)
 	}
@@ -1733,7 +1733,7 @@ func hasPermissionRule(rules []string, want string) bool {
 }
 
 // TestBuildMigratesLegacyConfigEndToEnd drives the real boot path: a v0.x
-// ~/.reasonix/config.json with no v1+ config present must be imported during
+// ~/.artistic-genius/config.json with no v1+ config present must be imported during
 // Build — config written, key pinned into the env, and the user told via a notice.
 func TestBuildMigratesLegacyConfigEndToEnd(t *testing.T) {
 	home := robustTempDir(t)
@@ -1747,10 +1747,10 @@ func TestBuildMigratesLegacyConfigEndToEnd(t *testing.T) {
 	t.Chdir(proj)
 	// codegraph off keeps Build offline; it merges over the migrated user config
 	// without dropping the migrated plugins.
-	writeFile(t, proj, "reasonix.toml", "[codegraph]\nenabled = false\n")
-	writeFile(t, filepath.Join(home, ".reasonix"), "config.json",
+	writeFile(t, proj, "artistic-genius.toml", "[codegraph]\nenabled = false\n")
+	writeFile(t, filepath.Join(home, ".artistic-genius"), "config.json",
 		`{"apiKey":"sk-e2e","lang":"zh","mcpServers":{"fs":{"command":"npx","args":["-y","server-fs"]}}}`)
-	writeFile(t, filepath.Join(home, ".reasonix", "sessions"), "chat-1.events.jsonl",
+	writeFile(t, filepath.Join(home, ".artistic-genius", "sessions"), "chat-1.events.jsonl",
 		`{"type":"user.message","id":1,"ts":"t","turn":0,"text":"hello from v0.x"}`+"\n"+
 			`{"type":"model.final","id":2,"ts":"t","turn":0,"content":"hi","toolCalls":[],"usage":{},"costUsd":0}`+"\n")
 
@@ -1820,7 +1820,7 @@ func TestBuildMigratesLegacySessionsFromConfigSessionDir(t *testing.T) {
 	t.Setenv("AppData", filepath.Join(home, "AppData"))
 
 	proj := robustTempDir(t)
-	writeFile(t, proj, "reasonix.toml", "[codegraph]\nenabled = false\n")
+	writeFile(t, proj, "artistic-genius.toml", "[codegraph]\nenabled = false\n")
 
 	legacyDir := config.SessionDir()
 	writeFile(t, legacyDir, "custom-root.events.jsonl",
@@ -1926,7 +1926,7 @@ func TestBuildMigratesLegacyEagerTierToBackground(t *testing.T) {
 	dir := robustTempDir(t)
 	t.Chdir(dir)
 
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1940,11 +1940,11 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 
 [[plugins]]
 name = "legacy-eager"
-command = "reasonix-missing-legacy-eager-mcp"
+command = "artistic-genius-missing-legacy-eager-mcp"
 tier = "eager"
 `)
 
@@ -1960,7 +1960,7 @@ tier = "eager"
 	if len(failures) != 1 || failures[0].Name != "legacy-eager" {
 		t.Fatalf("failures = %+v, want background startup failure for migrated legacy eager plugin", failures)
 	}
-	raw, err := os.ReadFile(filepath.Join(dir, "reasonix.toml"))
+	raw, err := os.ReadFile(filepath.Join(dir, "artistic-genius.toml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1974,7 +1974,7 @@ func TestBuildMigratesLegacyLazyTierToBackground(t *testing.T) {
 	dir := robustTempDir(t)
 	t.Chdir(dir)
 
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -1988,11 +1988,11 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 
 [[plugins]]
 name = "legacy-lazy"
-command = "reasonix-missing-legacy-lazy-mcp"
+command = "artistic-genius-missing-legacy-lazy-mcp"
 tier = "lazy"
 `)
 
@@ -2008,7 +2008,7 @@ tier = "lazy"
 	if len(failures) != 1 || failures[0].Name != "legacy-lazy" {
 		t.Fatalf("failures = %+v, want background startup failure for migrated legacy lazy plugin", failures)
 	}
-	raw, err := os.ReadFile(filepath.Join(dir, "reasonix.toml"))
+	raw, err := os.ReadFile(filepath.Join(dir, "artistic-genius.toml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2024,7 +2024,7 @@ func TestBuildColdCodegraphStartsInBackground(t *testing.T) {
 	launcher := writeCodegraphHelper(t, dir)
 	t.Setenv("GO_WANT_HELPER_PROCESS", "1")
 
-	writeFile(t, dir, "reasonix.toml", fmt.Sprintf(`
+	writeFile(t, dir, "artistic-genius.toml", fmt.Sprintf(`
 default_model = "test-model"
 
 [codegraph]
@@ -2040,7 +2040,7 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `, launcher))
 
 	var notices []event.Event
@@ -2089,9 +2089,9 @@ func TestBuildCodegraphSetsShortDaemonIdleTimeout(t *testing.T) {
 	t.Chdir(dir)
 	launcher := writeCodegraphHelper(t, dir)
 	envOut := filepath.Join(dir, "codegraph-idle-env")
-	t.Setenv("REASONIX_CODEGRAPH_HELPER_ENV_OUT", envOut)
+	t.Setenv("ARTISTIC_GENIUS_CODEGRAPH_HELPER_ENV_OUT", envOut)
 
-	writeFile(t, dir, "reasonix.toml", fmt.Sprintf(`
+	writeFile(t, dir, "artistic-genius.toml", fmt.Sprintf(`
 default_model = "test-model"
 
 [codegraph]
@@ -2106,7 +2106,7 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `, launcher))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -2121,11 +2121,11 @@ api_key_env = "REASONIX_TEST_KEY_UNSET"
 	var got []byte
 	for {
 		got, err = os.ReadFile(envOut)
-		if err == nil && string(got) == codegraph.ReasonixDaemonIdleTimeoutMS {
+		if err == nil && string(got) == codegraph.ArtisticGeniusDaemonIdleTimeoutMS {
 			break
 		}
 		if time.Now().After(deadline) {
-			t.Fatalf("codegraph helper idle timeout env = %q, want %q (read error: %v)", got, codegraph.ReasonixDaemonIdleTimeoutMS, err)
+			t.Fatalf("codegraph helper idle timeout env = %q, want %q (read error: %v)", got, codegraph.ArtisticGeniusDaemonIdleTimeoutMS, err)
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
@@ -2147,7 +2147,7 @@ func TestBuildWarmCodegraphIgnoresLegacyEagerTier(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	writeFile(t, dir, "reasonix.toml", fmt.Sprintf(`
+	writeFile(t, dir, "artistic-genius.toml", fmt.Sprintf(`
 default_model = "test-model"
 
 [codegraph]
@@ -2163,7 +2163,7 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `, launcher))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
@@ -2185,7 +2185,7 @@ func TestBuildDefaultsToNearestGitRoot(t *testing.T) {
 	if err := os.MkdirAll(subdir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	writeFile(t, root, "reasonix.toml", `
+	writeFile(t, root, "artistic-genius.toml", `
 default_model = "root-model"
 
 [codegraph]
@@ -2199,7 +2199,7 @@ name = "root-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
 	t.Chdir(subdir)
 
@@ -2224,7 +2224,7 @@ func TestBuildMigratesLegacyEagerBeforeStatsDemotion(t *testing.T) {
 		}
 	}
 
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "test-model"
 
 [codegraph]
@@ -2238,11 +2238,11 @@ name = "test-model"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "x"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 
 [[plugins]]
 name = "slowserver"
-command = "reasonix-missing-slow-mcp-binary"
+command = "artistic-genius-missing-slow-mcp-binary"
 tier = "eager"
 `)
 
@@ -2380,7 +2380,7 @@ func main() {
 		return
 	}
 	if len(os.Args) >= 2 && os.Args[1] == "serve" {
-		if out := os.Getenv("REASONIX_CODEGRAPH_HELPER_ENV_OUT"); out != "" {
+		if out := os.Getenv("ARTISTIC_GENIUS_CODEGRAPH_HELPER_ENV_OUT"); out != "" {
 			_ = os.WriteFile(out, []byte(os.Getenv("CODEGRAPH_DAEMON_IDLE_TIMEOUT_MS")), 0o644)
 		}
 	}

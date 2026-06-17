@@ -4,10 +4,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/config"
-	"reasonix/internal/skill"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/skill"
+	"artistic-genius/internal/tool"
 )
 
 func TestSubagentModelRefUsesConfiguredDefault(t *testing.T) {

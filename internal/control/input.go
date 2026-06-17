@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/skill"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/skill"
 )
 
 // PlanModeMarker is prepended to every user turn while plan mode is on. It rides

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 // Pruning is the free half of context maintenance: stale tool results are

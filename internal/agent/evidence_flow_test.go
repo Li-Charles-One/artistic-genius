@@ -5,11 +5,11 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/evidence"
-	"reasonix/internal/instruction"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/evidence"
+	"artistic-genius/internal/instruction"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // scriptedProvider replays a distinct chunk set per Stream call, so a multi-turn

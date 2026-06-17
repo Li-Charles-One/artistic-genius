@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 # Build and package the Wails desktop app for one platform. Wails cannot
-# cross-compile a CGO+webview binary, so this runs on a native runner per target
-# (see .github/workflows/release-desktop.yml) and is invoked once per matrix entry.
+# cross-compile a CGO+webview binary, so this runs on a native runner per target.
 #
 # Output lands in <repo>/dist/ with stable, platform-keyed names that
 # desktop/cmd/sign's `manifest` subcommand maps back to update.PlatformKey:
-#   macOS:   Reasonix-darwin-<arch>.zip                  (ditto archive; updater channel)
-#            Reasonix-darwin-universal.dmg               (drag-to-install; human download)
-#   Windows: Reasonix-windows-<arch>-installer.exe       (NSIS per-user installer; updater channel)
-#            Reasonix-windows-<arch>.zip                 (portable human download)
-#   Linux:   Reasonix-linux-<arch>.tar.gz                (bare binary; updater channel)
-#            Reasonix-linux-<arch>.deb                   (Debian/Ubuntu package; human download)
+#   macOS:   Artistic Genius-darwin-<arch>.zip                  (ditto archive; updater channel)
+#            Artistic Genius-darwin-universal.dmg               (drag-to-install; human download)
+#   Windows: Artistic Genius-windows-<arch>-installer.exe       (NSIS per-user installer; updater channel)
+#            Artistic Genius-windows-<arch>.zip                 (portable human download)
+#   Linux:   Artistic Genius-linux-<arch>.tar.gz                (bare binary; updater channel)
+#            Artistic Genius-linux-<arch>.deb                   (Debian/Ubuntu package; human download)
 #
 # Usage: scripts/desktop-build.sh <os/arch> <version> [channel]
 #   e.g. scripts/desktop-build.sh darwin/arm64 v1.1.0
@@ -25,8 +24,8 @@ os="${PLATFORM%/*}"
 arch="${PLATFORM#*/}"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APPNAME="Reasonix"            # wails.json productName -> Reasonix.app
-BINNAME="reasonix-desktop"    # wails.json outputfilename -> linux binary name
+APPNAME="Artistic Genius"            # wails.json productName -> Artistic Genius.app
+BINNAME="artistic-genius-desktop"    # wails.json outputfilename -> linux binary name
 
 cd "$ROOT/desktop"
 
@@ -52,13 +51,13 @@ mkdir -p "$ROOT/dist"
 
 case "$os" in
 darwin)
-	# Wails names the bundle after outputfilename (reasonix-desktop.app); repackage
-	# it as Reasonix.app for a clean user-facing name.
+	# Wails names the bundle after outputfilename (artistic-genius-desktop.app); repackage
+	# it as Artistic Genius.app for a clean user-facing name.
 	staging=$(mktemp -d)
 	app="$staging/${APPNAME}.app"
-	cp -R "build/bin/reasonix-desktop.app" "$app"
+	cp -R "build/bin/artistic-genius-desktop.app" "$app"
 
-	# Two signing paths, selected by HAS_APPLE_CERT (set by release-desktop.yml when
+	# Two signing paths, selected by HAS_APPLE_CERT when
 	# the APPLE_* secrets are present). With a real Developer ID cert + notarization
 	# key we sign with a hardened runtime, notarize, and staple — a downloaded build
 	# then opens with no Gatekeeper prompt. Without it we ad-hoc sign as before (still

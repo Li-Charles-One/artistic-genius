@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/fileutil"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/fileutil"
 )
 
 // sessions.go holds the desktop-only session-management state that the shared

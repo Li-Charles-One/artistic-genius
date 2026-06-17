@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/fileutil"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/fileutil"
+	"artistic-genius/internal/tool"
 )
 
 type SubagentStatus string
@@ -87,7 +87,7 @@ func (r *SubagentRun) Release() {
 }
 
 // EphemeralSubagentRun is a non-persisted run for callers without an owning
-// parent session — e.g. headless `reasonix run`, which never mints a session
+// parent session — e.g. headless `artistic-genius run`, which never mints a session
 // path. Its empty Ref makes the store's MarkRunning/SaveCompleted/SaveFailed
 // methods no-op and keeps FormatSubagentResult from emitting a transcript
 // reference, so the sub-agent behaves exactly as it did before persisted

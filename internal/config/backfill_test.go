@@ -6,7 +6,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"reasonix/internal/provider"
+	"artistic-genius/internal/provider"
 )
 
 func hasModel(c *Config, model string) *ProviderEntry {
@@ -311,7 +311,7 @@ func TestApplyDeepSeekOfficialDefaultPricingKeepsCustomPrice(t *testing.T) {
 }
 
 func TestResetOfficialProviderPricingOnUpgradeRunsOnce(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "reasonix.toml")
+	path := filepath.Join(t.TempDir(), "artistic-genius.toml")
 	c := &Config{
 		ConfigVersion: 2,
 		Providers: []ProviderEntry{

@@ -19,13 +19,13 @@ import (
 	"sync"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/boot"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/nilutil"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/boot"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/nilutil"
+	"artistic-genius/internal/provider"
 )
 
 //go:embed index.html

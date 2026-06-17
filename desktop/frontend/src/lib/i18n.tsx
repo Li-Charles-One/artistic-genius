@@ -22,7 +22,7 @@ export type { DictKey };
 export type LangPref = "" | "en" | "zh" | "zh-TW";
 
 const DICTS: Record<Locale, Record<DictKey, string>> = { en, zh, "zh-TW": zhTW };
-const STORAGE_KEY = "reasonix-lang";
+const STORAGE_KEY = "artistic-genius-lang";
 
 // currentLocale mirrors the active locale for callers outside React (lib/tools.ts).
 let currentLocale: Locale = "en";
@@ -106,11 +106,11 @@ interface I18nValue {
 }
 
 const i18nGlobal = globalThis as typeof globalThis & {
-  __reasonixI18nContext?: Context<I18nValue | null>;
+  __artisticGeniusI18nContext?: Context<I18nValue | null>;
 };
 
-const I18nContext = i18nGlobal.__reasonixI18nContext ?? createContext<I18nValue | null>(null);
-i18nGlobal.__reasonixI18nContext = I18nContext;
+const I18nContext = i18nGlobal.__artisticGeniusI18nContext ?? createContext<I18nValue | null>(null);
+i18nGlobal.__artisticGeniusI18nContext = I18nContext;
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [pref, setPrefState] = useState<LangPref>(() => readPref());

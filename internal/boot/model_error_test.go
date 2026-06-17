@@ -5,10 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/event"
+	"artistic-genius/internal/event"
 
-	_ "reasonix/internal/provider/openai"
-	_ "reasonix/internal/tool/builtin"
+	_ "artistic-genius/internal/provider/openai"
+	_ "artistic-genius/internal/tool/builtin"
 )
 
 // TestBuildUnknownModelErrorIsActionable: a default_model that doesn't resolve
@@ -18,7 +18,7 @@ import (
 func TestBuildUnknownModelErrorIsActionable(t *testing.T) {
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "mimo"
 
 [codegraph]
@@ -29,7 +29,7 @@ name = "deepseek-flash"
 kind = "openai"
 base_url = "https://example.invalid"
 model = "deepseek-v4-flash"
-api_key_env = "REASONIX_TEST_KEY_UNSET"
+api_key_env = "ARTISTIC_GENIUS_TEST_KEY_UNSET"
 `)
 
 	_, err := Build(context.Background(), Options{Sink: event.Discard})
@@ -48,10 +48,10 @@ api_key_env = "REASONIX_TEST_KEY_UNSET"
 // builds fine (RequireKey is false so the UI stays reachable) but must emit a
 // notice naming the env var, instead of silently showing a dead/empty model.
 func TestBuildNoticesMissingAPIKey(t *testing.T) {
-	const keyEnv = "REASONIX_MISSING_KEY_FOR_TEST"
+	const keyEnv = "ARTISTIC_GENIUS_MISSING_KEY_FOR_TEST"
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	writeFile(t, dir, "reasonix.toml", `
+	writeFile(t, dir, "artistic-genius.toml", `
 default_model = "x"
 
 [codegraph]

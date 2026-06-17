@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
+	"artistic-genius/internal/checkpoint"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
 	"golang.org/x/text/encoding/simplifiedchinese"
-	"reasonix/internal/checkpoint"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
 )
 
 // --- workspaceStatePath ---
@@ -79,7 +79,7 @@ func TestDialogDefaultDirectoryFallsBackFromMissingWorkspace(t *testing.T) {
 
 func TestDialogDefaultDirectoryUsesFileParent(t *testing.T) {
 	dir := t.TempDir()
-	file := filepath.Join(dir, "reasonix.toml")
+	file := filepath.Join(dir, "artistic-genius.toml")
 	if err := os.WriteFile(file, []byte("default_model = \"x\"\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -238,7 +238,7 @@ func TestReadFileMediaPreview(t *testing.T) {
 	if image.Body != "" {
 		t.Fatalf("media preview should have empty body, got %q", image.Body)
 	}
-	if !strings.HasPrefix(image.URL, "/__reasonix_workspace_media/") || !strings.HasSuffix(image.URL, "/shot.PNG") {
+	if !strings.HasPrefix(image.URL, "/__artistic-genius_workspace_media/") || !strings.HasSuffix(image.URL, "/shot.PNG") {
 		t.Fatalf("unexpected media URL: %q", image.URL)
 	}
 
@@ -255,7 +255,7 @@ func TestReadFileMediaPreview(t *testing.T) {
 	if pdf.Body != "" {
 		t.Fatalf("media preview should have empty body, got %q", pdf.Body)
 	}
-	if !strings.HasPrefix(pdf.URL, "/__reasonix_workspace_media/") || !strings.HasSuffix(pdf.URL, "/report.pdf") {
+	if !strings.HasPrefix(pdf.URL, "/__artistic-genius_workspace_media/") || !strings.HasSuffix(pdf.URL, "/report.pdf") {
 		t.Fatalf("unexpected media URL: %q", pdf.URL)
 	}
 }
@@ -432,7 +432,7 @@ func TestMediaTokenHandlerBadToken(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	req := httptest.NewRequest(http.MethodGet, "/__reasonix_workspace_media/deadbeef/fake.png", nil)
+	req := httptest.NewRequest(http.MethodGet, "/__artistic-genius_workspace_media/deadbeef/fake.png", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 

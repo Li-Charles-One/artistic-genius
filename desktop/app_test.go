@@ -17,15 +17,15 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/codegraph"
-	"reasonix/internal/config"
-	"reasonix/internal/control"
-	"reasonix/internal/event"
-	"reasonix/internal/jobs"
-	"reasonix/internal/memory"
-	"reasonix/internal/plugin"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/codegraph"
+	"artistic-genius/internal/config"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/jobs"
+	"artistic-genius/internal/memory"
+	"artistic-genius/internal/plugin"
+	"artistic-genius/internal/provider"
 )
 
 // setTestCtrl creates a minimal workspace tab (if needed) and sets its
@@ -52,7 +52,8 @@ func isolateDesktopUserDirs(t *testing.T) string {
 	home := robustTempDir(t)
 	xdg := filepath.Join(home, ".config")
 	appData := filepath.Join(home, "AppData")
-	for _, dir := range []string{xdg, appData} {
+	localAppData := filepath.Join(home, "LocalAppData")
+	for _, dir := range []string{xdg, appData, localAppData} {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatal(err)
 		}
@@ -61,6 +62,7 @@ func isolateDesktopUserDirs(t *testing.T) string {
 	t.Setenv("USERPROFILE", home)
 	t.Setenv("XDG_CONFIG_HOME", xdg)
 	t.Setenv("AppData", appData)
+	t.Setenv("LocalAppData", localAppData)
 	return home
 }
 
@@ -407,7 +409,7 @@ func TestSettingsUsesUserDesktopPreferencesNotProjectConfig(t *testing.T) {
 	isolateDesktopUserDirs(t)
 
 	project := robustTempDir(t)
-	if err := os.WriteFile(filepath.Join(project, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(project, "artistic-genius.toml"), []byte(`
 [desktop]
 language = "zh"
 layout_style = "workbench"
@@ -462,7 +464,7 @@ func TestSettingsSeedsMissingUserConfigFromLegacyProjectConfig(t *testing.T) {
 	isolateDesktopUserDirs(t)
 
 	project := robustTempDir(t)
-	if err := os.WriteFile(filepath.Join(project, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(project, "artistic-genius.toml"), []byte(`
 default_model = "legacy-provider/legacy-model"
 
 [desktop]
@@ -952,7 +954,7 @@ base_url = "https://api.deepseek.com"
 model = "deepseek-v4-flash"
 api_key_env = "DEEPSEEK_API_KEY"
 `
-	if err := os.WriteFile(filepath.Join(projectRoot, "reasonix.toml"), []byte(projectConfig), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(projectRoot, "artistic-genius.toml"), []byte(projectConfig), 0o644); err != nil {
 		t.Fatalf("write project config: %v", err)
 	}
 
@@ -1065,13 +1067,13 @@ func TestSaveProviderPersistsReasoningProtocol(t *testing.T) {
 
 func TestDeleteProviderMigratesConfigAndOpenTabs(t *testing.T) {
 	isolateDesktopUserDirs(t)
-	t.Setenv("REASONIX_TEST_KEY", "sk-test")
+	t.Setenv("ARTISTIC_GENIUS_TEST_KEY", "sk-test")
 
 	cfg := config.Default()
 	cfg.DefaultModel = "prov-a/model-a2"
 	cfg.Providers = []config.ProviderEntry{
-		{Name: "prov-a", Kind: "openai", BaseURL: "https://a.example.com", Model: "model-a1", Models: []string{"model-a1", "model-a2"}, APIKeyEnv: "REASONIX_TEST_KEY"},
-		{Name: "prov-b", Kind: "openai", BaseURL: "https://b.example.com", Model: "model-b1", APIKeyEnv: "REASONIX_TEST_KEY"},
+		{Name: "prov-a", Kind: "openai", BaseURL: "https://a.example.com", Model: "model-a1", Models: []string{"model-a1", "model-a2"}, APIKeyEnv: "ARTISTIC_GENIUS_TEST_KEY"},
+		{Name: "prov-b", Kind: "openai", BaseURL: "https://b.example.com", Model: "model-b1", APIKeyEnv: "ARTISTIC_GENIUS_TEST_KEY"},
 	}
 	cfg.Agent.PlannerModel = "prov-a"
 	cfg.Desktop.ProviderAccess = []string{"prov-a", "prov-b"}
@@ -1111,13 +1113,13 @@ func TestDeleteProviderMigratesConfigAndOpenTabs(t *testing.T) {
 
 func TestDeleteProviderRejectsRunningAffectedTab(t *testing.T) {
 	isolateDesktopUserDirs(t)
-	t.Setenv("REASONIX_TEST_KEY", "sk-test")
+	t.Setenv("ARTISTIC_GENIUS_TEST_KEY", "sk-test")
 
 	cfg := config.Default()
 	cfg.DefaultModel = "prov-a/model-a1"
 	cfg.Providers = []config.ProviderEntry{
-		{Name: "prov-a", Kind: "openai", BaseURL: "https://a.example.com", Model: "model-a1", APIKeyEnv: "REASONIX_TEST_KEY"},
-		{Name: "prov-b", Kind: "openai", BaseURL: "https://b.example.com", Model: "model-b1", APIKeyEnv: "REASONIX_TEST_KEY"},
+		{Name: "prov-a", Kind: "openai", BaseURL: "https://a.example.com", Model: "model-a1", APIKeyEnv: "ARTISTIC_GENIUS_TEST_KEY"},
+		{Name: "prov-b", Kind: "openai", BaseURL: "https://b.example.com", Model: "model-b1", APIKeyEnv: "ARTISTIC_GENIUS_TEST_KEY"},
 	}
 	if err := cfg.SaveTo(config.UserConfigPath()); err != nil {
 		t.Fatalf("save config: %v", err)
@@ -1145,13 +1147,13 @@ func TestDeleteProviderRejectsRunningAffectedTab(t *testing.T) {
 
 func TestDeleteProviderRejectsAffectedBackgroundJobs(t *testing.T) {
 	isolateDesktopUserDirs(t)
-	t.Setenv("REASONIX_TEST_KEY", "sk-test")
+	t.Setenv("ARTISTIC_GENIUS_TEST_KEY", "sk-test")
 
 	cfg := config.Default()
 	cfg.DefaultModel = "prov-a/model-a1"
 	cfg.Providers = []config.ProviderEntry{
-		{Name: "prov-a", Kind: "openai", BaseURL: "https://a.example.com", Model: "model-a1", APIKeyEnv: "REASONIX_TEST_KEY"},
-		{Name: "prov-b", Kind: "openai", BaseURL: "https://b.example.com", Model: "model-b1", APIKeyEnv: "REASONIX_TEST_KEY"},
+		{Name: "prov-a", Kind: "openai", BaseURL: "https://a.example.com", Model: "model-a1", APIKeyEnv: "ARTISTIC_GENIUS_TEST_KEY"},
+		{Name: "prov-b", Kind: "openai", BaseURL: "https://b.example.com", Model: "model-b1", APIKeyEnv: "ARTISTIC_GENIUS_TEST_KEY"},
 	}
 	if err := cfg.SaveTo(config.UserConfigPath()); err != nil {
 		t.Fatalf("save config: %v", err)
@@ -2096,7 +2098,7 @@ func TestSubmitToTabHistoryDisplaysRawInputAfterMemoryCompose(t *testing.T) {
 
 	app := NewApp()
 	app.setTestCtrl(ctrl, "deepseek/test")
-	ctrl.QueueMemory(`Saved memory "reasonix-contributions": contribution count updated`)
+	ctrl.QueueMemory(`Saved memory "artistic-genius-contributions": contribution count updated`)
 
 	const prompt = "不要，删了"
 	app.SubmitToTab("test", prompt)
@@ -2125,7 +2127,7 @@ func TestForkCreatesActiveTabWithoutSwitchingSourceController(t *testing.T) {
 	isolateDesktopUserDirs(t)
 
 	workspace := robustTempDir(t)
-	if err := os.WriteFile(filepath.Join(workspace, "reasonix.toml"), []byte("[codegraph]\nenabled = false\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(workspace, "artistic-genius.toml"), []byte("[codegraph]\nenabled = false\n"), 0o644); err != nil {
 		t.Fatalf("write workspace config: %v", err)
 	}
 	dir := config.SessionDir()
@@ -2219,14 +2221,14 @@ func TestCapabilitiesShowsDefaultMCPAsInitializingNotDisabled(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
 [[plugins]]
 name = "playwright"
-command = "npx"
-args = ["-y", "@playwright/mcp"]
+command = "node"
+args = ["--old"]
 `), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -2332,7 +2334,7 @@ func TestCapabilitiesShowsManuallyEnabledContext7Deferred(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2375,7 +2377,7 @@ func TestConfiguredMCPWithBuiltInNameTakesPrecedence(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2426,7 +2428,7 @@ func TestEditAndRemoveConfiguredMCPWithBuiltInName(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2506,7 +2508,7 @@ func TestCapabilitiesMarksBackgroundRemoteMCPAuthPossible(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2539,7 +2541,7 @@ func TestCapabilitiesDoesNotMarkRemoteMCPWithAuthHeaderPossible(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2573,7 +2575,7 @@ func TestCapabilitiesMarksAuthFailureRequired(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2608,7 +2610,7 @@ func TestClearMCPServerAuthenticationClearsConfigAndFailure(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2671,7 +2673,7 @@ func TestUpdateMCPServerMigratesLegacyTierToBackground(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2722,7 +2724,7 @@ tier = "lazy"
 	if userPlugin.Tier != "" {
 		t.Fatalf("user plugin tier = %q, want migrated empty", userPlugin.Tier)
 	}
-	projectCfg := config.LoadForEdit(filepath.Join(dir, "reasonix.toml"))
+	projectCfg := config.LoadForEdit(filepath.Join(dir, "artistic-genius.toml"))
 	if _, ok := findPluginEntry(projectCfg.Plugins, "playwright"); ok {
 		t.Fatalf("project plugin should be removed after desktop migration: %+v", projectCfg.Plugins)
 	}
@@ -2745,7 +2747,7 @@ func TestUpdateMCPServerSplitsPastedCommandLine(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := t.TempDir()
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2764,7 +2766,7 @@ args = ["-y", "@playwright/mcp"]
 	if err := app.UpdateMCPServer("playwright", MCPServerInput{
 		Name:      "playwright",
 		Transport: "stdio",
-		Command:   "npx -y @modelcontextprotocol/server-filesystem .",
+		Command:   "node server.js --stdio",
 	}); err != nil {
 		t.Fatalf("UpdateMCPServer: %v", err)
 	}
@@ -2773,10 +2775,10 @@ args = ["-y", "@playwright/mcp"]
 		t.Fatal(err)
 	}
 	p := cfg.Plugins[0]
-	if p.Command != "npx" {
-		t.Fatalf("command = %q, want npx", p.Command)
+	if p.Command != "node" {
+		t.Fatalf("command = %q, want node", p.Command)
 	}
-	if got := strings.Join(p.Args, "\x00"); got != strings.Join([]string{"-y", "@modelcontextprotocol/server-filesystem", "."}, "\x00") {
+	if got := strings.Join(p.Args, "\x00"); got != strings.Join([]string{"server.js", "--stdio"}, "\x00") {
 		t.Fatalf("args = %v", p.Args)
 	}
 }
@@ -2785,7 +2787,7 @@ func TestUpdateMCPServerRecordsReconnectFailure(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
@@ -2804,7 +2806,7 @@ tier = "background"
 	if err := app.UpdateMCPServer("broken", MCPServerInput{
 		Name:      "broken",
 		Transport: "stdio",
-		Command:   "reasonix-missing-mcp-binary",
+		Command:   "artistic-genius-missing-mcp-binary",
 	}); err != nil {
 		t.Fatalf("UpdateMCPServer should persist config even when reconnect fails: %v", err)
 	}
@@ -2812,7 +2814,7 @@ tier = "background"
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := cfg.Plugins[0].Command; got != "reasonix-missing-mcp-binary" {
+	if got := cfg.Plugins[0].Command; got != "artistic-genius-missing-mcp-binary" {
 		t.Fatalf("updated command = %q, want missing binary", got)
 	}
 	if got := cfg.Plugins[0].Tier; got != "" {
@@ -2827,7 +2829,7 @@ tier = "background"
 			if s.Status != "failed" {
 				t.Fatalf("server status = %q, want failed; server = %+v", s.Status, s)
 			}
-			if s.Command != "reasonix-missing-mcp-binary" || s.Tier != "background" {
+			if s.Command != "artistic-genius-missing-mcp-binary" || s.Tier != "background" {
 				t.Fatalf("server config not refreshed after failed reconnect: %+v", s)
 			}
 			return
@@ -2840,13 +2842,13 @@ func TestSetMCPServerTierRecordsConnectFailure(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
 [[plugins]]
 name = "broken"
-command = "reasonix-missing-mcp-binary"
+command = "artistic-genius-missing-mcp-binary"
 tier = "lazy"
 `), 0o644); err != nil {
 		t.Fatal(err)
@@ -2878,7 +2880,7 @@ tier = "lazy"
 	if userPlugin.Tier != "" {
 		t.Fatalf("user plugin tier = %q, want migrated empty", userPlugin.Tier)
 	}
-	projectCfg := config.LoadForEdit(filepath.Join(dir, "reasonix.toml"))
+	projectCfg := config.LoadForEdit(filepath.Join(dir, "artistic-genius.toml"))
 	if _, ok := findPluginEntry(projectCfg.Plugins, "broken"); ok {
 		t.Fatalf("project plugin should be removed after desktop migration: %+v", projectCfg.Plugins)
 	}
@@ -2906,10 +2908,10 @@ func TestSetMCPServerTierEnablesCodegraphAndIgnoresLegacyTier(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", robustTempDir(t))
 	t.Setenv("AppData", robustTempDir(t))
 	t.Setenv("PATH", robustTempDir(t))
-	t.Setenv("REASONIX_CACHE_DIR", robustTempDir(t)) // isolate the codegraph bundle cache so Resolve fails deterministically
+	t.Setenv("ARTISTIC_GENIUS_CACHE_DIR", robustTempDir(t)) // isolate the codegraph bundle cache so Resolve fails deterministically
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 auto_install = true
@@ -2963,7 +2965,7 @@ func TestSetMCPServerEnabledPersistsCodegraphOff(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = true
 tier = "lazy"
@@ -3005,7 +3007,7 @@ func TestUpdateBuiltInMCPServerUpdatesCodegraphRuntime(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 `), 0o644); err != nil {
@@ -3056,7 +3058,7 @@ func TestUpdateBuiltInMCPServerRejectsOtherServers(t *testing.T) {
 
 func TestBuiltInMCPBackgroundNotifyDoesNotDownload(t *testing.T) {
 	isolateDesktopUserDirs(t)
-	t.Setenv("REASONIX_CACHE_DIR", robustTempDir(t))
+	t.Setenv("ARTISTIC_GENIUS_CACHE_DIR", robustTempDir(t))
 
 	origCheck := checkCodegraphLatest
 	origDownload := downloadLatestCodegraph
@@ -3111,7 +3113,7 @@ func TestBuiltInMCPUpdateStatusesReturnArray(t *testing.T) {
 
 func TestBuiltInMCPBackgroundDownloadDoesNotActivate(t *testing.T) {
 	isolateDesktopUserDirs(t)
-	t.Setenv("REASONIX_CACHE_DIR", robustTempDir(t))
+	t.Setenv("ARTISTIC_GENIUS_CACHE_DIR", robustTempDir(t))
 
 	origCheck := checkCodegraphLatest
 	origDownload := downloadLatestCodegraph
@@ -3157,7 +3159,7 @@ func TestBuiltInMCPBackgroundDownloadDoesNotActivate(t *testing.T) {
 
 func TestBuiltInMCPBackgroundAutoNextSessionActivates(t *testing.T) {
 	isolateDesktopUserDirs(t)
-	t.Setenv("REASONIX_CACHE_DIR", robustTempDir(t))
+	t.Setenv("ARTISTIC_GENIUS_CACHE_DIR", robustTempDir(t))
 
 	origCheck := checkCodegraphLatest
 	origDownload := downloadLatestCodegraph
@@ -3225,13 +3227,13 @@ func TestCapabilitiesMigratesFailedMCPConfiguredTierAfterRestart(t *testing.T) {
 	isolateDesktopUserDirs(t)
 	dir := robustTempDir(t)
 	t.Chdir(dir)
-	if err := os.WriteFile(filepath.Join(dir, "reasonix.toml"), []byte(`
+	if err := os.WriteFile(filepath.Join(dir, "artistic-genius.toml"), []byte(`
 [codegraph]
 enabled = false
 
 [[plugins]]
 name = "broken"
-command = "reasonix-missing-mcp-binary"
+command = "artistic-genius-missing-mcp-binary"
 tier = "eager"
 `), 0o644); err != nil {
 		t.Fatal(err)
@@ -3242,7 +3244,7 @@ tier = "eager"
 	defer app.activeCtrl().Close()
 	recordMCPFailure(app.activeCtrl(), config.PluginEntry{
 		Name:    "broken",
-		Command: "reasonix-missing-mcp-binary",
+		Command: "artistic-genius-missing-mcp-binary",
 		Tier:    "eager",
 	}, errors.New("connect: missing binary"))
 

@@ -6,12 +6,12 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/agent/testutil"
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent/testutil"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 
-	_ "reasonix/internal/tool/builtin"
+	_ "artistic-genius/internal/tool/builtin"
 )
 
 type stubBash struct{}

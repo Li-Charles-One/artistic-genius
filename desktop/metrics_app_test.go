@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"reasonix/internal/event"
-	"reasonix/internal/provider"
+	"artistic-genius/internal/event"
+	"artistic-genius/internal/provider"
 )
 
 func TestObserveClassifiesEvents(t *testing.T) {

@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"reasonix/internal/agent"
-	"reasonix/internal/control"
-	"reasonix/internal/permission"
-	"reasonix/internal/provider"
-	"reasonix/internal/tool"
+	"artistic-genius/internal/agent"
+	"artistic-genius/internal/control"
+	"artistic-genius/internal/permission"
+	"artistic-genius/internal/provider"
+	"artistic-genius/internal/tool"
 )
 
 // These tests drive the full real stack — acp.Serve → control.Controller →

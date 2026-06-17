@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"reasonix/internal/evidence"
+	"artistic-genius/internal/evidence"
 )
 
 func TestTodoWriteAcceptsLevels(t *testing.T) {
