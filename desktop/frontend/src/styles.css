@@ -21463,8 +21463,8 @@ a[href] {
   right: 0;
   bottom: 0;
   width: 24px;
-  border: 1px solid var(--sidebar-rail-line);
-  border-left: 0;
+  border: 0;
+  border-right: 1px solid var(--sidebar-rail-line);
   border-radius: 0;
   background: transparent;
   pointer-events: none;
