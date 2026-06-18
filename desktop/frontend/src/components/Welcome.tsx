@@ -7,9 +7,9 @@ import { useT } from "../lib/i18n";
 export function Welcome({ onPrompt }: { onPrompt: (text: string) => void }) {
   const t = useT();
   const examples = [
-    { title: t("welcome.ex1"), desc: t("welcome.ex1Desc"), mark: "/" },
-    { title: t("welcome.ex2"), desc: t("welcome.ex2Desc"), mark: "git" },
-    { title: t("welcome.ex4"), desc: t("welcome.ex4Desc"), mark: "!" },
+    { title: t("welcome.ex1"), desc: t("welcome.ex1Desc"), mark: "✎" },
+    { title: t("welcome.ex2"), desc: t("welcome.ex2Desc"), mark: "~" },
+    { title: t("welcome.ex4"), desc: t("welcome.ex4Desc"), mark: "✦" },
   ];
   return (
     <div className="welcome">

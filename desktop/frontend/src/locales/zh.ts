@@ -322,20 +322,20 @@ export const zh: Record<DictKey, string> = {
   "caps.hideDiagnostics": "隐藏诊断路径",
 
   // 欢迎 / 空状态
-  "welcome.title": "你好，今天想构建什么？",
-  "welcome.question": "从一个任务开始。",
+  "welcome.title": "Hey，今天想创造点什么？",
+  "welcome.question": "从一次提问开始。",
   "welcome.tagline": "描述目标、贴错误、引用文件，Artistic Genius 会从理解到执行一路推进。",
   "welcome.hintCommands": "命令",
   "welcome.hintFiles": "引用文件",
   "welcome.hintSend": "发送",
-  "welcome.ex1": "讲解代码架构",
-  "welcome.ex1Desc": "梳理模块和关键链路。",
-  "welcome.ex2": "总结 Git 改动",
-  "welcome.ex2Desc": "查看变化和风险点。",
+  "welcome.ex1": "写一个项目策划案",
+  "welcome.ex1Desc": "从目标到落地，理清范围与里程碑。",
+  "welcome.ex2": "VibeCoding 跟踪",
+  "welcome.ex2Desc": "记录灵感与进展，盯住每一步。",
   "welcome.ex3": "智能体的运行主循环在哪，它做了什么？",
   "welcome.ex3Desc": "定位核心文件并解释控制流。",
-  "welcome.ex4": "修复一个 Bug",
-  "welcome.ex4Desc": "定位问题并验证补丁。",
+  "welcome.ex4": "人生有点迷茫了",
+  "welcome.ex4Desc": "聊聊困惑，慢慢理清方向。",
 
   // 输入框
   "composer.placeholder": "有什么想问 Genius…  ( / 输入命令 · @ 文件 · ! 终端 )",
