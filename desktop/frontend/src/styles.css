@@ -20399,7 +20399,7 @@ a[href] {
 :root[data-theme-style] .settings-modal {
   border: 1px solid var(--app-graphite-hairline-strong);
   border-radius: 11px;
-  background: var(--bg-elev);
+  background: var(--side-panel-bg);
   box-shadow: var(--app-graphite-shadow-float);
 }
 
@@ -20408,7 +20408,7 @@ a[href] {
   min-height: 58px;
   padding: 13px 18px;
   border-color: var(--border-soft);
-  background: var(--bg-elev);
+  background: var(--side-panel-bg);
 }
 
 :root[data-theme-style] .management-modal__title,
@@ -20542,7 +20542,7 @@ a[href] {
 
 :root[data-theme-style] .settings-center__nav {
   border-color: var(--border-soft);
-  background: var(--bg-elev);
+  background: var(--side-panel-bg);
 }
 
 :root[data-theme-style] .settings-center__navitem {
@@ -20562,7 +20562,7 @@ a[href] {
 }
 
 :root[data-theme-style] .settings-center__content {
-  background: transparent;
+  background: var(--side-panel-bg);
 }
 
 :root[data-theme-style] .settings-page__header {
@@ -21372,7 +21372,7 @@ a[href] {
 /* Sidebar refinement: compact assistant rail. */
 :root,
 :root[data-theme-style] {
-  --side-panel-bg: #101214;
+  --side-panel-bg: var(--sidebar-bg);
   --side-panel-card: linear-gradient(135deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.035) 68%);
   --side-panel-card-soft: linear-gradient(135deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.026) 68%);
   --side-panel-card-border: rgba(255, 255, 255, 0.06);
@@ -21385,7 +21385,7 @@ a[href] {
 
 :root[data-theme="light"],
 :root[data-theme="light"][data-theme-style] {
-  --side-panel-bg: var(--workspace-files-bg);
+  --side-panel-bg: var(--sidebar-bg);
   --side-panel-card: linear-gradient(135deg, color-mix(in srgb, var(--accent) 6%, transparent), color-mix(in srgb, var(--accent) 1.5%, transparent) 68%);
   --side-panel-card-soft: linear-gradient(135deg, color-mix(in srgb, var(--accent) 5%, transparent), color-mix(in srgb, var(--accent) 1%, transparent) 68%);
   --side-panel-card-border: transparent;
@@ -21399,7 +21399,7 @@ a[href] {
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]),
   :root[data-theme-style]:not([data-theme]) {
-    --side-panel-bg: var(--workspace-files-bg);
+    --side-panel-bg: var(--sidebar-bg);
     --side-panel-card: linear-gradient(135deg, color-mix(in srgb, var(--accent) 6%, transparent), color-mix(in srgb, var(--accent) 1.5%, transparent) 68%);
     --side-panel-card-soft: linear-gradient(135deg, color-mix(in srgb, var(--accent) 5%, transparent), color-mix(in srgb, var(--accent) 1%, transparent) 68%);
     --side-panel-card-border: transparent;
