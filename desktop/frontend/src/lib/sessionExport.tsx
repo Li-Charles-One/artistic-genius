@@ -26,7 +26,7 @@ ${katexCss}
   --fg-faint: #6b7280;
   --bg: #ffffff;
   --bg-soft: #f7f8fb;
-  --bg-elev-2: #eef2f7;
+  --bg-control: #eef2f7;
   --border: #d8dee8;
   --border-soft: #e7ebf1;
   --accent: #2563eb;
@@ -106,7 +106,7 @@ ${katexCss}
 .session-export-page .md-code {
   font-family: var(--mono);
   font-size: 0.88em;
-  background: var(--bg-elev-2);
+  background: var(--bg-control);
   border: 1px solid var(--border-soft);
   border-radius: 5px;
   padding: 1px 5px;
